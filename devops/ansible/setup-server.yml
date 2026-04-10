@@ -1,0 +1,197 @@
+---
+# ══════════════════════════════════════════════════
+# ansible/setup-server.yml
+# Sets up the EC2 server with all required software
+#
+# Usage:
+#   ansible-playbook -i inventory.ini setup-server.yml
+# ══════════════════════════════════════════════════
+
+- name: Setup Orivya Rice Server
+  hosts: orivya_servers
+  become: true     # Run as sudo
+  vars:
+    app_dir: /opt/orivya
+    docker_compose_version: "2.24.0"
+
+  tasks:
+
+    # ── System Updates ──────────────────────────────
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install required system packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - git
+          - unzip
+          - htop
+          - nginx
+        state: present
+
+    # ── Install Docker ──────────────────────────────
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # ── Install Docker Compose ──────────────────────
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    # ── Install AWS CLI ─────────────────────────────
+    - name: Download AWS CLI
+      get_url:
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp/awscliv2.zip
+
+    - name: Unzip AWS CLI
+      unarchive:
+        src: /tmp/awscliv2.zip
+        dest: /tmp
+        remote_src: yes
+
+    - name: Install AWS CLI
+      command: /tmp/aws/install
+      args:
+        creates: /usr/local/bin/aws
+
+    # ── Install kubectl ─────────────────────────────
+    - name: Download kubectl
+      get_url:
+        url: https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    # ── Setup Application Directory ─────────────────
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: ubuntu
+        mode: '0755'
+
+    - name: Create uploads directory
+      file:
+        path: "{{ app_dir }}/uploads"
+        state: directory
+        owner: ubuntu
+        mode: '0755'
+
+    # ── Configure Firewall ──────────────────────────
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: "22"
+
+    - name: Allow HTTP
+      ufw:
+        rule: allow
+        port: "80"
+
+    - name: Allow HTTPS
+      ufw:
+        rule: allow
+        port: "443"
+
+    - name: Allow Spring Boot
+      ufw:
+        rule: allow
+        port: "8080"
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    # ── Clone and Start App ─────────────────────────
+    - name: Clone Orivya repository
+      git:
+        repo: "https://github.com/yourusername/orivya-fullstack.git"
+        dest: "{{ app_dir }}"
+        force: yes
+      become_user: ubuntu
+
+    - name: Create .env file
+      template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: ubuntu
+        mode: '0600'
+
+    - name: Start application with Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: ubuntu
+
+    # ── Configure Nginx (Reverse Proxy) ────────────
+    - name: Copy Nginx config
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/orivya
+        mode: '0644'
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/orivya
+        dest: /etc/nginx/sites-enabled/orivya
+        state: link
+
+    - name: Remove default nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Reload Nginx
+      systemd:
+        name: nginx
+        state: reloaded
+
+    # ── Setup SSL with Certbot ──────────────────────
+    - name: Install Certbot
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    # Run manually:
+    # certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+    - name: Print success message
+      debug:
+        msg: |
+          ✅ Server setup complete!
+          Your app is running. Access it at:
+          http://{{ ansible_host }}

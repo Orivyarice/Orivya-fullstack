@@ -1,0 +1,90 @@
+/* ══════════════════════════════════════════════════════
+   features/skeleton-loading.css
+   FEATURE 1: Skeleton Loading Screens
+
+   HOW TO USE:
+   1. Copy this file to: frontend/css/skeleton-loading.css
+   2. Add this line in index.html <head> AFTER style.css:
+      <link rel="stylesheet" href="css/skeleton-loading.css" />
+   3. In main.js, replace line 38:
+      FROM: grid.innerHTML = `<div class="loading-products">...`;
+      TO:   grid.innerHTML = renderSkeletonCards(4);
+   4. Also paste the renderSkeletonCards() function from the
+      JS comment at the bottom of this file into main.js
+      — add it ABOVE the loadProducts() function
+   ══════════════════════════════════════════════════════ */
+
+/* ── Skeleton Card Container ── */
+.skeleton-card {
+  background: white;
+  border: 1px solid rgba(200,146,42,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Shimmer Animation ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 37%,
+    #f0f0f0 63%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* ── Skeleton Image Area ── */
+.skeleton-image {
+  height: 220px;
+  background: linear-gradient(
+    90deg,
+    #e8f0ea 25%,
+    #dde8df 37%,
+    #e8f0ea 63%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── Skeleton Text Lines ── */
+.skeleton-info {
+  padding: 20px;
+}
+
+.skeleton-title {
+  height: 18px;
+  width: 75%;
+  margin-bottom: 10px;
+}
+
+.skeleton-desc-1 {
+  height: 12px;
+  width: 95%;
+  margin-bottom: 6px;
+}
+
+.skeleton-desc-2 {
+  height: 12px;
+  width: 65%;
+  margin-bottom: 16px;
+}
+
+.skeleton-price {
+  height: 24px;
+  width: 40%;
+  margin-bottom: 16px;
+}
+
+.skeleton-btn {
+  height: 42px;
+  width: 100%;
+  border-radius: 4px;
+}

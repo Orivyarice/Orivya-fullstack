@@ -1,0 +1,130 @@
+<!--
+  FEATURE 6: Testimonials + FSSAI Section
+  FILE: features/testimonials-html.txt
+
+  WHERE TO PLACE IN index.html:
+  ─────────────────────────────────────────────────────
+  Find this line in index.html (around line 128):
+      </section>  ← this is the closing tag of #why section
+
+  Paste the entire block BELOW that closing </section> tag,
+  and BEFORE the <!-- ════════ NUTRITION ════════ --> comment
+
+  So the order in index.html becomes:
+    </section>   ← #why closes
+    ↓ PASTE HERE ↓
+    <section id="testimonials">...</section>   ← new
+    ↓
+    <section id="nutrition">...</section>      ← existing
+  ─────────────────────────────────────────────────────
+-->
+
+<!-- ════════ TESTIMONIALS & TRUST ════════ -->
+<section id="testimonials">
+  <div class="section-header">
+    <div class="section-label">Customer Reviews</div>
+    <h2 class="section-title">What Our Customers Say</h2>
+    <p class="section-desc">Thousands of families across Andhra Pradesh trust Orivya Rice every day.</p>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="testimonials-stats">
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="500">0</div>
+      <div class="t-stat-label">Happy Customers</div>
+    </div>
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="5">0</div>
+      <div class="t-stat-label">Years of Excellence</div>
+    </div>
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="10000">0</div>
+      <div class="t-stat-label">kg Rice Sold</div>
+    </div>
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="4.9">0</div>
+      <div class="t-stat-label">Average Rating ⭐</div>
+    </div>
+  </div>
+
+  <!-- Review Cards -->
+  <div class="testimonials-grid">
+
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        <span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="testimonial-text">
+        Orivya rice is superb! The grains are clean, uniform, and cook beautifully.
+        My whole family loves the soft texture. Best Sona Masoori I've had in years.
+      </p>
+      <div class="testimonial-author">
+        <div class="author-avatar">R</div>
+        <div>
+          <div class="author-name">
+            Ramesh Babu
+            <span class="verified-badge">✅ Verified</span>
+          </div>
+          <div class="author-location">Kakinada, AP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        <span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="testimonial-text">
+        We order 50kg bags every month for our hotel. The quality is absolutely consistent
+        every single time. Direct from mill means fresh rice always. Highly recommended!
+      </p>
+      <div class="testimonial-author">
+        <div class="author-avatar">S</div>
+        <div>
+          <div class="author-name">
+            Sridevi Hotels
+            <span class="verified-badge">✅ Verified</span>
+          </div>
+          <div class="author-location">Peddapuram, AP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        <span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="testimonial-text">
+        Very happy with the FSSAI certified rice. No stones, no foreign particles —
+        just pure clean rice. The WhatsApp ordering is super convenient too!
+      </p>
+      <div class="testimonial-author">
+        <div class="author-avatar">P</div>
+        <div>
+          <div class="author-name">
+            Padmavathi K.
+            <span class="verified-badge">✅ Verified</span>
+          </div>
+          <div class="author-location">Rajahmundry, AP</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FSSAI Certificate Display -->
+  <div class="fssai-section">
+    <div class="fssai-logo">🏅</div>
+    <div class="fssai-text">
+      <h4>FSSAI Licensed Food Business</h4>
+      <p>Sri Lakshmi Ganapati Mini Rice Mill is certified by the Food Safety and
+         Standards Authority of India, ensuring highest standards of food safety,
+         hygiene, and quality compliance.</p>
+      <div class="fssai-number">FSSAI Lic. No: 20126072000037</div>
+    </div>
+  </div>
+
+</section>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Orivya Rice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body class="auth-body">
+
+<div class="auth-container">
+
+  <!-- ── Left Brand Panel ── -->
+  <div class="auth-brand">
+    <div class="auth-brand-logo">🌾</div>
+    <h1 class="auth-brand-name">ORIVYA</h1>
+    <p class="auth-brand-sub">Premium Quality Sona Masoori Rice</p>
+    <div class="auth-brand-features">
+      <div class="auth-feat">✅ FSSAI Certified</div>
+      <div class="auth-feat">🌾 Direct from Mill</div>
+      <div class="auth-feat">🚚 Home Delivery</div>
+      <div class="auth-feat">💬 WhatsApp Support</div>
+    </div>
+  </div>
+
+  <!-- ── Right Form Panel ── -->
+  <div class="auth-form-panel">
+    <div class="auth-form-box">
+      <h2 class="auth-title">Welcome Back!</h2>
+      <p class="auth-subtitle">Login to your Orivya account</p>
+
+      <!-- Error message box -->
+      <div id="authError" class="auth-error" style="display:none;"></div>
+
+      <!-- Success message box -->
+      <div id="authSuccess" class="auth-success" style="display:none;"></div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" class="auth-input"
+               placeholder="your@email.com" autocomplete="email" />
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="loginPassword" class="auth-input"
+                 placeholder="Enter your password" autocomplete="current-password" />
+          <button type="button" class="toggle-pw" onclick="togglePw()">👁</button>
+        </div>
+      </div>
+
+      <!-- Login Button -->
+      <button class="auth-btn" id="loginSubmitBtn" onclick="handleLogin()">
+        Login to My Account
+      </button>
+
+      
+      <div class="auth-divider"><span>or</span></div>
+
+      <p class="auth-switch">
+        Don't have an account?
+        <a href="register.html" class="auth-link">Register here →</a>
+      </p>
+      <p style="text-align:center;margin-top:10px;font-size:12px">
+        <a href="index.html" style="color:#1a5c2a;text-decoration:none">← Back to Shop</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="js/api.js"></script>
+<script>
+
+  // ── If already logged in, redirect immediately ──
+  (function checkAlreadyLoggedIn() {
+    if (isLoggedIn()) {
+      const user = getUser();
+      if (user.role === 'ADMIN') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+  })();
+
+  // ── LOGIN FUNCTION ──
+  async function handleLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const btn      = document.getElementById('loginSubmitBtn');
+
+    // Clear previous messages
+    showAuthError('');
+    showAuthSuccess('');
+
+    // Validate inputs
+    if (!email) { showAuthError('⚠ Please enter your email address.'); return; }
+    if (!password) { showAuthError('⚠ Please enter your password.'); return; }
+
+    // Disable button while loading
+    btn.textContent = '⏳ Logging in...';
+    btn.disabled    = true;
+
+    try {
+      const data = await apiLogin(email, password);
+
+      if (data.success && data.data) {
+        const role = data.data.role;
+        const name = data.data.name;
+
+        // Show success message
+        showAuthSuccess(`✅ Welcome, ${name}! (${role})`);
+
+        // Wait 1 second so user sees success message, then redirect
+        setTimeout(() => {
+          if (role === 'ADMIN') {
+            // Admin → goes to admin dashboard
+            window.location.href = 'admin.html';
+          } else {
+            // Customer → goes to shop
+            window.location.href = 'index.html';
+          }
+        }, 1000);
+
+      } else {
+        showAuthError('❌ ' + (data.message || 'Login failed. Please try again.'));
+      }
+
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.includes('401') || msg.includes('Unauthorized') || msg.toLowerCase().includes('invalid')) {
+        showAuthError('❌ Wrong email or password. Please try again.');
+      } else if (msg.includes('fetch') || msg.includes('Failed to fetch') || msg.includes('refused')) {
+        showAuthError('❌ Cannot connect to server. Make sure Spring Boot is running on port 8080.');
+      } else {
+        showAuthError('❌ ' + msg);
+      }
+    } finally {
+      btn.textContent = 'Login to My Account';
+      btn.disabled    = false;
+    }
+  }
+
+  // ── HELPERS ──
+  function showAuthError(msg) {
+    const el = document.getElementById('authError');
+    if (!msg) { el.style.display = 'none'; return; }
+    el.textContent   = msg;
+    el.style.display = 'block';
+    document.getElementById('authSuccess').style.display = 'none';
+  }
+
+  function showAuthSuccess(msg) {
+    const el = document.getElementById('authSuccess');
+    if (!msg) { el.style.display = 'none'; return; }
+    el.textContent   = msg;
+    el.style.display = 'block';
+    document.getElementById('authError').style.display = 'none';
+  }
+
+  function togglePw() {
+    const input = document.getElementById('loginPassword');
+    const btn   = document.querySelector('.toggle-pw');
+    if (input.type === 'password') {
+      input.type      = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type      = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  // Enter key submits form
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+</script>
+</body>
+</html>

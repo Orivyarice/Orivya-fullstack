@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Register – Orivya Rice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body class="auth-body">
+<div class="auth-container">
+  <div class="auth-brand">
+    <div class="auth-brand-logo">🌾</div>
+    <h1 class="auth-brand-name">ORIVYA</h1>
+    <p class="auth-brand-sub">Create your account today</p>
+    <div class="auth-brand-features">
+      <div class="auth-feat">✅ Free Registration</div>
+      <div class="auth-feat">📦 Track Your Orders</div>
+      <div class="auth-feat">💬 WhatsApp Updates</div>
+      <div class="auth-feat">🌾 Direct from Mill</div>
+    </div>
+  </div>
+  <div class="auth-form-panel">
+    <div class="auth-form-box">
+      <h2 class="auth-title">Create Account</h2>
+      <p class="auth-subtitle">Join Orivya Rice — shop premium rice online</p>
+      <div id="authError" class="auth-error" style="display:none"></div>
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="regName" class="auth-input" placeholder="Your full name" autocomplete="name"/>
+      </div>
+      <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" id="regEmail" class="auth-input" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="regPhone" class="auth-input" placeholder="WhatsApp number" autocomplete="tel"/>
+      </div>
+      <div class="form-group">
+        <label>Password * <small style="color:#999;font-size:11px">(min 6 characters)</small></label>
+        <div class="password-wrapper">
+          <input type="password" id="regPassword" class="auth-input" placeholder="Choose a password" autocomplete="new-password"/>
+          <button type="button" class="toggle-pw" onclick="togglePw('regPassword',this)">👁</button>
+        </div>
+      </div>
+      <button class="auth-btn" id="regBtn" onclick="handleRegister()">Create My Account</button>
+      <div class="auth-divider"><span>or</span></div>
+      <p class="auth-switch">Already have an account? <a href="login.html" class="auth-link">Login →</a></p>
+      <p style="text-align:center;margin-top:12px;font-size:12px;color:#999">
+        <a href="index.html" style="color:var(--green);text-decoration:none">← Back to Shop</a>
+      </p>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="js/api.js"></script>
+<script>
+  if (isLoggedIn()) window.location.href = 'index.html';
+
+  async function handleRegister() {
+    const name     = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const phone    = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const errorEl  = document.getElementById('authError');
+    const btn      = document.getElementById('regBtn');
+
+    if (!name)           { showError('Please enter your full name.'); return; }
+    if (!email)          { showError('Please enter your email.'); return; }
+    if (!password)       { showError('Please enter a password.'); return; }
+    if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+
+    btn.textContent = 'Creating account...';
+    btn.disabled    = true;
+    errorEl.style.display = 'none';
+
+    try {
+      const data = await apiRegister(name, email, password, phone);
+      if (data.success) {
+        showToast('✅ Account created! Welcome to Orivya Rice!', 'success');
+        setTimeout(() => window.location.href = 'index.html', 800);
+      } else {
+        showError(data.message || 'Registration failed. Try again.');
+      }
+    } catch (e) {
+      showError(e.message || 'Registration failed. Try again.');
+    } finally {
+      btn.textContent = 'Create My Account';
+      btn.disabled    = false;
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('authError');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    input.type  = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '👁' : '🙈';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleRegister();
+  });
+</script>
+</body>
+</html>

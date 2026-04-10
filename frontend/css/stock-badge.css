@@ -1,0 +1,74 @@
+/* ══════════════════════════════════════════════════════
+   features/stock-badge.css
+   FEATURE 2: "Only X left" stock warning + "100% Natural" badge
+
+   WHERE TO PLACE:
+   1. Copy to: frontend/css/stock-badge.css
+   2. Add in index.html <head> AFTER skeleton-loading.css:
+      <link rel="stylesheet" href="css/stock-badge.css" />
+   3. In main.js, update renderProducts() — see the JS file
+      features/stock-badge.js for exactly what to change
+   ══════════════════════════════════════════════════════ */
+
+/* ── "Only X left in stock" warning strip ── */
+.stock-warning {
+  background: #fff3cd;
+  color: #856404;
+  border-top: 1px solid #ffeeba;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.3px;
+}
+
+.stock-warning .pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff6b35;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: stock-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes stock-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ── "100% Natural" badge on product card ── */
+.natural-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: linear-gradient(135deg, #2d7a3e, #1a5c2a);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 9px;
+  border-radius: 12px;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(26,92,42,0.35);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── "FSSAI Certified" mini badge inside product info ── */
+.fssai-mini-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e8f5e9;
+  border: 1px solid rgba(26,92,42,0.2);
+  color: #1a5c2a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+}

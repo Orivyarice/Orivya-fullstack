@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Orivya Rice – How to Run Guide</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#f4f6f9;color:#1a1a1a}
+  .header{background:linear-gradient(135deg,#1a5c2a,#0f3a1a);color:white;padding:40px 60px;text-align:center}
+  .header h1{font-size:28px;margin-bottom:8px}
+  .header p{opacity:.8;font-size:15px}
+  .container{max-width:860px;margin:0 auto;padding:36px 24px 80px}
+  .phase{background:white;border-radius:10px;margin-bottom:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+  .phase-header{padding:18px 28px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #f0f0f0}
+  .phase-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;flex-shrink:0}
+  .phase-header h2{font-size:17px;font-weight:700}
+  .phase-header .sub{font-size:12px;color:#888;margin-top:2px}
+  .phase-body{padding:22px 28px}
+  .step{display:flex;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #f5f5f5}
+  .step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .step-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+  .step-title{font-weight:700;font-size:14px;margin-bottom:6px}
+  .step-desc{font-size:13px;color:#555;line-height:1.7}
+  code{background:#1e1e1e;color:#d4d4d4;padding:10px 14px;border-radius:5px;display:block;font-family:'Courier New',monospace;font-size:13px;margin:8px 0;white-space:pre-wrap;word-break:break-all}
+  .inline-code{background:#f0f0f0;color:#c62828;padding:1px 6px;border-radius:3px;font-family:monospace;font-size:12px}
+  .note{background:#fff8e1;border-left:4px solid #c8922a;padding:10px 14px;border-radius:0 5px 5px 0;font-size:13px;margin:8px 0;line-height:1.7}
+  .success{background:#e8f5e9;border-left:4px solid #1a5c2a;padding:10px 14px;border-radius:0 5px 5px 0;font-size:13px;margin:8px 0;line-height:1.7}
+  .api-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  .api-table th{background:#1a5c2a;color:white;padding:10px 14px;text-align:left;font-size:12px;letter-spacing:1px}
+  .api-table td{padding:10px 14px;border-bottom:1px solid #eee}
+  .api-table tr:last-child td{border-bottom:none}
+  .method{padding:2px 8px;border-radius:3px;font-weight:700;font-size:11px;font-family:monospace}
+  .GET{background:#d1ecf1;color:#0c5460}
+  .POST{background:#d4edda;color:#155724}
+  .PUT{background:#fff3cd;color:#856404}
+  .DELETE{background:#f8d7da;color:#721c24}
+  .files-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px}
+  .file-box{background:#f9f9f9;border:1px solid #eee;border-radius:6px;padding:14px}
+  .file-box h4{font-size:13px;color:#1a5c2a;margin-bottom:6px}
+  .file-box ul{list-style:none;font-size:12px;color:#666;line-height:2}
+  .file-box ul li::before{content:'📄 '}
+  .cred-box{background:#e8f5e9;border:2px solid #1a5c2a;border-radius:8px;padding:18px 20px;margin-top:10px}
+  .cred-box h4{font-family:monospace;font-size:14px;color:#1a5c2a;margin-bottom:10px}
+  .cred-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(26,92,42,0.1);font-size:13px}
+  .cred-row:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🌾 Orivya Rice — Full Stack App Run Guide</h1>
+  <p>Java Spring Boot + MySQL + HTML/CSS/JS | Step-by-step setup instructions</p>
+</div>
+<div class="container">
+
+<!-- PROJECT STRUCTURE -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#e8f5e9;color:#1a5c2a">📁</div>
+    <div><h2>Project Structure</h2><div class="sub">All files at a glance</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="files-grid">
+      <div class="file-box">
+        <h4>🖥️ Backend (Spring Boot)</h4>
+        <ul>
+          <li>pom.xml — Maven dependencies</li>
+          <li>application.properties — DB config</li>
+          <li>entity/ — User, Product, Order, Cart</li>
+          <li>repository/ — JPA interfaces</li>
+          <li>service/ — Business logic</li>
+          <li>controller/ — REST API endpoints</li>
+          <li>security/ — JWT filter + util</li>
+          <li>config/ — Security + Web config</li>
+          <li>dto/ — Request/Response objects</li>
+          <li>exception/ — Error handler</li>
+        </ul>
+      </div>
+      <div class="file-box">
+        <h4>🌐 Frontend (HTML/CSS/JS)</h4>
+        <ul>
+          <li>index.html — Shop page</li>
+          <li>login.html — Login form</li>
+          <li>register.html — Register form</li>
+          <li>checkout.html — Place order</li>
+          <li>orders.html — Order history</li>
+          <li>admin.html — Admin dashboard</li>
+          <li>js/api.js — All API calls</li>
+          <li>js/main.js — Shop logic</li>
+          <li>css/style.css — Main styles</li>
+          <li>css/auth.css + admin.css</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 1: PREREQUISITES -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#fff3e0;color:#c8922a">1</div>
+    <div><h2>Install Prerequisites</h2><div class="sub">Software you need before starting</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#e3f2fd">☕</div>
+      <div class="step-content">
+        <div class="step-title">Install Java 17 (JDK)</div>
+        <div class="step-desc">
+          Download from: <strong>https://adoptium.net</strong><br>
+          Choose: <em>Eclipse Temurin 17 (LTS)</em> → Download installer → Install<br>
+          Verify installation:
+          <code>java -version</code>
+          You should see: <span class="inline-code">openjdk version "17.x.x"</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#e8f5e9">🏗️</div>
+      <div class="step-content">
+        <div class="step-title">Install Maven</div>
+        <div class="step-desc">
+          Download from: <strong>https://maven.apache.org/download.cgi</strong><br>
+          Extract the zip → Add <span class="inline-code">bin</span> folder to PATH environment variable<br>
+          Verify installation:
+          <code>mvn -version</code>
+          <div class="note">💡 <strong>Easier option:</strong> Use IntelliJ IDEA or VS Code with Java extensions — Maven is bundled automatically.</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#fce4ec">🗄️</div>
+      <div class="step-content">
+        <div class="step-title">Install MySQL 8.0</div>
+        <div class="step-desc">
+          Download from: <strong>https://dev.mysql.com/downloads/installer/</strong><br>
+          Install <em>MySQL Community Server + MySQL Workbench</em><br>
+          During setup, set a root password — remember it for Step 3!<br>
+          Verify by opening MySQL Workbench and connecting with root.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#f3e5f5">💻</div>
+      <div class="step-content">
+        <div class="step-title">Install VS Code (for frontend)</div>
+        <div class="step-desc">
+          Download from: <strong>https://code.visualstudio.com</strong><br>
+          Install the <strong>Live Server</strong> extension (by Ritwick Dey) to run the frontend.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2: DATABASE SETUP -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#fce4ec;color:#c62828">2</div>
+    <div><h2>Set Up MySQL Database</h2><div class="sub">Create the database before starting the backend</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#fce4ec">🗄️</div>
+      <div class="step-content">
+        <div class="step-title">Create the database</div>
+        <div class="step-desc">
+          Open MySQL Workbench → Connect → Open a new query tab → Run:
+          <code>CREATE DATABASE orivya_db;
+USE orivya_db;
+SELECT 'Database created!' as message;</code>
+          <div class="success">✅ You should see "Database created!" in the output.</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#e8f5e9">📊</div>
+      <div class="step-content">
+        <div class="step-title">Tables are auto-created by Spring Boot</div>
+        <div class="step-desc">
+          You do NOT need to create tables manually.<br>
+          When you start the Spring Boot app for the first time, JPA (Hibernate) will automatically create all tables:<br>
+          <span class="inline-code">users</span>, <span class="inline-code">products</span>, <span class="inline-code">orders</span>, <span class="inline-code">order_items</span>, <span class="inline-code">cart_items</span>
+          <div class="note">This is controlled by <span class="inline-code">spring.jpa.hibernate.ddl-auto=update</span> in application.properties</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3: CONFIGURE BACKEND -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#e3f2fd;color:#1565c0">3</div>
+    <div><h2>Configure the Backend</h2><div class="sub">Update application.properties with your credentials</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#e3f2fd">⚙️</div>
+      <div class="step-content">
+        <div class="step-title">Edit application.properties</div>
+        <div class="step-desc">
+          Open: <span class="inline-code">backend/src/main/resources/application.properties</span><br>
+          Change only these 2 lines:
+          <code># Change 'your_mysql_password' to your actual MySQL root password
+spring.datasource.password=your_mysql_password
+
+# Optional: change port if 8080 is busy
+server.port=8080</code>
+          <div class="note">⚠️ The JWT secret and other settings are already configured. Only change the MySQL password.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4: RUN BACKEND -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#e8f5e9;color:#1a5c2a">4</div>
+    <div><h2>Run the Spring Boot Backend</h2><div class="sub">Start the REST API server</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#e8f5e9">▶️</div>
+      <div class="step-content">
+        <div class="step-title">Option A — Using Terminal (Command Line)</div>
+        <div class="step-desc">
+          Open terminal/command prompt → navigate to the backend folder:
+          <code>cd orivya-fullstack/backend
+mvn spring-boot:run</code>
+          Wait for the startup message. You'll see:
+          <code>🌾 Orivya Rice Backend is running at http://localhost:8080
+Started OrivyaApplication in 4.532 seconds</code>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#f3e5f5">🧠</div>
+      <div class="step-content">
+        <div class="step-title">Option B — Using IntelliJ IDEA (Recommended for beginners)</div>
+        <div class="step-desc">
+          1. Open IntelliJ IDEA → File → Open → select the <span class="inline-code">backend</span> folder<br>
+          2. Wait for Maven to download dependencies (first time takes 2-5 minutes)<br>
+          3. Find <span class="inline-code">OrivyaApplication.java</span> → right-click → <strong>Run 'OrivyaApplication'</strong><br>
+          4. See the green "Started" message in the console.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#fff3e0">🔍</div>
+      <div class="step-content">
+        <div class="step-title">Verify the backend is working</div>
+        <div class="step-desc">
+          Open your browser and go to:
+          <code>http://localhost:8080/api/products</code>
+          You should see: <span class="inline-code">{"success":true,"message":"Products fetched successfully","data":{"content":[]...}}</span>
+          <div class="success">✅ Backend is running! (Empty products array is correct — we'll add data next)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 5: SAMPLE DATA -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#fff3e0;color:#c8922a">5</div>
+    <div><h2>Insert Sample Data</h2><div class="sub">Add admin account and sample products</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#e8f5e9">🌱</div>
+      <div class="step-content">
+        <div class="step-title">Run the database-setup.sql file</div>
+        <div class="step-desc">
+          Open MySQL Workbench → File → Open SQL Script → select <span class="inline-code">database-setup.sql</span><br>
+          Click the ⚡ (Execute) button to run it.<br>
+          This inserts:
+          <ul style="margin:8px 0 0 20px;font-size:13px;line-height:2">
+            <li>1 Admin user</li>
+            <li>1 Sample customer</li>
+            <li>5 Sample rice products</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#e3f2fd">🔑</div>
+      <div class="step-content">
+        <div class="step-title">Default Login Credentials</div>
+        <div class="step-desc">
+          <div class="cred-box">
+            <h4>👨‍💼 ADMIN ACCOUNT</h4>
+            <div class="cred-row"><span>Email</span><strong>admin@orivya.com</strong></div>
+            <div class="cred-row"><span>Password</span><strong>admin123</strong></div>
+            <div class="cred-row"><span>Role</span><span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:3px;font-weight:700;font-size:11px">ADMIN</span></div>
+          </div>
+          <div class="cred-box" style="margin-top:12px">
+            <h4>👤 CUSTOMER ACCOUNT</h4>
+            <div class="cred-row"><span>Email</span><strong>ravi@gmail.com</strong></div>
+            <div class="cred-row"><span>Password</span><strong>customer123</strong></div>
+            <div class="cred-row"><span>Role</span><span style="background:#cce5ff;color:#004085;padding:2px 8px;border-radius:3px;font-weight:700;font-size:11px">CUSTOMER</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 6: RUN FRONTEND -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#f3e5f5;color:#6a1b9a">6</div>
+    <div><h2>Run the Frontend</h2><div class="sub">Open the website in your browser</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#f3e5f5">🌐</div>
+      <div class="step-content">
+        <div class="step-title">Open with VS Code Live Server</div>
+        <div class="step-desc">
+          1. Open VS Code → File → Open Folder → select <span class="inline-code">orivya-fullstack/frontend</span><br>
+          2. Right-click on <span class="inline-code">index.html</span> → <strong>"Open with Live Server"</strong><br>
+          3. Browser opens at <span class="inline-code">http://127.0.0.1:5500/index.html</span>
+          <div class="success">✅ You should see the Orivya Rice shop page with products loaded from the backend!</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#e3f2fd">🧪</div>
+      <div class="step-content">
+        <div class="step-title">Test the full flow</div>
+        <div class="step-desc">
+          <strong>Customer flow:</strong><br>
+          1. Go to <span class="inline-code">register.html</span> → create an account<br>
+          2. Browse products on shop page<br>
+          3. Add items to cart<br>
+          4. Go to checkout → enter address → place order<br>
+          5. View order in <span class="inline-code">orders.html</span><br><br>
+          <strong>Admin flow:</strong><br>
+          1. Login with <span class="inline-code">admin@orivya.com / admin123</span><br>
+          2. Auto-redirected to <span class="inline-code">admin.html</span><br>
+          3. View dashboard stats, add/edit products, manage orders
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALL API ENDPOINTS -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#e8f5e9;color:#1a5c2a">📡</div>
+    <div><h2>All API Endpoints Reference</h2><div class="sub">Base URL: http://localhost:8080</div></div>
+  </div>
+  <div class="phase-body">
+    <table class="api-table">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method POST">POST</span></td><td>/api/auth/register</td><td>None</td><td>Register new customer</td></tr>
+        <tr><td><span class="method POST">POST</span></td><td>/api/auth/login</td><td>None</td><td>Login → get JWT token</td></tr>
+        <tr><td><span class="method POST">POST</span></td><td>/api/auth/register-admin</td><td>None</td><td>Create admin account</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/products?page=0&size=8</td><td>None</td><td>Get products (paginated)</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/products/{id}</td><td>None</td><td>Get single product</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/products/search?keyword=sona</td><td>None</td><td>Search products</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/products/admin/all</td><td>ADMIN</td><td>All products including inactive</td></tr>
+        <tr><td><span class="method POST">POST</span></td><td>/api/products</td><td>ADMIN</td><td>Create product (multipart)</td></tr>
+        <tr><td><span class="method PUT">PUT</span></td><td>/api/products/{id}</td><td>ADMIN</td><td>Update product</td></tr>
+        <tr><td><span class="method DELETE">DELETE</span></td><td>/api/products/{id}</td><td>ADMIN</td><td>Soft-delete product</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/cart</td><td>Customer</td><td>Get my cart</td></tr>
+        <tr><td><span class="method POST">POST</span></td><td>/api/cart</td><td>Customer</td><td>Add item to cart</td></tr>
+        <tr><td><span class="method PUT">PUT</span></td><td>/api/cart/{id}?quantity=2</td><td>Customer</td><td>Update cart item quantity</td></tr>
+        <tr><td><span class="method DELETE">DELETE</span></td><td>/api/cart/{id}</td><td>Customer</td><td>Remove item from cart</td></tr>
+        <tr><td><span class="method DELETE">DELETE</span></td><td>/api/cart/clear</td><td>Customer</td><td>Clear entire cart</td></tr>
+        <tr><td><span class="method POST">POST</span></td><td>/api/orders</td><td>Customer</td><td>Place order from cart</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/orders/my</td><td>Customer</td><td>My order history</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/orders/my/{id}</td><td>Customer</td><td>Get specific order</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/orders/admin/all</td><td>ADMIN</td><td>All orders in system</td></tr>
+        <tr><td><span class="method PUT">PUT</span></td><td>/api/orders/admin/{id}/status</td><td>ADMIN</td><td>Update order status</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/api/admin/dashboard</td><td>ADMIN</td><td>Dashboard statistics</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td>/uploads/{filename}</td><td>None</td><td>Serve uploaded images</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      🔐 <strong>How to send JWT in requests:</strong><br>
+      Add this header to every protected API call:<br>
+      <span class="inline-code">Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...</span><br>
+      The frontend (api.js) does this automatically using the token stored in localStorage.
+    </div>
+  </div>
+</div>
+
+<!-- COMMON ERRORS -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num" style="background:#f8d7da;color:#721c24">⚠️</div>
+    <div><h2>Common Errors & Fixes</h2><div class="sub">Solutions to problems you might face</div></div>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon" style="background:#f8d7da">🔌</div>
+      <div class="step-content">
+        <div class="step-title">Cannot connect to MySQL</div>
+        <div class="step-desc">
+          <strong>Error:</strong> <span class="inline-code">Access denied for user 'root'@'localhost'</span><br>
+          <strong>Fix:</strong> Open <span class="inline-code">application.properties</span> → update <span class="inline-code">spring.datasource.password</span> to your MySQL root password.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#fff3cd">🌐</div>
+      <div class="step-content">
+        <div class="step-title">CORS Error in browser console</div>
+        <div class="step-desc">
+          <strong>Error:</strong> <span class="inline-code">Access to fetch at 'http://localhost:8080' from origin 'http://127.0.0.1:5500' has been blocked</span><br>
+          <strong>Fix:</strong> In <span class="inline-code">SecurityConfig.java</span>, the <span class="inline-code">allowedOriginPatterns</span> includes <span class="inline-code">*</span> which should allow all. If still failing, restart the backend.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#d1ecf1">🔒</div>
+      <div class="step-content">
+        <div class="step-title">401 Unauthorized on cart/order APIs</div>
+        <div class="step-desc">
+          <strong>Cause:</strong> JWT token is missing or expired.<br>
+          <strong>Fix:</strong> Make sure you are logged in. Open browser DevTools → Application → Local Storage → check <span class="inline-code">orivya_token</span> exists. If not, login again.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#f3e5f5">☕</div>
+      <div class="step-content">
+        <div class="step-title">Port 8080 already in use</div>
+        <div class="step-desc">
+          <strong>Error:</strong> <span class="inline-code">Web server failed to start. Port 8080 was already in use.</span><br>
+          <strong>Fix:</strong> Change <span class="inline-code">server.port=8081</span> in application.properties, then update <span class="inline-code">API_BASE</span> in <span class="inline-code">frontend/js/api.js</span> to <span class="inline-code">http://localhost:8081/api</span>.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon" style="background:#e8f5e9">📦</div>
+      <div class="step-content">
+        <div class="step-title">Maven dependencies not downloading</div>
+        <div class="step-desc">
+          <strong>Fix:</strong> Make sure you have internet connection, then run:
+          <code>mvn dependency:resolve</code>
+          Or in IntelliJ: right-click pom.xml → Maven → Reload Project.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL SUMMARY -->
+<div style="background:linear-gradient(135deg,#1a5c2a,#0f3a1a);border-radius:12px;padding:32px;text-align:center;color:white;margin-top:24px">
+  <div style="font-size:32px;margin-bottom:12px">🎉</div>
+  <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:800;margin-bottom:10px">Your Full Stack App is Complete!</div>
+  <div style="font-size:14px;opacity:0.85;line-height:1.9;margin-bottom:20px">
+    Java Spring Boot backend ✅ &nbsp;|&nbsp; MySQL database ✅ &nbsp;|&nbsp; JWT authentication ✅<br>
+    Admin dashboard ✅ &nbsp;|&nbsp; Customer shop ✅ &nbsp;|&nbsp; Cart &amp; Orders ✅ &nbsp;|&nbsp; WhatsApp integration ✅
+  </div>
+  <div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:16px;display:inline-block;font-family:monospace;font-size:14px;line-height:2;text-align:left">
+    Backend:  http://localhost:8080<br>
+    Frontend: http://127.0.0.1:5500<br>
+    Admin login: admin@orivya.com / admin123<br>
+    Customer: register at /register.html
+  </div>
+</div>
+
+</div>
+</body>
+</html>

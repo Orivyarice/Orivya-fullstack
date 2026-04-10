@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Orivya Rice – Complete Deployment & Improvement Guide</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f4f6f9;color:#1a1a1a;line-height:1.6}
+.header{background:linear-gradient(135deg,#1a5c2a,#0f3a1a);color:white;padding:40px 60px;text-align:center}
+.header h1{font-size:30px;margin-bottom:8px}
+.header p{opacity:.8;font-size:15px}
+.container{max-width:1000px;margin:0 auto;padding:36px 24px 80px}
+.toc{background:white;border-radius:10px;padding:24px 28px;margin-bottom:28px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.toc h3{color:#1a5c2a;margin-bottom:12px;font-size:16px}
+.toc a{display:block;color:#1a5c2a;text-decoration:none;padding:4px 0;font-size:14px}
+.toc a:hover{text-decoration:underline}
+.card{background:white;border-radius:10px;margin-bottom:24px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card-header{padding:18px 28px;display:flex;align-items:center;gap:14px}
+.card-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;font-weight:900}
+.card-header h2{font-size:18px;font-weight:700}
+.card-header .sub{font-size:13px;color:#888;margin-top:2px}
+.card-body{padding:20px 28px}
+code{background:#1e1e1e;color:#d4d4d4;padding:12px 16px;border-radius:6px;display:block;font-family:'Courier New',monospace;font-size:13px;margin:10px 0;white-space:pre-wrap;line-height:1.8}
+.ic{background:#f0f0f0;color:#c62828;padding:1px 6px;border-radius:3px;font-family:monospace;font-size:12px}
+.note{background:#fff8e1;border-left:4px solid #c8922a;padding:10px 14px;border-radius:0 5px 5px 0;font-size:13px;margin:10px 0}
+.success{background:#e8f5e9;border-left:4px solid #1a5c2a;padding:10px 14px;border-radius:0 5px 5px 0;font-size:13px;margin:10px 0}
+.step{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #f0f0f0}
+.step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.step-title{font-weight:700;color:#1a5c2a;margin-bottom:8px;font-size:15px}
+.step-body{font-size:13px;color:#555}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th{background:#1a5c2a;color:white;padding:10px 14px;text-align:left}
+td{padding:10px 14px;border-bottom:1px solid #eee}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.green{background:#d4edda;color:#155724}
+.orange{background:#fff3cd;color:#856404}
+.blue{background:#cce5ff;color:#004085}
+.pipeline{display:flex;gap:0;margin:14px 0;flex-wrap:wrap}
+.pipe-step{background:#e8f5e9;border:1px solid #c3e6cb;padding:10px 16px;font-size:12px;font-weight:700;color:#155724;position:relative}
+.pipe-step::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:#1a5c2a;font-size:14px;z-index:1}
+.pipe-step:last-child::after{display:none}
+.arch-box{background:#f0f7f0;border:2px solid rgba(26,92,42,0.2);border-radius:8px;padding:16px;margin:12px 0;text-align:center;font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌾 Orivya Rice — Complete Guide</h1>
+  <p>Website Improvements + Payment Gateway + AWS Deployment + DevOps Pipeline</p>
+</div>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📋 Table of Contents</h3>
+  <a href="#improvements">1. Website Improvements to Attract Customers</a>
+  <a href="#payment">2. Payment Gateway (PhonePe / GPay / Razorpay)</a>
+  <a href="#tracking">3. Live Order Tracking</a>
+  <a href="#docker">4. Docker — Run Anywhere</a>
+  <a href="#aws">5. AWS Deployment (EC2 + RDS)</a>
+  <a href="#terraform">6. Terraform — Infrastructure as Code</a>
+  <a href="#kubernetes">7. Kubernetes (EKS)</a>
+  <a href="#cicd">8. CI/CD Pipeline (GitHub Actions + ArgoCD)</a>
+  <a href="#monitoring">9. Prometheus + Grafana Monitoring</a>
+  <a href="#sonarqube">10. SonarQube Code Quality</a>
+  <a href="#ansible">11. Ansible Server Setup</a>
+  <a href="#complete">12. Complete Architecture Diagram</a>
+</div>
+
+
+<!-- PART 1: IMPROVEMENTS -->
+<div class="card" id="improvements">
+  <div class="card-header">
+    <div class="card-num" style="background:#e8f5e9;color:#1a5c2a">🚀</div>
+    <div><h2>1. Website Improvements</h2><div class="sub">Features to attract more customers</div></div>
+  </div>
+  <div class="card-body">
+
+    <div class="step">
+      <div class="step-title">🌟 Product Reviews & Star Ratings</div>
+      <div class="step-body">
+        Add 1-5 star ratings + customer reviews on each product.<br>
+        <span class="badge green">High Impact</span> &nbsp; Builds trust, increases conversions by 30-40%
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">📱 WhatsApp Business Integration</div>
+      <div class="step-body">
+        Show real-time "Online" status badge on WhatsApp button.<br>
+        Auto-send order confirmation on WhatsApp after order placed.<br>
+        <span class="badge green">Already Partial</span> &nbsp; Enhance with WhatsApp Business API
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">🎯 Customer Loyalty Program</div>
+      <div class="step-body">
+        Points system: every ₹100 spent = 10 points. 100 points = ₹10 discount.<br>
+        "You've earned X loyalty points" shown after each order.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">📧 Email Notifications (via SMTP)</div>
+      <div class="step-body">
+        Send order confirmation emails automatically using Spring Mail.<br>
+        Add to application.properties:
+        <code>spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=orivyaorganicrice@gmail.com
+spring.mail.password=your-gmail-app-password
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">🔍 SEO Improvements</div>
+      <div class="step-body">
+        Add to every HTML page head section:
+        <code>&lt;meta name="description" content="Premium Sona Masoori Rice from Andhra Pradesh. Buy online from Sri Lakshmi Ganapati Rice Mill. FSSAI certified. Bulk and retail."&gt;
+&lt;meta name="keywords" content="sona masoori rice, buy rice online, andhra rice, peddapuram rice, kakinada rice"&gt;
+&lt;meta property="og:title" content="Orivya Rice - Premium Sona Masoori"&gt;
+&lt;meta property="og:image" content="images/rice-bag.png"&gt;</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">📦 Order Tracking Page Enhancement</div>
+      <div class="step-body">
+        Add visual progress bar: Order Placed → Confirmed → Processing → Shipped → Delivered<br>
+        Show estimated delivery date based on order date + 3 days.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">💬 Live Chat Widget</div>
+      <div class="step-body">
+        Add Tawk.to free live chat widget (100% free):
+        <code>&lt;!-- Add before &lt;/body&gt; --&gt;
+&lt;script&gt;
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){ var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true; s1.src='https://embed.tawk.to/YOUR_ID/default';
+s0.parentNode.insertBefore(s1,s0); })();
+&lt;/script&gt;</code>
+        Sign up at tawk.to → get your embed code → replace YOUR_ID
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">📊 Google Analytics</div>
+      <div class="step-body">
+        Track visitors, page views, conversion rate:
+        <code>&lt;!-- Add to every HTML head --&gt;
+&lt;script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+&lt;/script&gt;</code>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PART 2: PAYMENT -->
+<div class="card" id="payment">
+  <div class="card-header">
+    <div class="card-num" style="background:#fff3cd;color:#856404">💳</div>
+    <div><h2>2. Payment Gateway (GPay / PhonePe / UPI)</h2><div class="sub">All in one via Razorpay</div></div>
+  </div>
+  <div class="card-body">
+
+    <div class="note">💡 <strong>Razorpay</strong> supports: Google Pay, PhonePe, Paytm, BHIM UPI, Credit/Debit Cards, Net Banking — all in ONE integration.</div>
+
+    <div class="step">
+      <div class="step-title">Step 1 — Create Razorpay Account</div>
+      <div class="step-body">
+        1. Go to <strong>https://razorpay.com</strong> → Sign Up<br>
+        2. Complete KYC with your business documents (FSSAI + bank details)<br>
+        3. Go to Dashboard → Settings → API Keys → Generate Key<br>
+        4. You get: <span class="ic">Key ID</span> (rzp_live_xxx) and <span class="ic">Key Secret</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Step 2 — Add to application.properties</div>
+      <div class="step-body">
+        <code>razorpay.key.id=rzp_live_YourKeyIDHere
+razorpay.key.secret=YourKeySecretHere</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Step 3 — Add Razorpay SDK to pom.xml</div>
+      <div class="step-body">
+        <code>&lt;dependency&gt;
+    &lt;groupId&gt;com.razorpay&lt;/groupId&gt;
+    &lt;artifactId&gt;razorpay-java&lt;/artifactId&gt;
+    &lt;version&gt;1.4.5&lt;/version&gt;
+&lt;/dependency&gt;</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Step 4 — Frontend: Open Razorpay Checkout</div>
+      <div class="step-body">
+        <code>// In checkout page, after selecting Razorpay:
+async function openRazorpay(orderData) {
+  const options = {
+    key:         orderData.razorpayKeyId,
+    amount:      orderData.amount,       // in paise
+    currency:    'INR',
+    name:        'Orivya Rice',
+    description: 'Premium Rice Order',
+    image:       'images/logo.png',
+    handler: async function(response) {
+      // Payment success — verify on backend
+      const result = await fetch('/api/payments/verify', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id:   response.razorpay_order_id,
+          razorpay_signature:  response.razorpay_signature,
+          deliveryAddress:     document.getElementById('checkAddress').value
+        })
+      });
+      // Show success
+    },
+    prefill: {
+      name:    orderData.customerName,
+      email:   orderData.customerEmail,
+      contact: orderData.customerPhone
+    },
+    theme: { color: '#1a5c2a' }
+  };
+  const rzp = new Razorpay(options);
+  rzp.open();
+}</code>
+      </div>
+    </div>
+
+    <div class="success">
+      ✅ After this, customers can pay via <strong>Google Pay, PhonePe, Paytm, BHIM, Cards, Net Banking</strong> — all from one popup.
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PART 3: ORDER TRACKING -->
+<div class="card" id="tracking">
+  <div class="card-header">
+    <div class="card-num" style="background:#e3f2fd;color:#1565c0">📍</div>
+    <div><h2>3. Live Order Tracking</h2><div class="sub">WhatsApp + Manual tracking (no GPS needed for rice delivery)</div></div>
+  </div>
+  <div class="card-body">
+
+    <div class="note">📱 For rice delivery, GPS tracking is overkill. Use status-based tracking + WhatsApp updates.</div>
+
+    <div class="step">
+      <div class="step-title">Status-Based Tracking (Already Implemented — Enhance It)</div>
+      <div class="step-body">
+        Add a visual progress bar on orders.html:
+        <code>// Order statuses as a visual timeline
+const statuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+// Show as green checkmarks with dates/times</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">WhatsApp Auto-Update (Free, Works Best)</div>
+      <div class="step-body">
+        When admin changes order status, automatically send WhatsApp message to customer:
+        <code>// In admin.html — after status update
+async function updateOrderStatus(orderId, status) {
+  await apiUpdateOrderStatus(orderId, status);
+
+  // Get customer phone from order
+  const messages = {
+    'CONFIRMED':  '✅ Your Orivya Rice order #' + orderId + ' is confirmed!',
+    'SHIPPED':    '🚚 Your order is on the way! Expected delivery: tomorrow.',
+    'DELIVERED':  '🎉 Your order has been delivered. Enjoy the rice!'
+  };
+
+  if (messages[status]) {
+    const msg = encodeURIComponent(messages[status]);
+    // Open WhatsApp to send to customer
+    window.open('https://wa.me/91' + customerPhone + '?text=' + msg, '_blank');
+  }
+}</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Optional: Shiprocket / Delhivery API Integration</div>
+      <div class="step-body">
+        For actual logistics tracking with courier services:<br>
+        1. Sign up at <strong>shiprocket.in</strong><br>
+        2. Get API credentials<br>
+        3. Call their API after order shipped to get AWB tracking number<br>
+        4. Show live courier tracking link to customer
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PART 4: DOCKER -->
+<div class="card" id="docker">
+  <div class="card-header">
+    <div class="card-num" style="background:#e3f2fd;color:#0d47a1">🐳</div>
+    <div><h2>4. Docker — Run on Any Server</h2><div class="sub">Containerize the entire application</div></div>
+  </div>
+  <div class="card-body">
+
+    <div class="arch-box">
+      <strong>Docker Setup Structure:</strong><br><br>
+      orivya-mysql container &nbsp;↔&nbsp; orivya-backend container &nbsp;↔&nbsp; orivya-frontend (nginx) container<br>
+      All 3 connected via <strong>orivya-network</strong> bridge
+    </div>
+
+    <div class="step">
+      <div class="step-title">Files Created (in your project):</div>
+      <div class="step-body">
+        <code>orivya-fullstack/
+├── docker-compose.yml          ← Run all 3 containers together
+├── backend/
+│   └── Dockerfile              ← Build Spring Boot JAR
+└── frontend/
+    ├── Dockerfile              ← Nginx serving HTML/CSS/JS
+    └── nginx.conf              ← Proxy /api calls to backend</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Local Docker Commands</div>
+      <div class="step-body">
+        <code># Start everything (MySQL + Backend + Frontend)
+docker-compose up -d
+
+# See running containers
+docker-compose ps
+
+# See logs
+docker-compose logs -f orivya-backend
+
+# Stop everything
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up -d --build</code>
+        After running: open <strong>http://localhost</strong> — your full app is live!
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PART 5: AWS -->
+<div class="card" id="aws">
+  <div class="card-header">
+    <div class="card-num" style="background:#fff3e0;color:#e65100">☁</div>
+    <div><h2>5. AWS Deployment</h2><div class="sub">EC2 + RDS + S3 + Route53</div></div>
+  </div>
+  <div class="card-body">
+
+    <table>
+      <thead><tr><th>AWS Service</th><th>Used For</th><th>Cost (Free Tier)</th></tr></thead>
+      <tbody>
+        <tr><td>EC2 t3.micro</td><td>Run Docker containers</td><td>Free 750hrs/month</td></tr>
+        <tr><td>RDS MySQL t3.micro</td><td>Production database</td><td>Free 750hrs/month</td></tr>
+        <tr><td>S3</td><td>Product images storage</td><td>5GB free</td></tr>
+        <tr><td>ECR</td><td>Store Docker images</td><td>500MB free</td></tr>
+        <tr><td>Route53</td><td>Custom domain DNS</td><td>$0.50/month</td></tr>
+        <tr><td>ACM</td><td>Free SSL certificate</td><td>Free</td></tr>
+      </tbody>
+    </table>
+
+    <div class="step">
+      <div class="step-title">Step-by-Step Manual Deploy on EC2</div>
+      <div class="step-body">
+        <code># 1. Launch EC2 Ubuntu 22.04 (t3.micro) in ap-south-1
+
+# 2. SSH into your server
+ssh -i your-key.pem ubuntu@YOUR_EC2_IP
+
+# 3. Install Docker
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2 git
+sudo systemctl start docker
+sudo usermod -aG docker ubuntu
+newgrp docker
+
+# 4. Clone your project
+git clone https://github.com/yourusername/orivya-fullstack.git
+cd orivya-fullstack
+
+# 5. Create .env file with your passwords
+cat > .env << 'EOF'
+MYSQL_ROOT_PASSWORD=OrivyaDB@2024
+MYSQL_PASSWORD=OrivyaApp@2024
+JWT_SECRET=OrivyaRiceJWT2024SecretKey
+RAZORPAY_KEY_ID=rzp_live_xxxx
+RAZORPAY_KEY_SECRET=xxxx
+EOF
+
+# 6. Start the application
+docker compose up -d
+
+# 7. Check it's running
+docker compose ps
+curl http://localhost:8080/api/products</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Point Your Domain to EC2</div>
+      <div class="step-body">
+        <code># In your domain provider (GoDaddy/Namecheap):
+# Add A record: @ → YOUR_EC2_IP
+# Add A record: www → YOUR_EC2_IP
+
+# Get free SSL certificate
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com</code>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PART 6: TERRAFORM -->
+<div class="card" id="terraform">
+  <div class="card-header">
+    <div class="card-num" style="background:#f3e5f5;color:#6a1b9a">🏗</div>
+    <div><h2>6. Terraform — Infrastructure as Code</h2><div class="sub">Create AWS resources automatically</div></div>
+  </div>
+  <div class="card-body">
+    <div class="step">
+      <div class="step-title">File created: devops/terraform/main.tf</div>
+      <div class="step-body">Creates: VPC, EC2, RDS MySQL, S3, ECR automatically</div>
+    </div>
+    <div class="step">
+      <div class="step-title">Commands to Run</div>
+      <div class="step-body">
+        <code># Install Terraform first: https://terraform.io/downloads
+
+cd devops/terraform
+
+# Initialize (downloads AWS provider)
+terraform init
+
+# Preview what will be created
+terraform plan -var="db_password=OrivyaDB@2024"
+
+# Create all AWS resources (takes ~5 minutes)
+terraform apply -var="db_password=OrivyaDB@2024"
+
+# At the end, you'll see:
+# app_server_ip = "13.xxx.xxx.xxx"
+# rds_endpoint  = "orivya-mysql.xxx.rds.amazonaws.com"
+
+# Destroy everything when done (saves cost)
+terraform destroy -var="db_password=OrivyaDB@2024"</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PART 7: KUBERNETES -->
+<div class="card" id="kubernetes">
+  <div class="card-header">
+    <div class="card-num" style="background:#e8eaf6;color:#283593">⚓</div>
+    <div><h2>7. Kubernetes on AWS EKS</h2><div class="sub">Auto-scaling, self-healing, zero-downtime</div></div>
+  </div>
+  <div class="card-body">
+    <div class="step">
+      <div class="step-title">Create EKS Cluster (AWS Managed K8s)</div>
+      <div class="step-body">
+        <code># Install eksctl
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" | tar xz
+sudo mv eksctl /usr/local/bin
+
+# Create EKS cluster (takes ~15 minutes)
+eksctl create cluster \
+  --name orivya-cluster \
+  --region ap-south-1 \
+  --nodegroup-name orivya-nodes \
+  --node-type t3.medium \
+  --nodes 2 \
+  --nodes-min 1 \
+  --nodes-max 4
+
+# Deploy the application
+kubectl apply -f devops/kubernetes/k8s-deployment.yml
+
+# Watch pods starting
+kubectl get pods -n orivya -w
+
+# Get the public URL
+kubectl get service orivya-frontend-service -n orivya</code>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-title">What K8s gives you</div>
+      <div class="step-body">
+        <table>
+          <tr><th>Feature</th><th>How</th></tr>
+          <tr><td>Auto-scaling</td><td>HPA scales pods 2→5 under load</td></tr>
+          <tr><td>Self-healing</td><td>Crashed pod restarts automatically</td></tr>
+          <tr><td>Zero downtime deploy</td><td>Rolling updates</td></tr>
+          <tr><td>Load balancing</td><td>AWS ALB created automatically</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PART 8: CICD -->
+<div class="card" id="cicd">
+  <div class="card-header">
+    <div class="card-num" style="background:#e8f5e9;color:#1a5c2a">⚡</div>
+    <div><h2>8. CI/CD Pipeline</h2><div class="sub">GitHub Actions + ArgoCD — Auto deploy on code push</div></div>
+  </div>
+  <div class="card-body">
+    <div class="pipeline">
+      <div class="pipe-step">Git Push</div>
+      <div class="pipe-step">GitHub Actions</div>
+      <div class="pipe-step">SonarQube</div>
+      <div class="pipe-step">Docker Build</div>
+      <div class="pipe-step">Push to ECR</div>
+      <div class="pipe-step">Update K8s YAML</div>
+      <div class="pipe-step">ArgoCD Sync</div>
+      <div class="pipe-step">Live on K8s ✅</div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Setup GitHub Secrets (Settings → Secrets)</div>
+      <div class="step-body">
+        <code>AWS_ACCESS_KEY_ID      = your-aws-key
+AWS_SECRET_ACCESS_KEY  = your-aws-secret
+AWS_ACCOUNT_ID         = 123456789012
+SONAR_TOKEN            = your-sonar-token
+SONAR_HOST_URL         = http://your-sonar-server:9000</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Install ArgoCD on EKS</div>
+      <div class="step-body">
+        <code># Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Get ArgoCD admin password
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+
+# Access ArgoCD UI
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# Open: https://localhost:8080</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PART 9: MONITORING -->
+<div class="card" id="monitoring">
+  <div class="card-header">
+    <div class="card-num" style="background:#fce4ec;color:#880e4f">📊</div>
+    <div><h2>9. Prometheus + Grafana Monitoring</h2><div class="sub">Monitor your app in real time</div></div>
+  </div>
+  <div class="card-body">
+
+    <div class="step">
+      <div class="step-title">Step 1 — Add Spring Boot Actuator to pom.xml</div>
+      <div class="step-body">
+        <code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
+    &lt;artifactId&gt;micrometer-registry-prometheus&lt;/artifactId&gt;
+&lt;/dependency&gt;</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Step 2 — Add to application.properties</div>
+      <div class="step-body">
+        <code>management.endpoints.web.exposure.include=health,info,prometheus,metrics
+management.endpoint.health.show-details=always
+management.metrics.export.prometheus.enabled=true</code>
+        Then visit: <span class="ic">http://localhost:8080/actuator/prometheus</span> to see metrics.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Step 3 — Start Prometheus + Grafana (already in docker-compose.yml)</div>
+      <div class="step-body">
+        <code>docker-compose up -d prometheus grafana</code>
+        Prometheus UI: <span class="ic">http://localhost:9090</span><br>
+        Grafana UI:    <span class="ic">http://localhost:3000</span> (admin / admin123)
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">Step 4 — Import Grafana Dashboard</div>
+      <div class="step-body">
+        In Grafana: Dashboards → Import → Enter ID <strong>12900</strong> (Spring Boot Dashboard)<br>
+        You'll see: Request rate, Response time, JVM memory, DB connections, Error rate — all in real time.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PART 10: SONARQUBE -->
+<div class="card" id="sonarqube">
+  <div class="card-header">
+    <div class="card-num" style="background:#e1f5fe;color:#01579b">🔍</div>
+    <div><h2>10. SonarQube Code Quality</h2><div class="sub">Find bugs before they reach production</div></div>
+  </div>
+  <div class="card-body">
+    <div class="step">
+      <div class="step-title">Run SonarQube locally with Docker</div>
+      <div class="step-body">
+        <code># Start SonarQube
+docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+
+# Open: http://localhost:9000
+# Default login: admin / admin
+
+# Analyze your Spring Boot project
+cd backend
+mvn sonar:sonar \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=your-sonar-token \
+  -Dsonar.projectKey=orivya-rice</code>
+        SonarQube shows: Bugs, Vulnerabilities, Code Smells, Duplicate code, Test coverage
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PART 11: ANSIBLE -->
+<div class="card" id="ansible">
+  <div class="card-header">
+    <div class="card-num" style="background:#fff8e1;color:#f57f17">🤖</div>
+    <div><h2>11. Ansible Server Automation</h2><div class="sub">Setup new servers automatically</div></div>
+  </div>
+  <div class="card-body">
+    <div class="step">
+      <div class="step-title">Create inventory.ini with your server IP</div>
+      <div class="step-body">
+        <code>[orivya_servers]
+13.xxx.xxx.xxx ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa</code>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-title">Run the playbook</div>
+      <div class="step-body">
+        <code># Test connection
+ansible -i inventory.ini orivya_servers -m ping
+
+# Run full setup (installs Docker, clones repo, starts app)
+ansible-playbook -i inventory.ini devops/ansible/setup-server.yml</code>
+        This automatically installs Docker, sets up firewall, clones your code, and starts the app.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- COMPLETE ARCHITECTURE -->
+<div class="card" id="complete">
+  <div class="card-header">
+    <div class="card-num" style="background:#e8f5e9;color:#1a5c2a">🏛</div>
+    <div><h2>12. Complete Architecture</h2><div class="sub">Full picture of your DevOps setup</div></div>
+  </div>
+  <div class="card-body">
+    <div class="arch-box" style="text-align:left;font-family:monospace;font-size:12px;line-height:2">
+<pre>
+Developer pushes code to GitHub
+           ↓
+    GitHub Actions CI/CD
+    ├── Run unit tests
+    ├── SonarQube code quality check
+    ├── Docker build (backend + frontend)
+    ├── Push images to AWS ECR
+    └── Update K8s manifests
+           ↓
+    ArgoCD (GitOps) detects change
+           ↓
+    AWS EKS (Kubernetes)
+    ├── orivya-namespace
+    │   ├── frontend pods (2 replicas) ← Nginx
+    │   ├── backend pods (2 replicas)  ← Spring Boot
+    │   └── MySQL pod (1 replica)
+    ├── HPA auto-scales under load
+    └── AWS Load Balancer → your domain
+           ↓
+    Monitoring Stack
+    ├── Prometheus (metrics collection)
+    ├── Grafana (visual dashboards)
+    └── Alerts → Email/Slack if issues
+
+    AWS RDS MySQL (production database)
+    AWS S3 (product images)
+    AWS Route53 (DNS for domain)
+    AWS ACM (free SSL certificate)
+</pre>
+    </div>
+
+    <div class="step">
+      <div class="step-title">🎯 Recommended Learning Order for You</div>
+      <div class="step-body">
+        <table>
+          <tr><th>Week</th><th>Task</th><th>Tool</th></tr>
+          <tr><td>Week 1</td><td>Docker + docker-compose working locally</td><td>Docker</td></tr>
+          <tr><td>Week 2</td><td>Deploy on EC2 manually with Docker</td><td>AWS EC2</td></tr>
+          <tr><td>Week 3</td><td>Terraform for EC2 + RDS creation</td><td>Terraform</td></tr>
+          <tr><td>Week 4</td><td>GitHub Actions CI/CD pipeline</td><td>GitHub Actions</td></tr>
+          <tr><td>Week 5</td><td>Prometheus + Grafana monitoring</td><td>Monitoring</td></tr>
+          <tr><td>Week 6</td><td>Kubernetes on EKS + ArgoCD</td><td>K8s + ArgoCD</td></tr>
+          <tr><td>Week 7</td><td>Ansible server automation</td><td>Ansible</td></tr>
+          <tr><td>Week 8</td><td>SonarQube + full pipeline</td><td>SonarQube</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="success">
+      ✅ <strong>Start here:</strong> docker-compose up -d — gets your app running in Docker immediately.<br>
+      Then deploy to EC2 → Add domain → Add SSL → Set up CI/CD → Then K8s when traffic grows.
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

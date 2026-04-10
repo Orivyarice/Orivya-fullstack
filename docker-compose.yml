@@ -1,0 +1,134 @@
+version: '3.8'
+
+# ══════════════════════════════════════════════════
+# docker-compose.yml — Orivya Rice Full Stack
+# Runs: MySQL + Spring Boot Backend + Nginx Frontend
+#
+# Usage:
+#   Start:   docker-compose up -d
+#   Stop:    docker-compose down
+#   Logs:    docker-compose logs -f
+#   Rebuild: docker-compose up -d --build
+# ══════════════════════════════════════════════════
+
+services:
+
+  # ── MySQL Database ──────────────────────────────
+  orivya-db:
+    image: mysql:8.0
+    container_name: orivya-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-OrivyaDB@2024}
+      MYSQL_DATABASE: orivya_db
+      MYSQL_USER: orivya_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-OrivyaApp@2024}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql         # Persist DB data
+      - ./database-setup.sql:/docker-entrypoint-initdb.d/init.sql  # Auto-run on first start
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-OrivyaDB@2024}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - orivya-network
+
+  # ── Spring Boot Backend ─────────────────────────
+  orivya-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: orivya-backend
+    restart: unless-stopped
+    depends_on:
+      orivya-db:
+        condition: service_healthy
+    environment:
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:mysql://orivya-db:3306/orivya_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: orivya_user
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-OrivyaApp@2024}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-OrivyaRiceSecretKey2024VeryLongSecretKeyForJWTToken}
+      JWT_EXPIRATION: 86400000
+      # Razorpay
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_placeholder}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-placeholder}
+      # Spring Profile
+      SPRING_PROFILE: prod
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads           # Persist product images
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/products"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - orivya-network
+
+  # ── Nginx Frontend ──────────────────────────────
+  orivya-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: orivya-frontend
+    restart: unless-stopped
+    depends_on:
+      - orivya-backend
+    ports:
+      - "80:80"
+    networks:
+      - orivya-network
+
+  # ── Prometheus (Monitoring) ─────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: orivya-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./devops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d'
+    networks:
+      - orivya-network
+
+  # ── Grafana (Dashboard) ─────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: orivya-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - orivya-network
+
+# ── Volumes ──────────────────────────────────────
+volumes:
+  mysql_data:
+  uploads_data:
+  prometheus_data:
+  grafana_data:
+
+# ── Networks ─────────────────────────────────────
+networks:
+  orivya-network:
+    driver: bridge

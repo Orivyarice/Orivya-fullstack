@@ -1,0 +1,290 @@
+# ══════════════════════════════════════════════════
+# k8s-deployment.yml — Orivya Rice Kubernetes
+# Deploy to EKS (AWS Kubernetes) or any K8s cluster
+#
+# Usage:
+#   kubectl apply -f k8s-deployment.yml
+#   kubectl get pods
+#   kubectl get services
+# ══════════════════════════════════════════════════
+
+---
+# ── NAMESPACE ──────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: orivya
+
+---
+# ── SECRET (DB password, JWT secret) ──────────────
+# Create this with: kubectl create secret generic orivya-secrets \
+#   --from-literal=db-password=YourPassword \
+#   --from-literal=jwt-secret=YourJWTSecret \
+#   --from-literal=razorpay-key=YourKey \
+#   -n orivya
+apiVersion: v1
+kind: Secret
+metadata:
+  name: orivya-secrets
+  namespace: orivya
+type: Opaque
+stringData:
+  db-password: "OrivyaDB@2024"
+  jwt-secret: "OrivyaRiceSecretKey2024VeryLongSecretKeyForJWTToken"
+  razorpay-key: "rzp_test_placeholder"
+
+---
+# ── CONFIGMAP ─────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orivya-config
+  namespace: orivya
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://orivya-mysql-service:3306/orivya_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+  SPRING_DATASOURCE_USERNAME: "root"
+  SERVER_PORT: "8080"
+
+---
+# ── MYSQL DEPLOYMENT ──────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orivya-mysql
+  namespace: orivya
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orivya-mysql
+  template:
+    metadata:
+      labels:
+        app: orivya-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: orivya-secrets
+                  key: db-password
+            - name: MYSQL_DATABASE
+              value: orivya_db
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+
+---
+# ── MYSQL SERVICE ─────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: orivya-mysql-service
+  namespace: orivya
+spec:
+  selector:
+    app: orivya-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP    # Internal only
+
+---
+# ── BACKEND DEPLOYMENT ────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orivya-backend
+  namespace: orivya
+spec:
+  replicas: 2       # 2 instances for high availability
+  selector:
+    matchLabels:
+      app: orivya-backend
+  template:
+    metadata:
+      labels:
+        app: orivya-backend
+    spec:
+      containers:
+        - name: backend
+          image: YOUR_ECR_URL/orivya-rice-backend:latest   # Change this
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: orivya-config
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: orivya-secrets
+                  key: db-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: orivya-secrets
+                  key: jwt-secret
+          readinessProbe:
+            httpGet:
+              path: /api/products
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/products
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+---
+# ── BACKEND SERVICE ───────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: orivya-backend-service
+  namespace: orivya
+spec:
+  selector:
+    app: orivya-backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+# ── FRONTEND DEPLOYMENT ───────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orivya-frontend
+  namespace: orivya
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: orivya-frontend
+  template:
+    metadata:
+      labels:
+        app: orivya-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: YOUR_ECR_URL/orivya-rice-frontend:latest   # Change this
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+
+---
+# ── FRONTEND SERVICE + LOAD BALANCER ─────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: orivya-frontend-service
+  namespace: orivya
+spec:
+  selector:
+    app: orivya-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer   # Creates AWS ALB automatically
+
+---
+# ── INGRESS (Route traffic) ────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: orivya-ingress
+  namespace: orivya
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: orivya.yourdomain.com    # Replace with your domain
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: orivya-backend-service
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: orivya-frontend-service
+                port:
+                  number: 80
+
+---
+# ── PERSISTENT VOLUME CLAIM (MySQL storage) ───────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: orivya
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: gp2     # AWS EBS storage
+
+---
+# ── HORIZONTAL POD AUTOSCALER ─────────────────────
+# Automatically scale backend pods under load
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: orivya-backend-hpa
+  namespace: orivya
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: orivya-backend
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

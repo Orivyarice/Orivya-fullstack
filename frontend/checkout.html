@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Checkout – Orivya Rice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <img src="Images/Logo.jpeg" alt="Logo" class="logo-img"
+           onerror="this.style.display='none';this.parentNode.innerHTML='🌾'" />
+    </div>
+    <div class="nav-logo-text">ORIVYA <span>Premium Rice</span></div>
+  </a>
+  <div class="nav-actions">
+    <span id="navUserName" class="nav-username"></span>
+    <button id="logoutBtn" class="btn-nav" onclick="apiLogout()" style="display:none">Logout</button>
+  </div>
+</nav>
+
+<div style="max-width:900px;margin:40px auto;padding:0 24px;display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start">
+
+  <!-- LEFT: Order Form -->
+  <div>
+    <h2 style="font-family:'Cinzel',serif;color:var(--green);margin-bottom:24px">Complete Your Order</h2>
+
+    <!-- Step: Delivery Address -->
+    <div class="admin-product-form">
+      <h3 style="font-family:'Cinzel',serif;color:var(--green);margin-bottom:16px">📍 Delivery Address</h3>
+      <div class="form-group">
+        <label>Full Delivery Address *</label>
+        <textarea id="deliveryAddress" rows="4" placeholder="House No, Street, Village, Mandal, District, State, Pincode" style="width:100%;padding:12px;border:1px solid rgba(26,92,42,0.2);border-radius:4px;font-family:'Lato',sans-serif;font-size:14px;resize:vertical"></textarea>
+      </div>
+    </div>
+
+    <!-- Step: Payment Method -->
+    <div class="admin-product-form" style="margin-top:20px">
+      <h3 style="font-family:'Cinzel',serif;color:var(--green);margin-bottom:16px">💳 Payment Method</h3>
+
+      <label class="pay-option" id="lbl-cod" onclick="selectPayment('cod')">
+        <input type="radio" name="payMethod" value="cod" checked/>
+        <div><div class="pay-title">💵 Cash on Delivery</div><div class="pay-sub">Pay when you receive your order</div></div>
+      </label>
+      <label class="pay-option" id="lbl-upi" onclick="selectPayment('upi')">
+        <input type="radio" name="payMethod" value="upi"/>
+        <div><div class="pay-title">📱 UPI / GPay / PhonePe</div><div class="pay-sub">Pay to UPI ID: 9640525341@ybl</div></div>
+      </label>
+      
+
+      <!-- UPI Details -->
+      <div id="upiBox" style="display:none;background:#e8f5e9;border:1px solid #4caf50;border-radius:8px;padding:16px;margin:12px 0;text-align:center">
+        <div style="font-weight:700;font-size:13px;color:#555;margin-bottom:6px">SEND PAYMENT TO</div>
+        <div style="font-size:20px;font-weight:900;color:var(--green);font-family:'Cinzel',serif">9640525341@ybl</div>
+        <div style="font-size:12px;color:#777;margin:6px 0 12px">GPay / PhonePe / Paytm / Any UPI App</div>
+        <div class="form-group" style="text-align:left;margin-bottom:0">
+          <label>Enter Transaction ID / UTR *</label>
+          <input type="text" id="utrInput" placeholder="e.g. 123456789012" style="width:100%;padding:10px 14px;border:1px solid rgba(26,92,42,0.3);border-radius:4px;font-family:'Lato',sans-serif"/>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary btn-full" style="margin-top:20px;padding:16px;font-size:16px" onclick="handlePlaceOrder()" id="placeOrderBtn">
+      ✅ Place Order
+    </button>
+    <div style="text-align:center;font-size:12px;color:#999;margin-top:10px">🔒 Safe & Secure Checkout</div>
+  </div>
+
+  <!-- RIGHT: Order Summary -->
+  <div>
+    <div class="admin-product-form" style="position:sticky;top:90px">
+      <h3 style="font-family:'Cinzel',serif;color:var(--green);margin-bottom:16px">🛒 Order Summary</h3>
+      <div id="orderSummaryItems"><div class="spinner" style="margin:20px auto"></div></div>
+      <div style="border-top:2px solid rgba(26,92,42,0.15);margin-top:16px;padding-top:16px">
+        <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;color:var(--green);font-family:'Cinzel',serif">
+          <span>Total</span>
+          <span id="orderTotal">₹0</span>
+        </div>
+      </div>
+      <a href="index.html" style="display:block;text-align:center;color:var(--green);font-size:13px;margin-top:12px;text-decoration:none;">← Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:5000;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:12px;padding:40px;max-width:480px;width:90%;text-align:center">
+    <div style="font-size:60px;margin-bottom:16px">🎉</div>
+    <h2 style="font-family:'Cinzel',serif;color:var(--green);margin-bottom:8px">Order Placed!</h2>
+    <p id="successMsg" style="color:#666;font-size:14px;line-height:1.7;margin-bottom:20px"></p>
+    <a id="waOrderLink" href="#" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:12px 24px;border-radius:6px;font-weight:700;text-decoration:none;margin-bottom:12px">💬 Confirm on WhatsApp</a><br>
+    <a href="orders.html" style="display:inline-block;margin-top:8px;color:var(--green);font-weight:700;text-decoration:none">View My Orders →</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="js/api.js"></script>
+<script>
+  let selectedPayment = 'cod';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!requireLogin()) return;
+    updateNavbar();
+    loadOrderSummary();
+  });
+
+  async function loadOrderSummary() {
+    try {
+      const data = await apiGetCart();
+      const cart = data.data;
+      if (!cart || cart.items.length === 0) {
+        showToast('Your cart is empty!', 'error');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+        return;
+      }
+      document.getElementById('orderSummaryItems').innerHTML = cart.items.map(item => `
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;align-items:center">
+          <div>
+            <div style="font-weight:700;color:var(--green)">${item.productName}</div>
+            <div style="font-size:12px;color:#888">${item.weight} × ${item.quantity}</div>
+          </div>
+          <div style="font-weight:700">${formatPrice(item.subtotal)}</div>
+        </div>
+      `).join('');
+      document.getElementById('orderTotal').textContent = formatPrice(cart.totalAmount);
+    } catch (e) {
+      showToast('Error loading cart', 'error');
+    }
+  }
+
+  function selectPayment(method) {
+    selectedPayment = method;
+    ['cod','upi'].forEach(m => {
+      document.getElementById('lbl-' + m).style.border =
+        m === method ? '2px solid var(--green)' : '2px solid transparent';
+    });
+    document.getElementById('upiBox').style.display = method === 'upi' ? 'block' : 'none';
+  }
+
+  async function handlePlaceOrder() {
+    const address = document.getElementById('deliveryAddress').value.trim();
+    if (!address) { showToast('Please enter your delivery address.', 'error'); return; }
+
+    let transactionId = '';
+    if (selectedPayment === 'upi') {
+      transactionId = document.getElementById('utrInput').value.trim();
+      if (!transactionId) { showToast('Please enter UPI transaction ID.', 'error'); return; }
+    }
+
+    const btn = document.getElementById('placeOrderBtn');
+    btn.textContent = 'Placing order...'; btn.disabled = true;
+
+    try {
+      const data = await apiPlaceOrder(address, selectedPayment.toUpperCase(), transactionId);
+      if (data.success) {
+        const order = data.data;
+        document.getElementById('successMsg').innerHTML =
+          `Order <strong>#${order.orderId}</strong> placed!<br>Total: <strong>${formatPrice(order.totalPrice)}</strong><br>Payment: <strong>${order.paymentMethod}</strong>`;
+        const user = getUser();
+        const waMsg = encodeURIComponent(`🌾 Order #${order.orderId} placed on Orivya Rice!\nTotal: ₹${order.totalPrice}\nAddress: ${address}\nPayment: ${order.paymentMethod}\nPlease confirm. Thank you!`);
+        document.getElementById('waOrderLink').href = `https://wa.me/916304212346?text=${waMsg}`;
+        document.getElementById('successOverlay').style.display = 'flex';
+      }
+    } catch (e) {
+      showToast('Order failed: ' + e.message, 'error');
+    } finally {
+      btn.textContent = '✅ Place Order'; btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

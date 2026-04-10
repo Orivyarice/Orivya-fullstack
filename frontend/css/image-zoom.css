@@ -1,0 +1,91 @@
+/* ══════════════════════════════════════════════════════
+   features/image-zoom.css
+   FEATURE 3: Product Image Zoom on Hover
+
+   WHERE TO PLACE:
+   1. Copy to: frontend/css/image-zoom.css
+   2. Add in index.html <head> AFTER stock-badge.css:
+      <link rel="stylesheet" href="css/image-zoom.css" />
+   3. NO JS changes needed — pure CSS only ✅
+   ══════════════════════════════════════════════════════ */
+
+/* ── Override existing product-image styles to add zoom ── */
+.product-image {
+  overflow: hidden;      /* This clips the zoomed image */
+  cursor: zoom-in;
+  position: relative;
+}
+
+/* ── The image zooms when card is hovered ── */
+.product-card:hover .product-image img {
+  transform: scale(1.12);   /* Zoom 12% on hover */
+  transition: transform 0.4s ease;
+}
+
+.product-image img {
+  transition: transform 0.4s ease;   /* Smooth zoom out too */
+}
+
+/* ── Zoom overlay — shows a magnify icon on hover ── */
+.product-image::after {
+  content: '🔍';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255,255,255,0.85);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.product-card:hover .product-image::after {
+  opacity: 1;
+}
+
+/* ── Full-size image modal (opens when image is clicked) ── */
+.img-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 9000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  backdrop-filter: blur(6px);
+}
+
+.img-modal-overlay.open {
+  display: flex;
+}
+
+.img-modal-overlay img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  object-fit: contain;
+}
+
+.img-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,158 @@
+name: Orivya Rice CI/CD Pipeline
+
+# ══════════════════════════════════════════════════
+# .github/workflows/deploy.yml
+#
+# Pipeline Flow:
+# 1. Code pushed to main branch
+# 2. SonarQube code quality check
+# 3. Build Docker images
+# 4. Push to AWS ECR
+# 5. Deploy to Kubernetes (EKS)
+# 6. ArgoCD syncs the deployment
+# ══════════════════════════════════════════════════
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+  BACKEND_IMAGE: orivya-rice-backend
+  FRONTEND_IMAGE: orivya-rice-frontend
+
+jobs:
+
+  # ── JOB 1: Test & Code Quality ─────────────────
+  test-and-quality:
+    name: Test + SonarQube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # SonarQube needs full history
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+
+      - name: Run tests
+        working-directory: ./backend
+        run: mvn test -B
+
+      - name: SonarQube Analysis
+        working-directory: ./backend
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=orivya-rice \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN \
+            -B
+
+  # ── JOB 2: Build Docker Images ─────────────────
+  build-and-push:
+    name: Build + Push to ECR
+    runs-on: ubuntu-latest
+    needs: test-and-quality
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push Backend Image
+        working-directory: ./backend
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:latest .
+          docker push $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
+          echo "BACKEND_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Build & Push Frontend Image
+        working-directory: ./frontend
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$FRONTEND_IMAGE:latest .
+          docker push $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
+
+      - name: Update K8s manifests with new image tags
+        run: |
+          sed -i "s|YOUR_ECR_URL/$BACKEND_IMAGE:latest|$ECR_REGISTRY/$BACKEND_IMAGE:${{ github.sha }}|g" \
+            devops/kubernetes/k8s-deployment.yml
+          sed -i "s|YOUR_ECR_URL/$FRONTEND_IMAGE:latest|$ECR_REGISTRY/$FRONTEND_IMAGE:${{ github.sha }}|g" \
+            devops/kubernetes/k8s-deployment.yml
+
+      - name: Commit updated manifests (ArgoCD will auto-sync)
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add devops/kubernetes/k8s-deployment.yml
+          git commit -m "ci: update image tags to ${{ github.sha }}" || echo "No changes"
+          git push
+
+  # ── JOB 3: Deploy to EKS ───────────────────────
+  deploy:
+    name: Deploy to AWS EKS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name orivya-eks-cluster
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f devops/kubernetes/k8s-deployment.yml
+          kubectl rollout status deployment/orivya-backend -n orivya
+          kubectl rollout status deployment/orivya-frontend -n orivya
+
+      - name: Get app URL
+        run: |
+          echo "App is live at:"
+          kubectl get service orivya-frontend-service -n orivya \
+            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'

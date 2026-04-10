@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Dashboard – Orivya Rice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">🌾 ORIVYA<span>Admin Panel</span></div>
+    <nav class="admin-nav">
+      <button class="admin-nav-btn active" onclick="switchTab('dashboard', event)">📊 Dashboard</button>
+      <button class="admin-nav-btn"        onclick="switchTab('products',  event)">📦 Products</button>
+      <button class="admin-nav-btn"        onclick="switchTab('orders',    event)">📋 Orders</button>
+      <button class="admin-nav-btn"        onclick="switchTab('addProduct',event)">➕ Add Product</button>
+    </nav>
+    <div style="padding:0 16px 16px">
+      <div id="adminUserLabel" style="color:rgba(255,255,255,0.6);font-size:12px;padding:12px 8px;border-top:1px solid rgba(255,255,255,0.1)"></div>
+      <a href="index.html" style="display:block;color:rgba(255,255,255,0.7);font-size:13px;padding:8px;text-decoration:none;margin-bottom:8px">🛍 View Shop</a>
+      <button class="admin-logout-btn" onclick="handleLogout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title" id="adminPageTitle">Dashboard</h1>
+      <span style="color:#888;font-size:13px" id="adminEmail"></span>
+    </div>
+
+
+    <!-- ══════════════ DASHBOARD TAB ══════════════ -->
+    <div id="tab-dashboard" class="admin-tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="statUsers">—</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-value" id="statProducts">—</div>
+          <div class="stat-label">Products</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value" id="statOrders">—</div>
+          <div class="stat-label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" id="statPending">—</div>
+          <div class="stat-label">Pending Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="statDelivered">—</div>
+          <div class="stat-label">Delivered</div>
+        </div>
+        <div class="stat-card revenue">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="statRevenue">—</div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+      </div>
+
+      <!-- Quick action buttons -->
+      <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn-primary btn-sm" onclick="switchTabByName('addProduct')">➕ Add New Product</button>
+        <button class="btn-primary btn-sm" style="background:linear-gradient(135deg,#1a5c2a,#2d7a3e)" onclick="switchTabByName('products')">📦 Manage Products</button>
+        <button class="btn-primary btn-sm" style="background:linear-gradient(135deg,#c8922a,#e8b44a)" onclick="switchTabByName('orders')">📋 View Orders</button>
+      </div>
+    </div>
+
+
+    <!-- ══════════════ PRODUCTS TAB ══════════════ -->
+    <div id="tab-products" class="admin-tab-content">
+      <div class="admin-table-header">
+        <h3>All Products</h3>
+        <button class="btn-primary btn-sm" onclick="switchTabByName('addProduct')">+ Add New Product</button>
+      </div>
+      <div id="productsTableWrap">
+        <div style="text-align:center;padding:40px"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════ ADD / EDIT PRODUCT TAB ══════════════ -->
+    <div id="tab-addProduct" class="admin-tab-content">
+      <div class="admin-product-form" style="max-width:680px">
+        <h3 id="productFormTitle">➕ Add New Product</h3>
+        <input type="hidden" id="editProductId" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" id="pName" placeholder="e.g. Sona Masoori Rice" />
+          </div>
+          <div class="form-group">
+            <label>Weight / Size *</label>
+            <input type="text" id="pWeight" placeholder="e.g. 26 kg" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (₹) *</label>
+            <input type="number" id="pPrice" placeholder="e.g. 1299" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Stock Quantity</label>
+            <input type="number" id="pStock" placeholder="e.g. 100" min="0" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Badge</label>
+            <input type="text" id="pBadge" placeholder="e.g. Best Seller" />
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="pCategory" placeholder="e.g. Sona Masoori" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="pDesc" rows="3" placeholder="Product description..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Product Image</label>
+          <input type="file" id="pImage" accept="image/*" onchange="previewImage(this)" />
+          <img id="imagePreview"
+               style="display:none;width:120px;height:120px;object-fit:contain;
+                      margin-top:10px;border:1px solid #eee;border-radius:6px;padding:4px" />
+        </div>
+
+        <div class="form-group">
+          <label>Active (visible in shop)</label>
+          <select id="pActive">
+            <option value="true">✅ Yes — visible in shop</option>
+            <option value="false">❌ No — hidden from shop</option>
+          </select>
+        </div>
+
+        <!-- Save Message -->
+        <div id="saveMsg" style="display:none;padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:14px;font-weight:700"></div>
+
+        <div style="display:flex;gap:12px">
+          <button class="btn-primary btn-sm" onclick="handleSaveProduct()">💾 Save Product</button>
+          <button class="btn-cancel" onclick="cancelProductEdit()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════ ORDERS TAB ══════════════ -->
+    <div id="tab-orders" class="admin-tab-content">
+      <div class="admin-table-header">
+        <h3>All Orders</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select id="orderStatusFilter" onchange="filterOrders(this.value)"
+                  style="padding:8px 14px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="SHIPPED">Shipped</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+          <button class="btn-primary btn-sm" onclick="loadAdminOrders('')">🔄 Refresh</button>
+        </div>
+      </div>
+      <div id="ordersTableWrap">
+        <div style="text-align:center;padding:40px"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="js/api.js"></script>
+<script>
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function () {
+  // Guard — must be admin
+  if (!isLoggedIn()) {
+    window.location.href = 'admin-login.html';
+    return;
+  }
+  if (!isAdmin()) {
+    alert('Access denied. Admin accounts only.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Show user info in sidebar
+  const user = getUser();
+  document.getElementById('adminUserLabel').textContent = '👤 ' + user.name;
+  document.getElementById('adminEmail').textContent     = user.email;
+
+  // Load dashboard stats
+  loadDashboard();
+});
+
+
+/* ══════════════════════════════════════════
+   TAB SWITCHING
+══════════════════════════════════════════ */
+const tabTitles = {
+  dashboard:  'Dashboard',
+  products:   'Products',
+  addProduct: 'Add Product',
+  orders:     'Orders'
+};
+
+function switchTab(tab, event) {
+  // Hide all tabs
+  document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+  // Deactivate all nav buttons
+  document.querySelectorAll('.admin-nav-btn').forEach(el => el.classList.remove('active'));
+
+  // Show selected tab
+  const tabEl = document.getElementById('tab-' + tab);
+  if (tabEl) tabEl.classList.add('active');
+
+  // Mark clicked button active
+  if (event && event.target) event.target.classList.add('active');
+
+  // Update page title
+  document.getElementById('adminPageTitle').textContent = tabTitles[tab] || tab;
+
+  // Load data
+  if (tab === 'dashboard')  loadDashboard();
+  if (tab === 'products')   loadAdminProducts();
+  if (tab === 'orders')     loadAdminOrders('');
+}
+
+// Switch tab programmatically (without a click event)
+function switchTabByName(tab) {
+  document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-btn').forEach(el => el.classList.remove('active'));
+
+  const tabEl = document.getElementById('tab-' + tab);
+  if (tabEl) tabEl.classList.add('active');
+
+  document.getElementById('adminPageTitle').textContent = tabTitles[tab] || tab;
+
+  if (tab === 'dashboard')  loadDashboard();
+  if (tab === 'products')   loadAdminProducts();
+  if (tab === 'orders')     loadAdminOrders('');
+}
+
+
+/* ══════════════════════════════════════════
+   DASHBOARD — Load stats
+══════════════════════════════════════════ */
+async function loadDashboard() {
+  try {
+    const data = await apiGetDashboardStats();
+    const s    = data.data;
+    document.getElementById('statUsers').textContent     = s.totalUsers;
+    document.getElementById('statProducts').textContent  = s.totalProducts;
+    document.getElementById('statOrders').textContent    = s.totalOrders;
+    document.getElementById('statPending').textContent   = s.pendingOrders;
+    document.getElementById('statDelivered').textContent = s.deliveredOrders;
+    document.getElementById('statRevenue').textContent   = formatPrice(s.totalRevenue);
+  } catch (e) {
+    console.error('Dashboard error:', e.message);
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   PRODUCTS — Load and display all products
+══════════════════════════════════════════ */
+async function loadAdminProducts() {
+  const wrap = document.getElementById('productsTableWrap');
+  wrap.innerHTML = '<div class="spinner" style="margin:40px auto"></div>';
+
+  try {
+    const data     = await apiGetAllProductsAdmin();
+    const products = data.data || [];
+
+    if (products.length === 0) {
+      wrap.innerHTML = `
+        <div style="text-align:center;padding:60px;color:#999">
+          <p style="font-size:16px;margin-bottom:16px">No products yet.</p>
+          <button class="btn-primary btn-sm" onclick="switchTabByName('addProduct')">
+            ➕ Add First Product
+          </button>
+        </div>`;
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Weight</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${products.map(p => `
+              <tr>
+                <td>#${p.id}</td>
+                <td>
+                  <div style="width:52px;height:52px;background:#f0f7f0;border-radius:4px;
+                              display:flex;align-items:center;justify-content:center;overflow:hidden">
+                    ${p.imageUrl
+                      ? `<img src="${getImageUrl(p.imageUrl)}" style="width:100%;height:100%;object-fit:contain"
+                              onerror="this.parentNode.textContent='🌾'"/>`
+                      : `<span style="font-size:24px">🌾</span>`}
+                  </div>
+                </td>
+                <td>
+                  <strong style="color:#1a5c2a">${p.name}</strong>
+                  ${p.badge ? `<br><span style="background:#1a5c2a;color:white;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700">${p.badge}</span>` : ''}
+                </td>
+                <td>${p.weight}</td>
+                <td><strong>${formatPrice(p.price)}</strong></td>
+                <td style="font-weight:700;color:${p.stockQuantity > 0 ? '#155724' : '#721c24'}">${p.stockQuantity}</td>
+                <td>
+                  <span style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;
+                        background:${p.isActive ? '#d4edda' : '#f8d7da'};
+                        color:${p.isActive ? '#155724' : '#721c24'}">
+                    ${p.isActive ? '✅ ACTIVE' : '❌ INACTIVE'}
+                  </span>
+                </td>
+                <td style="white-space:nowrap">
+                  <button class="edit-btn" onclick="loadEditProduct(${p.id})">✏ Edit</button>
+                  <button class="del-btn"  onclick="confirmDelete(${p.id}, '${(p.name||'').replace(/'/g,"\\'")}')">🗑 Delete</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+  } catch (e) {
+    wrap.innerHTML = `<div style="background:#fff5f5;color:red;padding:20px;border-radius:6px">
+      ❌ Error: ${e.message}
+    </div>`;
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   SAVE PRODUCT (Create or Update)
+══════════════════════════════════════════ */
+async function handleSaveProduct() {
+  const id     = document.getElementById('editProductId').value.trim();
+  const name   = document.getElementById('pName').value.trim();
+  const weight = document.getElementById('pWeight').value.trim();
+  const price  = parseFloat(document.getElementById('pPrice').value);
+
+  // Validate
+  if (!name)            { showSaveMsg('⚠ Please enter the product name.', 'error');   return; }
+  if (!weight)          { showSaveMsg('⚠ Please enter the weight/size.', 'error');    return; }
+  if (!price || price <= 0) { showSaveMsg('⚠ Please enter a valid price.', 'error'); return; }
+
+  const productData = {
+    name,
+    weight,
+    price,
+    stockQuantity: parseInt(document.getElementById('pStock').value)    || 0,
+    badge:         document.getElementById('pBadge').value.trim()       || null,
+    category:      document.getElementById('pCategory').value.trim()    || null,
+    description:   document.getElementById('pDesc').value.trim()        || null,
+    isActive:      document.getElementById('pActive').value === 'true'
+  };
+
+  const imageFile = document.getElementById('pImage').files[0] || null;
+  showSaveMsg('⏳ Saving...', 'info');
+
+  try {
+    if (id) {
+      await apiUpdateProduct(id, productData, imageFile);
+      showSaveMsg('✅ Product updated successfully!', 'success');
+    } else {
+      await apiCreateProduct(productData, imageFile);
+      showSaveMsg('✅ Product created successfully!', 'success');
+    }
+
+    // After 1.5s go back to products list
+    setTimeout(() => {
+      cancelProductEdit();
+      switchTabByName('products');
+    }, 1500);
+
+  } catch (e) {
+    showSaveMsg('❌ Error: ' + e.message, 'error');
+  }
+}
+
+function showSaveMsg(text, type) {
+  const el = document.getElementById('saveMsg');
+  el.textContent   = text;
+  el.style.display = 'block';
+  el.style.background = type === 'success' ? '#d4edda'
+                       : type === 'error'   ? '#f8d7da'
+                       : '#d1ecf1';
+  el.style.color = type === 'success' ? '#155724'
+                 : type === 'error'   ? '#721c24'
+                 : '#0c5460';
+}
+
+
+/* ══════════════════════════════════════════
+   LOAD PRODUCT FOR EDITING
+══════════════════════════════════════════ */
+async function loadEditProduct(id) {
+  try {
+    const data = await apiGetProduct(id);
+    const p    = data.data;
+
+    document.getElementById('editProductId').value = p.id;
+    document.getElementById('pName').value         = p.name          || '';
+    document.getElementById('pWeight').value       = p.weight        || '';
+    document.getElementById('pPrice').value        = p.price         || '';
+    document.getElementById('pStock').value        = p.stockQuantity || '';
+    document.getElementById('pBadge').value        = p.badge         || '';
+    document.getElementById('pCategory').value     = p.category      || '';
+    document.getElementById('pDesc').value         = p.description   || '';
+    document.getElementById('pActive').value       = String(p.isActive !== false);
+    document.getElementById('saveMsg').style.display = 'none';
+
+    if (p.imageUrl) {
+      const prev = document.getElementById('imagePreview');
+      prev.src = getImageUrl(p.imageUrl);
+      prev.style.display = 'block';
+    }
+
+    document.getElementById('productFormTitle').textContent = '✏ Edit: ' + p.name;
+    switchTabByName('addProduct');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (e) {
+    showToast('❌ Could not load product: ' + e.message, 'error');
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   DELETE PRODUCT
+══════════════════════════════════════════ */
+async function confirmDelete(id, name) {
+  if (!confirm(`Delete "${name}"?\nThis will hide it from the shop.`)) return;
+  try {
+    await apiDeleteProduct(id);
+    showToast('🗑 Product deleted.');
+    loadAdminProducts();
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   RESET PRODUCT FORM
+══════════════════════════════════════════ */
+function cancelProductEdit() {
+  document.getElementById('editProductId').value = '';
+  ['pName','pWeight','pPrice','pStock','pBadge','pCategory','pDesc']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pActive').value             = 'true';
+  document.getElementById('pImage').value              = '';
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('saveMsg').style.display     = 'none';
+  document.getElementById('productFormTitle').textContent = '➕ Add New Product';
+}
+
+function previewImage(input) {
+  const preview = document.getElementById('imagePreview');
+  if (input.files && input.files[0]) {
+    preview.src           = URL.createObjectURL(input.files[0]);
+    preview.style.display = 'block';
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   ORDERS — Load and display all orders
+══════════════════════════════════════════ */
+async function loadAdminOrders(status) {
+  const wrap = document.getElementById('ordersTableWrap');
+  wrap.innerHTML = '<div class="spinner" style="margin:40px auto"></div>';
+
+  try {
+    const data   = await apiGetAllOrders();
+    let orders   = data.data || [];
+
+    // Filter client-side if status selected
+    if (status) {
+      orders = orders.filter(o => o.status === status);
+    }
+
+    if (orders.length === 0) {
+      wrap.innerHTML = `<p style="text-align:center;padding:40px;color:#999">No orders found.</p>`;
+      return;
+    }
+
+    const statusColors = {
+      PENDING:    { bg:'#fff3cd', color:'#856404' },
+      CONFIRMED:  { bg:'#d1ecf1', color:'#0c5460' },
+      PROCESSING: { bg:'#e2d9f3', color:'#4a235a' },
+      SHIPPED:    { bg:'#cce5ff', color:'#004085' },
+      DELIVERED:  { bg:'#d4edda', color:'#155724' },
+      CANCELLED:  { bg:'#f8d7da', color:'#721c24' }
+    };
+
+    wrap.innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orders.map(o => {
+              const sc   = statusColors[o.status] || { bg:'#eee', color:'#333' };
+              const date = o.createdAt ? o.createdAt.split('T')[0] : '—';
+              const items= (o.items||[]).map(i => i.productName).join(', ') || '—';
+              return `
+                <tr>
+                  <td><strong style="color:#1a5c2a">${o.orderId || '#' + o.id}</strong></td>
+                  <td>
+                    <strong>${o.customerName || '—'}</strong>
+                    ${o.deliveryAddress ? `<br><small style="color:#888">${o.deliveryAddress.substring(0,35)}...</small>` : ''}
+                  </td>
+                  <td style="font-size:12px;max-width:150px;word-wrap:break-word">${items}</td>
+                  <td><strong style="font-size:15px;color:#1a5c2a">${formatPrice(o.totalPrice)}</strong></td>
+                  <td>
+                    <span style="font-size:12px;font-weight:700">${o.paymentMethod || '—'}</span><br>
+                    <span style="font-size:11px;color:${o.paymentStatus==='PAID'?'#155724':'#856404'}">${o.paymentStatus||'—'}</span>
+                  </td>
+                  <td style="font-size:12px">${date}</td>
+                  <td>
+                    <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
+                                 background:${sc.bg};color:${sc.color}">
+                      ${o.status}
+                    </span>
+                  </td>
+                  <td>
+                    <select onchange="updateOrderStatus(${o.orderId || o.id}, this)"
+                            style="font-size:12px;padding:6px 8px;border:1px solid #ddd;
+                                   border-radius:4px;cursor:pointer;min-width:130px">
+                      <option value="">— Change —</option>
+                      <option value="CONFIRMED">✅ Confirmed</option>
+                      <option value="PROCESSING">🔄 Processing</option>
+                      <option value="SHIPPED">🚚 Shipped</option>
+                      <option value="DELIVERED">🎉 Delivered</option>
+                      <option value="CANCELLED">❌ Cancelled</option>
+                    </select>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+  } catch (e) {
+    wrap.innerHTML = `<div style="background:#fff5f5;color:red;padding:20px;border-radius:6px">
+      ❌ Error: ${e.message}
+    </div>`;
+  }
+}
+
+async function updateOrderStatus(orderId, selectEl) {
+  const status = selectEl.value;
+  if (!status) return;
+  try {
+    await apiUpdateOrderStatus(orderId, status);
+    showToast(`✅ Order #${orderId} → ${status}`);
+    await loadAdminOrders(document.getElementById('orderStatusFilter').value);
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+    selectEl.value = '';
+  }
+}
+
+function filterOrders(status) {
+  loadAdminOrders(status);
+}
+
+</script>
+</body>
+</html>

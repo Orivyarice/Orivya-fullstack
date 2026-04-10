@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orivya Rice – Premium Quality Sona Masoori Rice</title>
+  <!-- SEO -->
+  <meta name="description" content="Premium Sona Masoori Rice from Andhra Pradesh. Buy online from Sri Lakshmi Ganapati Rice Mill. FSSAI certified. Bulk and retail supply." />
+  <meta name="keywords" content="sona masoori rice, buy rice online, andhra rice, peddapuram rice, kakinada rice, orivya rice" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <!-- Base styles -->
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Feature styles — all new, don't change existing code -->
+  <link rel="stylesheet" href="css/features.css" />
+</head>
+<body>
+
+<!-- ════════ NAVIGATION ════════ -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <img src="Images/Logo.jpeg" alt="Logo" class="logo-img"
+           onerror="this.style.display='none';this.parentNode.innerHTML='🌾'" />
+    </div>
+    <div class="nav-logo-text">ORIVYA<span>Premium Rice</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#shop">Shop</a></li>
+    <li><a href="#why">Why Orivya</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#nutrition">Nutrition</a></li>
+    <li><a href="#contact">Order Now</a></li>
+  </ul>
+  <div class="nav-actions">
+    <span id="navUserName" class="nav-username" style="display:none"></span>
+    <a href="orders.html" id="myOrdersBtn" class="btn-nav" style="display:none">📋 My Orders</a>
+    <a href="admin.html"  id="adminNavBtn" class="btn-nav admin-nav-btn" style="display:none">⚙ Admin</a>
+    <button id="logoutBtn" class="btn-nav" onclick="handleLogout()" style="display:none">Logout</button>
+    <a href="login.html" id="loginBtn" class="btn-nav">Login</a>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ════════ HERO ════════ -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">✦ From the Fields of Andhra Pradesh</div>
+    <h1><span class="gold">ORIVYA</span><br />Premium Rice</h1>
+    <p class="hero-sub">Pure • Clean • Naturally Processed<br />Soft &amp; Fluffy after Cooking</p>
+    <div class="hero-features">
+      <div class="hero-feat"><div class="dot"></div>Sona Masoori</div>
+      <div class="hero-feat"><div class="dot"></div>Hygienically Milled</div>
+      <div class="hero-feat"><div class="dot"></div>FSSAI Certified</div>
+      <div class="hero-feat"><div class="dot"></div>Bulk Available</div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="scrollToShop()">Shop Now</button>
+      <button class="btn-outline" onclick="scrollToContact()">Bulk Order</button>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img class="hero-bag" src="Images/Inrtoduction.jpeg" alt="Orivya Rice Bag"
+         onerror="this.style.display='none';this.parentNode.innerHTML='<div class=\'hero-bag-fallback\'>🌾</div>'" />
+  </div>
+</section>
+
+
+<!-- ════════ MARQUEE ════════ -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item">Premium Sona Masoori Rice</span>
+    <span class="marquee-item">Hygienically Milled &amp; Packed</span>
+    <span class="marquee-item">Bulk &amp; Retail Supply</span>
+    <span class="marquee-item">FSSAI Licensed</span>
+    <span class="marquee-item">Made in India</span>
+    <span class="marquee-item">Direct from Mill</span>
+    <span class="marquee-item">500+ Happy Customers</span>
+    <span class="marquee-item">100% Natural Process</span>
+    <span class="marquee-item">Premium Sona Masoori Rice</span>
+    <span class="marquee-item">Hygienically Milled &amp; Packed</span>
+    <span class="marquee-item">FSSAI Licensed</span>
+    <span class="marquee-item">Direct from Mill</span>
+  </div>
+</div>
+
+
+<!-- ════════ SHOP ════════ -->
+<section id="shop">
+  <div class="section-header">
+    <div class="section-label">Our Products</div>
+    <h2 class="section-title">Choose Your Rice</h2>
+    <p class="section-desc">Every grain is processed with care — clean, pure, and perfectly milled for your family's daily meals.</p>
+  </div>
+
+  <!-- FEATURE 4: Search with autocomplete dropdown -->
+  <div class="search-bar-wrapper">
+    <input type="text" id="searchInput" class="search-input"
+           placeholder="🔍 Search rice products..."
+           oninput="handleSearchWithSuggestions(this.value)"
+           onkeydown="handleSearchKeydown(event)"
+           autocomplete="off" />
+    <!-- Autocomplete dropdown — filled by JS -->
+    <div class="search-suggestions" id="searchSuggestions"></div>
+  </div>
+
+  <!-- Products Grid — filled by JS (shows skeleton cards while loading) -->
+  <div class="products-grid" id="productsGrid">
+    <!-- FEATURE 1: Skeleton cards shown here while loading -->
+  </div>
+  <div class="pagination" id="pagination"></div>
+</section>
+
+
+<!-- FEATURE 5: Recently Viewed — shown after products load -->
+<section class="recently-viewed-section" id="recentlyViewed" style="display:none">
+  <div class="rv-header">
+    <h3>👁 Recently Viewed</h3>
+    <button class="rv-clear-btn" onclick="clearRecentlyViewed()">Clear History</button>
+  </div>
+  <div class="rv-row" id="rvRow"></div>
+</section>
+
+
+<!-- ════════ WHY ORIVYA ════════ -->
+<section id="why">
+  <div class="section-header">
+    <div class="section-label">Our Promise</div>
+    <h2 class="section-title">Why Choose Orivya?</h2>
+    <p class="section-desc">From paddy field to your kitchen — we maintain quality at every single step.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card"><div class="feature-icon">🌾</div><div class="feature-title">Fine Quality Grains</div><p class="feature-text">Sourced from the best Sona Masoori paddy fields in Andhra Pradesh for premium taste and texture.</p></div>
+    <div class="feature-card"><div class="feature-icon">🍚</div><div class="feature-title">Soft &amp; Fluffy</div><p class="feature-text">Our rice turns perfectly soft and fluffy after cooking — ideal for everyday meals, biryani, and more.</p></div>
+    <div class="feature-card"><div class="feature-icon">✅</div><div class="feature-title">Hygienically Milled</div><p class="feature-text">Processed in our state-of-the-art mini rice mill, packed under strict hygiene standards.</p></div>
+    <div class="feature-card"><div class="feature-icon">🚚</div><div class="feature-title">Direct from Mill</div><p class="feature-text">No middlemen — you get fresh rice directly from our Sri Lakshmi Ganapati Mini Rice Mill.</p></div>
+    <div class="feature-card"><div class="feature-icon">📦</div><div class="feature-title">Bulk Supply</div><p class="feature-text">Wholesale and retail supply available. Ideal for hotels, restaurants, and large families.</p></div>
+    <div class="feature-card"><div class="feature-icon">🏅</div><div class="feature-title">FSSAI Certified</div><p class="feature-text">Licensed under FSSAI (No: 20126072000037) ensuring food safety and quality compliance.</p></div>
+  </div>
+</section>
+
+
+<!-- ════════ FEATURE 6: TESTIMONIALS ════════ -->
+<section id="testimonials">
+  <div class="section-header">
+    <div class="section-label">Customer Reviews</div>
+    <h2 class="section-title">What Our Customers Say</h2>
+    <p class="section-desc">Thousands of families across Andhra Pradesh trust Orivya Rice every day.</p>
+  </div>
+
+  <!-- Count-up stats — animated by JS when scrolled into view -->
+  <div class="testimonials-stats">
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="500">0</div>
+      <div class="t-stat-label">Happy Customers</div>
+    </div>
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="5">0</div>
+      <div class="t-stat-label">Years of Excellence</div>
+    </div>
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="10000">0</div>
+      <div class="t-stat-label">kg Rice Sold</div>
+    </div>
+    <div class="t-stat">
+      <div class="t-stat-number" data-target="4.9">0</div>
+      <div class="t-stat-label">Avg Rating ⭐</div>
+    </div>
+  </div>
+
+  <!-- Review Cards -->
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="testimonial-text">Orivya rice is superb! The grains are clean, uniform, and cook beautifully. My whole family loves the soft texture. Best Sona Masoori I've had in years.</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">R</div>
+        <div>
+          <div class="author-name">Ramesh Babu <span class="verified-badge">✅ Verified</span></div>
+          <div class="author-location">Kakinada, AP</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="testimonial-text">We order 50kg bags every month for our hotel. Quality is absolutely consistent every single time. Direct from mill means fresh rice always. Highly recommended!</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">S</div>
+        <div>
+          <div class="author-name">Sridevi Hotels <span class="verified-badge">✅ Verified</span></div>
+          <div class="author-location">Peddapuram, AP</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="testimonial-text">Very happy with the FSSAI certified rice. No stones, no foreign particles — just pure clean rice. The WhatsApp ordering is super convenient too!</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">P</div>
+        <div>
+          <div class="author-name">Padmavathi K. <span class="verified-badge">✅ Verified</span></div>
+          <div class="author-location">Rajahmundry, AP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FSSAI Certificate Display -->
+  <div class="fssai-section">
+    <div class="fssai-logo">🏅</div>
+    <div class="fssai-text">
+      <h4>FSSAI Licensed Food Business</h4>
+      <p>Sri Lakshmi Ganapati Mini Rice Mill is certified by the Food Safety and Standards Authority of India, ensuring highest standards of food safety, hygiene, and quality compliance.</p>
+      <div class="fssai-number">FSSAI Lic. No: 20126072000037</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ NUTRITION ════════ -->
+<section id="nutrition">
+  <div class="section-header">
+    <div class="section-label">Nutritional Value</div>
+    <h2 class="section-title">Packed with Goodness</h2>
+    <p class="section-desc">Sona Masoori rice is light, easy to digest, and rich in essential nutrients for your daily health.</p>
+  </div>
+  <div class="nutrition-grid">
+    <div class="nutrition-table">
+      <h3>NUTRITION INFORMATION (per 100g)</h3>
+      <div class="nutrition-row"><span>Energy</span><span class="val">345 kcal</span></div>
+      <div class="nutrition-row"><span>Carbohydrates</span><span class="val">78.5 g</span></div>
+      <div class="nutrition-row"><span>Sugars</span><span class="val">0 g</span></div>
+      <div class="nutrition-row"><span>Protein</span><span class="val">6.8 g</span></div>
+      <div class="nutrition-row"><span>Dietary Fibre</span><span class="val">1.2 g</span></div>
+      <div class="nutrition-row"><span>Fat</span><span class="val">0.5 g</span></div>
+      <div class="nutrition-row"><span>Saturated Fat</span><span class="val">0.1 g</span></div>
+      <div class="nutrition-row"><span>Trans Fat</span><span class="val">0 g</span></div>
+    </div>
+    <div class="nutrition-info">
+      <h3>Naturally Nourishing</h3>
+      <p>Sona Masoori is a lightweight, low-starch variety of rice. It cooks faster than regular rice and is easier to digest — making it perfect for all ages.</p>
+      <p>Rich in carbohydrates for sustained energy, with decent protein and zero trans fats. A healthy staple for every Indian household.</p>
+      <div class="cert-badges">
+        <div class="cert-badge">🇮🇳 Made in India</div>
+        <div class="cert-badge">✅ FSSAI Licensed</div>
+        <div class="cert-badge">🌿 Natural Process</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ CONTACT ════════ -->
+<section id="contact">
+  <div class="section-header">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Order &amp; Contact</h2>
+    <p class="section-desc">Place a bulk order or reach us directly. We supply retail &amp; wholesale across the region.</p>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <h3>Sri Lakshmi Ganapati Mini Rice Mill</h3>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div class="contact-item-text"><strong>Address</strong><span>Door No. 4-35, Chinna Ramalayam Veedhi,<br />Mullam Road, Gorinta,<br />Peddapuram Mandal, Kakinada District,<br />Andhra Pradesh – 533433</span></div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div class="contact-item-text"><strong>Phone / WhatsApp</strong><span>6304212346</span></div>
+      </div>
+      <div class="wa-direct-box">
+        <div class="wa-direct-title">💬 Chat with us on WhatsApp</div>
+        <div class="wa-direct-sub">Tap below — we reply instantly!</div>
+        <button class="wa-direct-btn" onclick="openWhatsAppGreeting()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:8px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chat on WhatsApp Now
+        </button>
+        <div class="wa-numbers">
+          
+          <a href="https://wa.me/916304212346" target="_blank" class="wa-num-link">📱 6304212346</a>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📧</div>
+        <div class="contact-item-text"><strong>Email</strong><span>orivyaorganicrice@gmail.com</span></div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">⏰</div>
+        <div class="contact-item-text"><strong>Business Hours</strong><span>Monday – Saturday: 8:00 AM – 7:00 PM<br />Sunday: 9:00 AM – 2:00 PM</span></div>
+      </div>
+    </div>
+    <div class="order-form">
+      <h3>Place a Bulk Order</h3>
+      <div class="form-group"><label>Your Name</label><input type="text" id="orderName" placeholder="Full name" /></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="orderPhone" placeholder="WhatsApp number" /></div>
+      <div class="form-group">
+        <label>Rice Type</label>
+        <select id="orderRice">
+          <option value="">Select rice type...</option>
+          <option>Sona Masoori Rice</option>
+          <option>Raw Rice</option>
+          <option>Broken Rice</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Quantity (kg)</label><input type="number" id="orderQty" placeholder="e.g. 100 kg" /></div>
+      <div class="form-group"><label>Delivery Address</label><textarea id="orderAddress" rows="3" placeholder="Full delivery address"></textarea></div>
+      <button class="btn-primary btn-full" onclick="submitBulkOrder()">Send Order Request</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo-text">🌾 ORIVYA RICE</div>
+      <p>Premium Quality Sona Masoori Rice — pure, clean, and naturally processed from the paddy fields of Andhra Pradesh directly to your plate.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Products</h4>
+      <ul><li>Sona Masoori Rice</li><li>Raw Rice</li><li>Broken Rice</li><li>Nookaulu (Bran)</li><li>Tavadudu (Husk)</li></ul>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li onclick="scrollToShop()">Shop</li>
+        <li onclick="scrollToWhy()">Why Orivya</li>
+        <li onclick="document.getElementById('testimonials').scrollIntoView({behavior:'smooth'})">Reviews</li>
+        <li onclick="scrollToContact()">Contact</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul><li>📞 9640525341</li><li>📞 6304212346</li><li>📧 orivyaorganicrice@gmail.com</li><li>📍 Gorinta, Peddapuram Mandal</li><li>Kakinada District, Andhra Pradesh</li></ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Orivya Rice. All Rights Reserved.</span>
+    <div class="fssai-badge">FSSAI Lic. No: 20126072000037</div>
+    <span>Country of Origin: 🇮🇳 INDIA</span>
+  </div>
+</footer>
+
+
+<!-- ════════ CART SIDEBAR ════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h2>🛒 Your Cart</h2>
+    <button class="close-cart" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty"><div class="emoji">🛒</div><p>Your cart is empty.<br />Add some premium rice!</p></div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-total">
+      <span class="label">Total Amount</span>
+      <span class="amount" id="cartTotal">₹0</span>
+    </div>
+    <button class="checkout-btn" onclick="goToCheckout()">Proceed to Checkout →</button>
+  </div>
+</div>
+
+
+<!-- ════════ CHECKOUT MODAL ════════ -->
+<div class="checkout-overlay" id="checkoutOverlay">
+  <div class="checkout-modal">
+    <div class="checkout-modal-header">
+      <h2>🛒 Complete Your Order</h2>
+      <button class="close-admin" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="checkout-modal-body" id="checkoutBody">
+      <div class="step-indicator">
+        <div id="step1ind" class="step-pill active">1 · DETAILS</div>
+        <div id="step2ind" class="step-pill">2 · PAYMENT</div>
+      </div>
+      <div id="checkStep1">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="checkName" placeholder="Your full name" /></div>
+        <div class="form-group"><label>Phone / WhatsApp *</label><input type="tel" id="checkPhone" placeholder="10-digit mobile number" /></div>
+        <div class="form-group"><label>Email (optional)</label><input type="email" id="checkEmail" placeholder="For order confirmation" /></div>
+        <div class="form-group"><label>Delivery Address *</label><textarea id="checkAddress" rows="3" placeholder="House no, Street, Village, District, Pincode"></textarea></div>
+        <div class="order-summary-box">
+          <strong class="summary-title">ORDER SUMMARY</strong>
+          <div id="checkoutSummary"></div>
+          <div class="summary-total" id="checkoutTotalLine"></div>
+        </div>
+        <button class="checkout-btn" onclick="goToPayment()">Continue to Payment →</button>
+      </div>
+      <div id="checkStep2" style="display:none">
+        <div class="pay-method-label">SELECT PAYMENT METHOD</div>
+        <label class="pay-option" id="lbl-cod" onclick="selectPayment('cod')">
+          <input type="radio" name="payMethod" value="cod" checked />
+          <div><div class="pay-title">💵 Cash on Delivery</div><div class="pay-sub">Pay when you receive your order</div></div>
+        </label>
+        <label class="pay-option" id="lbl-upi" onclick="selectPayment('upi')">
+          <input type="radio" name="payMethod" value="upi" />
+          <div><div class="pay-title">📱 UPI / GPay / PhonePe</div><div class="pay-sub">Pay to: 6304212346@ibl</div></div>
+        </label>
+        <div id="upiBox" class="upi-box" style="display:none">
+          <div class="upi-label">SEND PAYMENT TO</div>
+          <div class="upi-id">6304212346@ibl</div>
+          <div class="upi-apps">GPay / PhonePe / Paytm / Any UPI App</div>
+          <div class="upi-amount-box"><div class="upi-amount-label">AMOUNT TO PAY</div><div class="upi-amount" id="upiAmount">₹0</div></div>
+          <div class="upi-note">After payment, enter your Transaction ID below</div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Transaction ID / UTR *</label>
+            <input type="text" id="utrNumber" placeholder="e.g. 123456789012" style="text-transform:uppercase" />
+          </div>
+        </div>
+        <div class="pay-total-row">
+          <span>Order Total</span>
+          <span class="pay-total-amount" id="payTotal">₹0</span>
+        </div>
+        <div class="step2-actions">
+          <button class="btn-back" onclick="backToDetails()">← Back</button>
+          <button class="checkout-btn step2-pay-btn" onclick="placeOrder()" id="placeOrderBtn">✅ Place Order</button>
+        </div>
+        <div class="secure-note">🔒 Your information is safe &amp; secure</div>
+      </div>
+    </div>
+    <div class="success-state" id="successState">
+      <div class="success-icon">🎉</div>
+      <h3>Order Placed Successfully!</h3>
+      <p id="successMsg">Thank you for ordering from Orivya Rice!</p>
+      <a id="whatsappLink" href="#" target="_blank" class="whatsapp-btn">💬 Chat on WhatsApp</a>
+      <br />
+      <a href="orders.html" style="display:inline-block;margin-top:10px;color:#1a5c2a;font-weight:700">View My Orders →</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- FEATURE 7: WhatsApp popup (shown after 10 seconds) -->
+<div class="wa-popup" id="waPopup">
+  <div class="wa-popup-header">
+    <div class="wa-popup-avatar">🌾</div>
+    <div>
+      <div class="wa-popup-name">Orivya Rice</div>
+      <div class="wa-popup-status">Online now</div>
+    </div>
+    <button class="wa-popup-close" onclick="closeWaPopup()">✕</button>
+  </div>
+  <div class="wa-popup-body">
+    <div class="wa-chat-bubble">
+      👋 Hi! Need help choosing the right rice?
+      We have Sona Masoori, Raw Rice, and Broken Rice!
+      <div class="wa-chat-time">Just now</div>
+    </div>
+  </div>
+  <div class="wa-popup-footer">
+    <button class="wa-popup-btn" onclick="openWaFromPopup()">
+      💬 Chat with us on WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- ════════ FLOATING WHATSAPP ════════ -->
+<div class="float-wa-wrapper" onclick="openWhatsAppGreeting()" title="Chat on WhatsApp">
+  <div class="float-wa-pulse"></div>
+  <div class="float-wa-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </div>
+  <div class="float-wa-label">Chat with us!</div>
+</div>
+
+<!-- FEATURE 3: Image zoom modal -->
+<div class="img-modal-overlay" id="imgModalOverlay" onclick="closeImageZoom()">
+  <button class="img-modal-close" onclick="closeImageZoom()">✕</button>
+  <img id="imgModalImg" src="" alt="" onclick="event.stopPropagation()" />
+</div>
+
+<!-- Loading + Toast -->
+<div id="loadingSpinner" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9998;align-items:center;justify-content:center">
+  <div class="spinner" style="width:52px;height:52px;border-width:5px"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

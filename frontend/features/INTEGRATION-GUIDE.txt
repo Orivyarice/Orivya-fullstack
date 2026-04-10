@@ -1,0 +1,215 @@
+<!--
+════════════════════════════════════════════════════════════
+  MASTER INTEGRATION GUIDE
+  HOW TO ADD ALL 7 FEATURES INTO YOUR EXISTING CODE
+  Read this file carefully — follow steps in order
+════════════════════════════════════════════════════════════
+
+FILES YOU WILL EDIT:
+  1. frontend/index.html        (HTML structure changes)
+  2. frontend/js/main.js        (JavaScript changes)
+
+FILES YOU WILL COPY (new CSS files):
+  frontend/css/skeleton-loading.css
+  frontend/css/stock-badge.css
+  frontend/css/image-zoom.css
+  frontend/css/search-autocomplete.css
+  frontend/css/recently-viewed.css
+  frontend/css/testimonials.css
+  frontend/css/whatsapp-popup.css
+
+════════════════════════════════════════════════════════════
+STEP 1 — ADD CSS LINKS IN index.html
+════════════════════════════════════════════════════════════
+
+Find this line in index.html <head>:
+    <link rel="stylesheet" href="css/style.css" />
+
+ADD these 7 lines AFTER it:
+────────────────────────────────────────────────────────────
+  <link rel="stylesheet" href="css/skeleton-loading.css" />
+  <link rel="stylesheet" href="css/stock-badge.css" />
+  <link rel="stylesheet" href="css/image-zoom.css" />
+  <link rel="stylesheet" href="css/search-autocomplete.css" />
+  <link rel="stylesheet" href="css/recently-viewed.css" />
+  <link rel="stylesheet" href="css/testimonials.css" />
+  <link rel="stylesheet" href="css/whatsapp-popup.css" />
+────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════
+STEP 2 — UPDATE SEARCH INPUT in index.html
+════════════════════════════════════════════════════════════
+
+FIND this block in index.html (around line 102):
+  <div class="search-bar-wrapper">
+    <input type="text" id="searchInput" class="search-input"
+           placeholder="🔍 Search rice products..."
+           oninput="handleSearch(this.value)" />
+  </div>
+
+REPLACE with:
+────────────────────────────────────────────────────────────
+  <div class="search-bar-wrapper">
+    <input type="text" id="searchInput" class="search-input"
+           placeholder="🔍 Search rice products..."
+           oninput="handleSearchWithSuggestions(this.value)"
+           onkeydown="handleSearchKeydown(event)"
+           autocomplete="off" />
+    <div class="search-suggestions" id="searchSuggestions"></div>
+  </div>
+────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════
+STEP 3 — ADD RECENTLY VIEWED SECTION in index.html
+════════════════════════════════════════════════════════════
+
+FIND this in index.html (the closing tag of #shop section):
+  </section>
+
+  <!-- ════════ WHY ORIVYA ════════ -->
+
+BETWEEN those two, ADD:
+────────────────────────────────────────────────────────────
+  <section class="recently-viewed-section" id="recentlyViewed" style="display:none">
+    <div class="rv-header">
+      <h3>👁 Recently Viewed</h3>
+      <button class="rv-clear-btn" onclick="clearRecentlyViewed()">Clear History</button>
+    </div>
+    <div class="rv-row" id="rvRow"></div>
+  </section>
+────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════
+STEP 4 — ADD TESTIMONIALS SECTION in index.html
+════════════════════════════════════════════════════════════
+
+FIND this in index.html:
+  </section>
+
+  <!-- ════════ NUTRITION ════════ -->
+
+(This is the closing </section> of #why)
+BETWEEN those two, ADD the entire testimonials HTML block
+from: features/testimonials-html.txt
+────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════
+STEP 5 — ADD WHATSAPP POPUP HTML in index.html
+════════════════════════════════════════════════════════════
+
+FIND this in index.html:
+  <!-- ════════ FLOATING WHATSAPP ════════ -->
+  <div class="float-wa-wrapper"
+
+ADD this block BEFORE that div:
+────────────────────────────────────────────────────────────
+  <!-- WhatsApp Popup -->
+  <div class="wa-popup" id="waPopup">
+    <div class="wa-popup-header">
+      <div class="wa-popup-avatar">🌾</div>
+      <div>
+        <div class="wa-popup-name">Orivya Rice</div>
+        <div class="wa-popup-status">Online now</div>
+      </div>
+      <button class="wa-popup-close" onclick="closeWaPopup()">✕</button>
+    </div>
+    <div class="wa-popup-body">
+      <div class="wa-chat-bubble">
+        👋 Hi! Need help choosing the right rice?
+        We have Sona Masoori, Raw Rice, and Broken Rice!
+        <div class="wa-chat-time">Just now</div>
+      </div>
+    </div>
+    <div class="wa-popup-footer">
+      <button class="wa-popup-btn" onclick="openWaFromPopup()">
+        💬 Chat with us on WhatsApp
+      </button>
+    </div>
+  </div>
+────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════
+STEP 6 — ADD IMAGE ZOOM MODAL HTML in index.html
+════════════════════════════════════════════════════════════
+
+FIND this line near the bottom of index.html:
+  <div class="toast" id="toast"></div>
+
+ADD this block BEFORE that line:
+────────────────────────────────────────────────────────────
+  <!-- Image Zoom Modal -->
+  <div class="img-modal-overlay" id="imgModalOverlay" onclick="closeImageZoom()">
+    <button class="img-modal-close" onclick="closeImageZoom()">✕</button>
+    <img id="imgModalImg" src="" alt="" onclick="event.stopPropagation()" />
+  </div>
+────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════
+STEP 7 — UPDATE main.js (4 changes)
+════════════════════════════════════════════════════════════
+
+CHANGE 1: Replace the loading spinner (line ~38):
+  FIND:
+    grid.innerHTML = `<div class="loading-products">
+        <div class="spinner"></div><p>Loading products...</p></div>`;
+  REPLACE WITH:
+    grid.innerHTML = renderSkeletonCards(4);
+
+CHANGE 2: Cache products for autocomplete. Inside loadProducts(),
+  after the line: renderProducts(pageData.content);
+  ADD:
+    allProductsCache = [...allProductsCache, ...pageData.content];
+    allProductsCache = allProductsCache.filter((p, i, arr) =>
+        arr.findIndex(x => x.id === p.id) === i);
+
+CHANGE 3: Replace the entire renderProducts() function
+  with the version from: features/stock-badge.js
+  (It adds natural badge, stock warning, lazy loading, FSSAI badge)
+
+CHANGE 4: Add all new functions at the BOTTOM of main.js.
+  Copy and paste ALL functions from:
+    features/skeleton-loading.js  → renderSkeletonCards()
+    features/recently-viewed.js   → trackRecentlyViewed(), renderRecentlyViewed(), clearRecentlyViewed(), scrollToProductInGrid()
+    features/testimonials.js      → startCountUpAnimation(), IntersectionObserver code
+    features/whatsapp-popup.js    → initWaPopup(), closeWaPopup(), openWaFromPopup()
+    features/image-zoom.js        → openImageZoom(), closeImageZoom()
+    features/search-autocomplete.js → handleSearchWithSuggestions(), showSuggestions(), selectSuggestion(), handleSearchKeydown(), highlightSuggestion(), closeSuggestions()
+
+════════════════════════════════════════════════════════════
+SUMMARY: FEATURE → FILE RELATIONSHIP
+════════════════════════════════════════════════════════════
+
+Feature 1: Skeleton Loading
+  CSS: css/skeleton-loading.css
+  JS:  Add renderSkeletonCards() to main.js
+  Change: Replace spinner HTML in loadProducts()
+
+Feature 2: Stock Warning + Natural Badge + FSSAI Badge
+  CSS: css/stock-badge.css
+  JS:  Replace renderProducts() in main.js
+
+Feature 3: Image Zoom on Hover + Click
+  CSS: css/image-zoom.css
+  HTML: Add modal div to index.html
+  JS:  Add openImageZoom() + closeImageZoom() to main.js
+
+Feature 4: Search Autocomplete
+  CSS: css/search-autocomplete.css
+  HTML: Update search input in index.html
+  JS:  Add all search suggestion functions to main.js
+
+Feature 5: Recently Viewed Products
+  CSS: css/recently-viewed.css
+  HTML: Add section after #shop in index.html
+  JS:  Add recently viewed functions to main.js
+
+Feature 6: Testimonials + FSSAI + Count-Up Stats
+  CSS: css/testimonials.css
+  HTML: Add entire section between #why and #nutrition
+  JS:  Add count-up animation + IntersectionObserver to main.js
+
+Feature 7: WhatsApp Popup (10 second delay)
+  CSS: css/whatsapp-popup.css
+  HTML: Add popup div before floating WA button
+  JS:  Add popup show/hide functions to main.js
+-->

@@ -1,18 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Login – Orivya Rice</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/auth.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+  <!-- ══ PWA MANIFEST ══════════════════════════════════════════ -->
+  <link rel="manifest" href="/manifest.json"/>
+ 
+  <!-- ══ THEME & MOBILE APP META ════════════════════════════════ -->
+  <meta name="theme-color" content="#1a5c2a"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Orivya"/>
+  <meta name="application-name" content="Orivya"/>
+  <meta name="msapplication-TileColor" content="#1a5c2a"/>
+  <meta name="msapplication-TileImage" content="/icons/icon-144.png"/>
+ 
+  <!-- ══ APPLE TOUCH ICONS ══════════════════════════════════════ -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png"/>
+ 
+  <!-- ══ STANDARD FAVICON ════════════════════════════════════════ -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96.png"/>
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72.png"/>
+  <!-- ══ END PWA META ════════════════════════════════════════════ -->
+  <style>
+    .otp-screen{display:none}
+    .otp-email-badge{background:#e8f5e9;border:1px solid #c3e6cb;border-radius:8px;padding:10px 14px;font-size:13px;color:#155724;margin-bottom:20px;text-align:center}
+    .otp-boxes{display:flex;gap:10px;justify-content:center;margin:20px 0}
+    .otp-box{width:48px;height:56px;border:2px solid rgba(26,92,42,0.3);border-radius:8px;font-size:24px;font-weight:700;text-align:center;color:#1a5c2a;font-family:'Lato',sans-serif;transition:border-color 0.2s;outline:none}
+    .otp-box:focus{border-color:#1a5c2a;box-shadow:0 0 0 3px rgba(26,92,42,0.1)}
+    .otp-box.filled{background:#f0f7f0;border-color:#1a5c2a}
+    .otp-box.otp-err{border-color:#e53e3e;background:#fff5f5}
+    .otp-timer{text-align:center;font-size:13px;color:#888;margin:8px 0}
+    .otp-timer span{color:#1a5c2a;font-weight:700}
+    .resend-btn{background:none;border:none;color:#1a5c2a;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;font-family:'Lato',sans-serif}
+    .resend-btn:disabled{color:#aaa;text-decoration:none;cursor:not-allowed}
+    .security-note{background:#f0f7f0;border:1px solid rgba(26,92,42,0.2);border-radius:6px;padding:10px 14px;font-size:12px;color:#555;margin-top:14px;text-align:center}
+    .reg-steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:20px}
+    .reg-step{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .s-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(26,92,42,0.1);color:#1a5c2a;transition:all 0.3s}
+    .s-circle.active{background:#1a5c2a;color:white}
+    .s-circle.done{background:#28a745;color:white}
+    .s-label{font-size:10px;color:#999}
+    .s-label.active{color:#1a5c2a;font-weight:700}
+    .s-line{width:50px;height:2px;background:rgba(26,92,42,0.15);margin-bottom:14px}
+    .s-line.done{background:#28a745}
+    /* ── Forgot Password feature styles (NEW) ── */
+    .fp-link-btn{background:transparent;border:1px solid rgba(26,92,42,0.3);color:#1a5c2a;font-size:13px;font-weight:700;padding:12px 14px;border-radius:4px;cursor:pointer;font-family:'Lato',sans-serif;white-space:nowrap;transition:all 0.2s}
+    .fp-link-btn:hover{background:#f0f7f0;border-color:#1a5c2a}
+    .fp-screen{display:none}
+    .fp-back-link{display:block;text-align:center;margin-top:14px;font-size:12px;color:#1a5c2a;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'Lato',sans-serif}
+    .pw-strength{height:4px;border-radius:2px;margin-top:4px;transition:all 0.3s}
+    .pw-strength.weak{background:#e53e3e;width:30%}
+    .pw-strength.fair{background:#c8922a;width:60%}
+    .pw-strength.strong{background:#28a745;width:100%}
+    .pw-hint{font-size:11px;margin-top:3px}
+  </style>
 </head>
 <body class="auth-body">
-
 <div class="auth-container">
 
-  <!-- ── Left Brand Panel ── -->
   <div class="auth-brand">
     <div class="auth-brand-logo">🌾</div>
     <h1 class="auth-brand-name">ORIVYA</h1>
@@ -21,167 +75,711 @@
       <div class="auth-feat">✅ FSSAI Certified</div>
       <div class="auth-feat">🌾 Direct from Mill</div>
       <div class="auth-feat">🚚 Home Delivery</div>
-      <div class="auth-feat">💬 WhatsApp Support</div>
+      <div class="auth-feat">🔒 Secure 2-Step Login</div>
     </div>
   </div>
 
-  <!-- ── Right Form Panel ── -->
   <div class="auth-form-panel">
     <div class="auth-form-box">
-      <h2 class="auth-title">Welcome Back!</h2>
-      <p class="auth-subtitle">Login to your Orivya account</p>
 
-      <!-- Error message box -->
-      <div id="authError" class="auth-error" style="display:none;"></div>
-
-      <!-- Success message box -->
-      <div id="authSuccess" class="auth-success" style="display:none;"></div>
-
-      <!-- Email -->
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="loginEmail" class="auth-input"
-               placeholder="your@email.com" autocomplete="email" />
-      </div>
-
-      <!-- Password -->
-      <div class="form-group">
-        <label>Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="loginPassword" class="auth-input"
-                 placeholder="Enter your password" autocomplete="current-password" />
-          <button type="button" class="toggle-pw" onclick="togglePw()">👁</button>
+      <!-- Step Indicator -->
+      <div class="reg-steps">
+        <div class="reg-step">
+          <div class="s-circle active" id="sc1">1</div>
+          <div class="s-label active" id="sl1">Password</div>
+        </div>
+        <div class="s-line" id="sline"></div>
+        <div class="reg-step">
+          <div class="s-circle" id="sc2">2</div>
+          <div class="s-label" id="sl2">OTP Verify</div>
         </div>
       </div>
 
-      <!-- Login Button -->
-      <button class="auth-btn" id="loginSubmitBtn" onclick="handleLogin()">
-        Login to My Account
-      </button>
+      <!-- ═══════ SCREEN 1: EMAIL + PASSWORD ═══════ -->
+      <div id="loginScreen">
+        <h2 class="auth-title">Welcome Back!</h2>
+        <p class="auth-subtitle">Login to your Orivya account</p>
+        <div id="authError"   class="auth-error"   style="display:none"></div>
+        <div id="authSuccess" class="auth-success"  style="display:none"></div>
 
-      
-      <div class="auth-divider"><span>or</span></div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" class="auth-input"
+                 placeholder="your@email.com" autocomplete="email"/>
+        </div>
 
-      <p class="auth-switch">
-        Don't have an account?
-        <a href="register.html" class="auth-link">Register here →</a>
-      </p>
-      <p style="text-align:center;margin-top:10px;font-size:12px">
-        <a href="index.html" style="color:#1a5c2a;text-decoration:none">← Back to Shop</a>
-      </p>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" class="auth-input"
+                   placeholder="Enter your password" autocomplete="current-password"/>
+            <button type="button" class="toggle-pw" onclick="togglePw()">👁</button>
+          </div>
+        </div>
+
+        <!-- Login + Forgot Password row — side by side using flexbox -->
+        <div style="display:flex;gap:10px;align-items:stretch;margin-top:8px">
+          <button class="auth-btn" id="loginSubmitBtn" onclick="handleLogin()"
+                  style="flex:1;margin-top:0">
+            Login →
+          </button>
+          <button type="button" class="fp-link-btn" onclick="goForgotScreen()">
+            Forgot Password?
+          </button>
+        </div>
+
+        <div class="security-note">
+          🔒 A one-time OTP will be sent to your email for secure login
+        </div>
+
+        <div class="auth-divider"><span>or</span></div>
+        <p class="auth-switch">
+          Don't have an account?
+          <a href="register.html" class="auth-link">Register here →</a>
+        </p>
+        <p style="text-align:center;margin-top:10px;font-size:12px">
+          <a href="index.html" style="color:#1a5c2a;text-decoration:none">← Back to Shop</a>
+        </p>
+      </div>
+
+      <!-- ═══════ SCREEN 2: OTP VERIFICATION ═══════ -->
+      <div id="otpScreen" class="otp-screen">
+        <h2 class="auth-title">Enter Login OTP</h2>
+        <p class="auth-subtitle">A 6-digit OTP was sent to your email</p>
+        <div id="otpError"   class="auth-error"   style="display:none"></div>
+        <div id="otpSuccess" class="auth-success"  style="display:none"></div>
+
+        <div class="otp-email-badge">📧 OTP sent to: <strong id="otpEmailDisplay"></strong></div>
+
+        <!-- 6 OTP digit boxes -->
+        <div class="otp-boxes">
+          <input class="otp-box" id="otp0" type="text" inputmode="numeric" maxlength="1" oninput="otpIn(this,0)" onkeydown="otpKey(event,0)"/>
+          <input class="otp-box" id="otp1" type="text" inputmode="numeric" maxlength="1" oninput="otpIn(this,1)" onkeydown="otpKey(event,1)"/>
+          <input class="otp-box" id="otp2" type="text" inputmode="numeric" maxlength="1" oninput="otpIn(this,2)" onkeydown="otpKey(event,2)"/>
+          <input class="otp-box" id="otp3" type="text" inputmode="numeric" maxlength="1" oninput="otpIn(this,3)" onkeydown="otpKey(event,3)"/>
+          <input class="otp-box" id="otp4" type="text" inputmode="numeric" maxlength="1" oninput="otpIn(this,4)" onkeydown="otpKey(event,4)"/>
+          <input class="otp-box" id="otp5" type="text" inputmode="numeric" maxlength="1" oninput="otpIn(this,5)" onkeydown="otpKey(event,5)"/>
+        </div>
+
+        <div class="otp-timer">OTP expires in <span id="otpClock">05:00</span></div>
+        <div style="text-align:center;margin-top:6px">
+          <button class="resend-btn" id="resendBtn" onclick="handleResend()" disabled>Resend OTP</button>
+          <span id="resendInfo" style="font-size:12px;color:#999"></span>
+        </div>
+
+        <button class="auth-btn" id="otpVerifyBtn" onclick="handleVerifyOtp()" style="margin-top:18px">
+          ✅ Verify &amp; Login
+        </button>
+
+        <p style="text-align:center;margin-top:12px;font-size:12px">
+          <a href="login.html" style="color:#1a5c2a;text-decoration:none">← Back to login</a>
+        </p>
+      </div>
+
+      <!-- ═══════ SCREEN 3: FORGOT PASSWORD (NEW — does not affect screens 1 & 2) ═══════ -->
+      <div id="fpScreen" class="fp-screen">
+
+        <!-- Sub-screen A: Enter email to receive OTP -->
+        <div id="fpEmailScreen">
+          <h2 class="auth-title">Forgot Password?</h2>
+          <p class="auth-subtitle">Enter your registered email. We'll send a reset OTP.</p>
+          <div id="fpEmailError" class="auth-error" style="display:none"></div>
+          <div class="form-group">
+            <label>Registered Email *</label>
+            <input type="email" id="fpEmail" class="auth-input"
+                   placeholder="your@email.com" autocomplete="email"/>
+          </div>
+          <button class="auth-btn" id="fpSendBtn" onclick="handleForgotSend()">
+            Send Reset OTP →
+          </button>
+          <button class="fp-back-link" onclick="goLoginScreen()">← Back to Login</button>
+        </div>
+
+        <!-- Sub-screen B: OTP + New Password -->
+        <div id="fpResetScreen" style="display:none">
+          <h2 class="auth-title">Reset Password</h2>
+          <p class="auth-subtitle">Enter the OTP sent to your email and set a new password</p>
+          <div id="fpResetError"   class="auth-error"   style="display:none"></div>
+          <div id="fpResetSuccess" class="auth-success" style="display:none"></div>
+
+          <div class="otp-email-badge">
+            📧 OTP sent to: <strong id="fpEmailDisplay"></strong>
+          </div>
+
+          <!-- 6-box OTP (same UI as login OTP) -->
+          <div class="otp-boxes">
+            <input class="otp-box" id="fpotp0" type="text" inputmode="numeric" maxlength="1" oninput="fpOtpIn(this,0)" onkeydown="fpOtpKey(event,0)"/>
+            <input class="otp-box" id="fpotp1" type="text" inputmode="numeric" maxlength="1" oninput="fpOtpIn(this,1)" onkeydown="fpOtpKey(event,1)"/>
+            <input class="otp-box" id="fpotp2" type="text" inputmode="numeric" maxlength="1" oninput="fpOtpIn(this,2)" onkeydown="fpOtpKey(event,2)"/>
+            <input class="otp-box" id="fpotp3" type="text" inputmode="numeric" maxlength="1" oninput="fpOtpIn(this,3)" onkeydown="fpOtpKey(event,3)"/>
+            <input class="otp-box" id="fpotp4" type="text" inputmode="numeric" maxlength="1" oninput="fpOtpIn(this,4)" onkeydown="fpOtpKey(event,4)"/>
+            <input class="otp-box" id="fpotp5" type="text" inputmode="numeric" maxlength="1" oninput="fpOtpIn(this,5)" onkeydown="fpOtpKey(event,5)"/>
+          </div>
+
+          <div class="otp-timer">OTP expires in <span id="fpClock">05:00</span></div>
+          <div style="text-align:center;margin-top:4px">
+            <button class="resend-btn" id="fpResendBtn" onclick="handleFpResend()" disabled>
+              Resend OTP
+            </button>
+            <span id="fpResendInfo" style="font-size:12px;color:#999"></span>
+          </div>
+
+          <!-- New Password -->
+          <div class="form-group" style="margin-top:16px">
+            <label>New Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="fpNewPw" class="auth-input"
+                     placeholder="Min 8 chars, 1 number, 1 uppercase"
+                     oninput="checkPwStrength(this.value)"
+                     autocomplete="new-password"/>
+              <button type="button" class="toggle-pw" onclick="fpTogglePw('fpNewPw',this)">👁</button>
+            </div>
+            <div class="pw-strength" id="pwStrengthBar" style="display:none"></div>
+            <div class="pw-hint"     id="pwStrengthHint"></div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label>Confirm New Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="fpConfirmPw" class="auth-input"
+                     placeholder="Re-enter new password"
+                     autocomplete="new-password"/>
+              <button type="button" class="toggle-pw" onclick="fpTogglePw('fpConfirmPw',this)">👁</button>
+            </div>
+          </div>
+
+          <button class="auth-btn" id="fpResetBtn" onclick="handleResetPassword()">
+            ✅ Reset My Password
+          </button>
+          <button class="fp-back-link" onclick="goFpEmailScreen()">← Change email</button>
+        </div>
+      </div><!-- end #fpScreen -->
+
     </div>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 <script src="js/api.js"></script>
 <script>
-
-  // ── If already logged in, redirect immediately ──
-  (function checkAlreadyLoggedIn() {
+  // Redirect if already logged in
+  (function() {
     if (isLoggedIn()) {
       const user = getUser();
-      if (user.role === 'ADMIN') {
-        window.location.href = 'admin.html';
-      } else {
-        window.location.href = 'index.html';
-      }
+      window.location.href = (user && user.role === 'ADMIN') ? 'admin.html' : 'index.html';
     }
   })();
 
-  // ── LOGIN FUNCTION ──
+  let loginEmail = '';
+  let countdownTimer = null;
+  let resendTimer    = null;
+
+  // ═══════════════════════════════════════════
+  // STEP 1 — LOGIN (email + password)
+  // ═══════════════════════════════════════════
   async function handleLogin() {
     const email    = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     const btn      = document.getElementById('loginSubmitBtn');
 
-    // Clear previous messages
-    showAuthError('');
-    showAuthSuccess('');
+    clearMessages();
 
-    // Validate inputs
-    if (!email) { showAuthError('⚠ Please enter your email address.'); return; }
-    if (!password) { showAuthError('⚠ Please enter your password.'); return; }
+    if (!email)    { showLoginErr('⚠ Please enter your email address.'); return; }
+    if (!password) { showLoginErr('⚠ Please enter your password.');       return; }
 
-    // Disable button while loading
-    btn.textContent = '⏳ Logging in...';
+    btn.textContent = '⏳ Checking credentials...';
     btn.disabled    = true;
 
     try {
+      // apiLogin calls POST /api/auth/login
+      // Backend checks: email exists + password correct + user is verified
+      // If correct → sends OTP to email → returns { success: true, message: "OTP_SENT" }
       const data = await apiLogin(email, password);
 
-      if (data.success && data.data) {
-        const role = data.data.role;
-        const name = data.data.name;
-
-        // Show success message
-        showAuthSuccess(`✅ Welcome, ${name}! (${role})`);
-
-        // Wait 1 second so user sees success message, then redirect
-        setTimeout(() => {
-          if (role === 'ADMIN') {
-            // Admin → goes to admin dashboard
-            window.location.href = 'admin.html';
-          } else {
-            // Customer → goes to shop
-            window.location.href = 'index.html';
-          }
-        }, 1000);
-
+      if (data.success) {
+        // Password OK, OTP sent — show OTP screen
+        loginEmail = email;
+        goOtpScreen(email);
+        startCountdown(300);
+        startResendCooldown(30);
       } else {
-        showAuthError('❌ ' + (data.message || 'Login failed. Please try again.'));
+        const msg = data.message || 'Login failed.';
+        if (msg.includes('not verified') || msg.includes('UNVERIFIED')) {
+          showLoginErr('❌ Email not verified. <a href="register.html" style="color:#1a5c2a">Register again</a> to get OTP.');
+        } else if (msg.includes('Invalid') || msg.includes('password') || msg.includes('credentials')) {
+          showLoginErr('❌ Wrong email or password. Please check and try again.');
+        } else {
+          showLoginErr('❌ ' + msg);
+        }
       }
-
-    } catch (err) {
-      const msg = err.message || '';
+    } catch(e) {
+      const msg = e.message || '';
       if (msg.includes('401') || msg.includes('Unauthorized') || msg.toLowerCase().includes('invalid')) {
-        showAuthError('❌ Wrong email or password. Please try again.');
-      } else if (msg.includes('fetch') || msg.includes('Failed to fetch') || msg.includes('refused')) {
-        showAuthError('❌ Cannot connect to server. Make sure Spring Boot is running on port 8080.');
+        showLoginErr('❌ Wrong email or password. Please try again.');
+      } else if (msg.includes('fetch') || msg.includes('refused')) {
+        showLoginErr('❌ Cannot connect to server. Make sure Spring Boot is running.');
       } else {
-        showAuthError('❌ ' + msg);
+        showLoginErr('❌ ' + (msg || 'Login failed.'));
       }
     } finally {
-      btn.textContent = 'Login to My Account';
+      btn.textContent = 'Login to My Account →';
       btn.disabled    = false;
     }
   }
 
-  // ── HELPERS ──
-  function showAuthError(msg) {
-    const el = document.getElementById('authError');
-    if (!msg) { el.style.display = 'none'; return; }
-    el.textContent   = msg;
-    el.style.display = 'block';
-    document.getElementById('authSuccess').style.display = 'none';
-  }
+  // ═══════════════════════════════════════════
+  // STEP 2 — VERIFY LOGIN OTP
+  // ═══════════════════════════════════════════
+  async function handleVerifyOtp() {
+    const otp = getOtp();
+    const btn = document.getElementById('otpVerifyBtn');
 
-  function showAuthSuccess(msg) {
-    const el = document.getElementById('authSuccess');
-    if (!msg) { el.style.display = 'none'; return; }
-    el.textContent   = msg;
-    el.style.display = 'block';
-    document.getElementById('authError').style.display = 'none';
-  }
+    if (otp.length < 6) { showOtpErr('⚠ Please enter all 6 digits.'); shakeBoxes(); return; }
 
-  function togglePw() {
-    const input = document.getElementById('loginPassword');
-    const btn   = document.querySelector('.toggle-pw');
-    if (input.type === 'password') {
-      input.type      = 'text';
-      btn.textContent = '🙈';
-    } else {
-      input.type      = 'password';
-      btn.textContent = '👁';
+    btn.textContent = '⏳ Verifying...';
+    btn.disabled    = true;
+    document.getElementById('otpError').style.display = 'none';
+
+    try {
+      // apiVerifyLoginOtp calls POST /api/auth/verify-login
+      // Backend checks OTP, returns JWT token on success
+      const data = await apiVerifyLoginOtp(loginEmail, otp);
+
+      if (data.success && data.data && data.data.token) {
+        clearInterval(countdownTimer);
+        clearInterval(resendTimer);
+
+        // Save JWT + user info to localStorage
+        saveUserSession(data.data);
+
+        // Show success
+        document.getElementById('otpSuccess').textContent = '✅ Login successful! Redirecting...';
+        document.getElementById('otpSuccess').style.display = 'block';
+        document.getElementById('otpError').style.display   = 'none';
+
+        // Green boxes
+        for (let i=0;i<6;i++) {
+          document.getElementById('otp'+i).style.borderColor='#28a745';
+          document.getElementById('otp'+i).style.background='#e8f5e9';
+        }
+
+        // Redirect
+        setTimeout(() => {
+          const user = getUser();
+          window.location.href = (user && user.role === 'ADMIN') ? 'admin.html' : 'index.html';
+        }, 1200);
+
+      } else {
+        const m = data.message || '';
+        if (m.includes('expired'))       showOtpErr('⏰ OTP expired. Click Resend OTP below.');
+        else if (m.includes('attempts')) showOtpErr('🚫 Too many wrong attempts. Please login again.');
+        else                             { showOtpErr('❌ Wrong OTP. Please try again.'); shakeBoxes(); clearBoxes(); }
+      }
+    } catch(e) {
+      showOtpErr('❌ ' + (e.message || 'Verification failed.'));
+    } finally {
+      btn.textContent = '✅ Verify & Login';
+      btn.disabled    = false;
     }
   }
 
-  // Enter key submits form
+  // ═══════════════════════════════════════════
+  // RESEND OTP
+  // ═══════════════════════════════════════════
+  async function handleResend() {
+    const btn = document.getElementById('resendBtn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      const data = await apiResendOtp(loginEmail, 'LOGIN');
+      if (data.success) {
+        document.getElementById('otpSuccess').textContent = '✅ New OTP sent to your email!';
+        document.getElementById('otpSuccess').style.display = 'block';
+        document.getElementById('otpError').style.display   = 'none';
+        clearBoxes(); startCountdown(300); startResendCooldown(30);
+      } else {
+        showOtpErr('❌ ' + (data.message || 'Failed to resend.')); btn.disabled = false;
+      }
+    } catch(e) {
+      showOtpErr('❌ ' + (e.message || 'Failed to resend.')); btn.disabled = false;
+    } finally {
+      btn.textContent = 'Resend OTP';
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  // OTP BOX HELPERS
+  // ═══════════════════════════════════════════
+  function otpIn(input, i) {
+    input.value = input.value.replace(/\D/g,'').slice(0,1);
+    input.classList.toggle('filled', !!input.value);
+    if (input.value && i<5) document.getElementById('otp'+(i+1)).focus();
+    if (i===5 && getOtp().length===6) setTimeout(handleVerifyOtp, 300);
+  }
+  function otpKey(e, i) {
+    if (e.key==='Backspace' && !document.getElementById('otp'+i).value && i>0)
+      document.getElementById('otp'+(i-1)).focus();
+    if (e.key==='ArrowLeft' && i>0)  document.getElementById('otp'+(i-1)).focus();
+    if (e.key==='ArrowRight' && i<5) document.getElementById('otp'+(i+1)).focus();
+  }
+  function getOtp() { let s=''; for(let i=0;i<6;i++) s+=document.getElementById('otp'+i).value; return s; }
+  function clearBoxes() {
+    for(let i=0;i<6;i++){ document.getElementById('otp'+i).value=''; document.getElementById('otp'+i).classList.remove('filled','otp-err'); }
+    document.getElementById('otp0').focus();
+  }
+  function shakeBoxes() {
+    for(let i=0;i<6;i++) document.getElementById('otp'+i).classList.add('otp-err');
+    setTimeout(()=>{for(let i=0;i<6;i++) document.getElementById('otp'+i).classList.remove('otp-err');}, 800);
+  }
+
+  // ═══════════════════════════════════════════
+  // TIMERS
+  // ═══════════════════════════════════════════
+  function startCountdown(secs) {
+    clearInterval(countdownTimer);
+    const el = document.getElementById('otpClock');
+    el.style.color = '#1a5c2a';
+    countdownTimer = setInterval(()=>{
+      const m=Math.floor(secs/60), s=secs%60;
+      el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      if (secs<=0) { clearInterval(countdownTimer); el.textContent='00:00'; el.style.color='#e53e3e'; showOtpErr('⏰ OTP expired. Click Resend OTP below.'); }
+      secs--;
+    }, 1000);
+  }
+  function startResendCooldown(secs) {
+    clearInterval(resendTimer);
+    const btn=document.getElementById('resendBtn'), info=document.getElementById('resendInfo');
+    btn.disabled=true;
+    resendTimer=setInterval(()=>{
+      info.textContent=' (wait '+secs+'s)';
+      if (secs<=0) { clearInterval(resendTimer); btn.disabled=false; info.textContent=''; }
+      secs--;
+    }, 1000);
+  }
+
+  // ═══════════════════════════════════════════
+  // SCREEN TRANSITIONS
+  // ═══════════════════════════════════════════
+  function goOtpScreen(email) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('otpScreen').style.display   = 'block';
+    document.getElementById('otpEmailDisplay').textContent = email;
+    document.getElementById('sc1').className = 's-circle done'; document.getElementById('sc1').textContent='✓';
+    document.getElementById('sline').className = 's-line done';
+    document.getElementById('sc2').className = 's-circle active';
+    document.getElementById('sl2').className = 's-label active';
+    setTimeout(()=>document.getElementById('otp0').focus(), 100);
+  }
+
+  // ═══════════════════════════════════════════
+  // HELPERS
+  // ═══════════════════════════════════════════
+  function clearMessages() {
+    document.getElementById('authError').style.display   = 'none';
+    document.getElementById('authSuccess').style.display = 'none';
+  }
+  function showLoginErr(msg) {
+    const el=document.getElementById('authError'); el.innerHTML=msg; el.style.display='block';
+    document.getElementById('authSuccess').style.display='none';
+  }
+  function showOtpErr(msg) {
+    const el=document.getElementById('otpError'); el.textContent=msg; el.style.display='block';
+    document.getElementById('otpSuccess').style.display='none';
+  }
+  function togglePw() {
+    const inp=document.getElementById('loginPassword'), btn=document.querySelector('.toggle-pw');
+    inp.type=inp.type==='password'?'text':'password'; btn.textContent=inp.type==='password'?'👁':'🙈';
+  }
+
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') handleLogin();
+    if (e.key!=='Enter') return;
+    if (document.getElementById('otpScreen').style.display==='block') handleVerifyOtp();
+    else if (document.getElementById('fpScreen').style.display==='block') {
+      if (document.getElementById('fpResetScreen').style.display==='block') handleResetPassword();
+      else handleForgotSend();
+    }
+    else handleLogin();
   });
 
+  /* ═══════════════════════════════════════════════════════════
+     FORGOT PASSWORD — NEW FUNCTIONS
+     These do not touch any existing login/OTP variables or functions.
+     All state is prefixed fp* to avoid conflicts.
+     ═══════════════════════════════════════════════════════════ */
+
+  let fpEmail      = '';
+  let fpCountdown  = null;
+  let fpResendCool = null;
+
+  /* ── SCREEN NAVIGATION ─────────────────────────── */
+  function goForgotScreen() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('otpScreen').style.display   = 'none';
+    document.getElementById('fpScreen').style.display    = 'block';
+    document.getElementById('fpEmailScreen').style.display  = 'block';
+    document.getElementById('fpResetScreen').style.display  = 'none';
+    document.getElementById('fpEmailError').style.display   = 'none';
+    document.getElementById('fpEmail').value = '';
+    // Reset step indicator to neutral — this is a separate flow
+    document.getElementById('sc1').className = 's-circle';
+    document.getElementById('sc1').textContent = '1';
+    document.getElementById('sline').className = 's-line';
+    document.getElementById('sc2').className = 's-circle';
+    document.getElementById('sl1').className = 's-label';
+    document.getElementById('sl2').className = 's-label';
+    document.getElementById('fpEmail').focus();
+  }
+
+  function goLoginScreen() {
+    clearInterval(fpCountdown);
+    clearInterval(fpResendCool);
+    document.getElementById('fpScreen').style.display    = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+    // Restore step indicator
+    document.getElementById('sc1').className = 's-circle active';
+    document.getElementById('sc1').textContent = '1';
+    document.getElementById('sline').className = 's-line';
+    document.getElementById('sc2').className = 's-circle';
+    document.getElementById('sl1').className = 's-label active';
+    document.getElementById('sl2').className = 's-label';
+  }
+
+  function goFpEmailScreen() {
+    document.getElementById('fpResetScreen').style.display = 'none';
+    document.getElementById('fpEmailScreen').style.display = 'block';
+    clearInterval(fpCountdown);
+    clearInterval(fpResendCool);
+  }
+
+  function goFpResetScreen(email) {
+    document.getElementById('fpEmailScreen').style.display = 'none';
+    document.getElementById('fpResetScreen').style.display = 'block';
+    document.getElementById('fpEmailDisplay').textContent  = email;
+    document.getElementById('fpResetError').style.display   = 'none';
+    document.getElementById('fpResetSuccess').style.display = 'none';
+    fpClearOtpBoxes();
+    document.getElementById('fpNewPw').value     = '';
+    document.getElementById('fpConfirmPw').value = '';
+    document.getElementById('pwStrengthBar').style.display = 'none';
+    document.getElementById('pwStrengthHint').textContent  = '';
+    startFpCountdown(300);
+    startFpResendCooldown(30);
+    setTimeout(() => document.getElementById('fpotp0').focus(), 100);
+  }
+
+  /* ── STEP 1: SEND RESET OTP ────────────────────── */
+  async function handleForgotSend() {
+    const email = document.getElementById('fpEmail').value.trim();
+    const btn   = document.getElementById('fpSendBtn');
+
+    document.getElementById('fpEmailError').style.display = 'none';
+
+    if (!email) {
+      showFpEmailErr('⚠ Please enter your email address.');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      showFpEmailErr('⚠ Please enter a valid email address.');
+      return;
+    }
+
+    btn.textContent = '⏳ Sending OTP...';
+    btn.disabled    = true;
+
+    try {
+      const data = await apiForgotPassword(email);
+
+      if (data.success) {
+        fpEmail = email;
+        goFpResetScreen(email);
+      } else {
+        showFpEmailErr('❌ ' + (data.message || 'Failed to send OTP.'));
+      }
+    } catch(e) {
+      showFpEmailErr('❌ ' + (e.message || 'Failed to send OTP. Try again.'));
+    } finally {
+      btn.textContent = 'Send Reset OTP →';
+      btn.disabled    = false;
+    }
+  }
+
+  /* ── STEP 2: RESET PASSWORD ────────────────────── */
+  async function handleResetPassword() {
+    const otp       = fpGetOtp();
+    const newPw     = document.getElementById('fpNewPw').value;
+    const confirmPw = document.getElementById('fpConfirmPw').value;
+    const btn       = document.getElementById('fpResetBtn');
+
+    document.getElementById('fpResetError').style.display = 'none';
+
+    // Validations
+    if (otp.length < 6) {
+      showFpResetErr('⚠ Please enter all 6 digits of the OTP.');
+      fpShakeBoxes();
+      return;
+    }
+    if (!newPw) {
+      showFpResetErr('⚠ Please enter a new password.'); return;
+    }
+    if (newPw.length < 8) {
+      showFpResetErr('⚠ Password must be at least 8 characters.'); return;
+    }
+    if (!/[A-Z]/.test(newPw)) {
+      showFpResetErr('⚠ Password must contain at least one uppercase letter.'); return;
+    }
+    if (!/[0-9]/.test(newPw)) {
+      showFpResetErr('⚠ Password must contain at least one number.'); return;
+    }
+    if (newPw !== confirmPw) {
+      showFpResetErr('⚠ Passwords do not match. Please re-enter.'); return;
+    }
+
+    btn.textContent = '⏳ Resetting...';
+    btn.disabled    = true;
+
+    try {
+      const data = await apiResetPassword(fpEmail, otp, newPw);
+
+      if (data.success) {
+        clearInterval(fpCountdown);
+        clearInterval(fpResendCool);
+        document.getElementById('fpResetSuccess').textContent =
+          '✅ Password reset successful! Redirecting to login...';
+        document.getElementById('fpResetSuccess').style.display = 'block';
+        for (let i=0;i<6;i++) {
+          document.getElementById('fpotp'+i).style.borderColor = '#28a745';
+          document.getElementById('fpotp'+i).style.background  = '#e8f5e9';
+        }
+        setTimeout(() => {
+          goLoginScreen();
+          document.getElementById('loginEmail').value    = fpEmail;
+          document.getElementById('loginPassword').value = '';
+          document.getElementById('authSuccess').textContent =
+            '✅ Password reset! Please login with your new password.';
+          document.getElementById('authSuccess').style.display = 'block';
+        }, 1800);
+      } else {
+        const m = data.message || '';
+        if (m.includes('expired'))       showFpResetErr('⏰ OTP expired. Click Resend OTP.');
+        else if (m.includes('attempts')) showFpResetErr('🚫 Too many wrong attempts. Request a new OTP.');
+        else if (m.includes('Invalid') || m.includes('OTP')) { showFpResetErr('❌ Wrong OTP. Try again.'); fpShakeBoxes(); fpClearOtpBoxes(); }
+        else                             showFpResetErr('❌ ' + m);
+      }
+    } catch(e) {
+      showFpResetErr('❌ ' + (e.message || 'Reset failed. Try again.'));
+    } finally {
+      btn.textContent = '✅ Reset My Password';
+      btn.disabled    = false;
+    }
+  }
+
+  /* ── RESEND OTP ─────────────────────────────────── */
+  async function handleFpResend() {
+    const btn = document.getElementById('fpResendBtn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      const data = await apiForgotPassword(fpEmail);
+      if (data.success) {
+        document.getElementById('fpResetSuccess').textContent = '✅ New OTP sent!';
+        document.getElementById('fpResetSuccess').style.display = 'block';
+        document.getElementById('fpResetError').style.display   = 'none';
+        fpClearOtpBoxes();
+        startFpCountdown(300);
+        startFpResendCooldown(30);
+      } else {
+        showFpResetErr('❌ ' + (data.message || 'Failed to resend.')); btn.disabled = false;
+      }
+    } catch(e) {
+      showFpResetErr('❌ ' + (e.message || 'Failed to resend.')); btn.disabled = false;
+    } finally { btn.textContent = 'Resend OTP'; }
+  }
+
+  /* ── OTP BOXES ──────────────────────────────────── */
+  function fpOtpIn(input, i) {
+    input.value = input.value.replace(/\D/g,'').slice(0,1);
+    input.classList.toggle('filled', !!input.value);
+    if (input.value && i<5) document.getElementById('fpotp'+(i+1)).focus();
+  }
+  function fpOtpKey(e, i) {
+    if (e.key==='Backspace' && !document.getElementById('fpotp'+i).value && i>0)
+      document.getElementById('fpotp'+(i-1)).focus();
+    if (e.key==='ArrowLeft'  && i>0) document.getElementById('fpotp'+(i-1)).focus();
+    if (e.key==='ArrowRight' && i<5) document.getElementById('fpotp'+(i+1)).focus();
+  }
+  function fpGetOtp() {
+    let s=''; for(let i=0;i<6;i++) s+=document.getElementById('fpotp'+i).value; return s;
+  }
+  function fpClearOtpBoxes() {
+    for(let i=0;i<6;i++){
+      document.getElementById('fpotp'+i).value='';
+      document.getElementById('fpotp'+i).classList.remove('filled','otp-err');
+      document.getElementById('fpotp'+i).style.borderColor='';
+      document.getElementById('fpotp'+i).style.background='';
+    }
+    try { document.getElementById('fpotp0').focus(); } catch(e){}
+  }
+  function fpShakeBoxes() {
+    for(let i=0;i<6;i++) document.getElementById('fpotp'+i).classList.add('otp-err');
+    setTimeout(()=>{for(let i=0;i<6;i++) document.getElementById('fpotp'+i).classList.remove('otp-err');}, 800);
+  }
+
+  /* ── PASSWORD STRENGTH ──────────────────────────── */
+  function checkPwStrength(pw) {
+    const bar  = document.getElementById('pwStrengthBar');
+    const hint = document.getElementById('pwStrengthHint');
+    if (!pw) { bar.style.display='none'; hint.textContent=''; return; }
+    bar.style.display = 'block';
+    const hasUpper  = /[A-Z]/.test(pw);
+    const hasNum    = /[0-9]/.test(pw);
+    const hasSpec   = /[^A-Za-z0-9]/.test(pw);
+    const score = (pw.length >= 8 ? 1:0) + (hasUpper?1:0) + (hasNum?1:0) + (hasSpec?1:0);
+    if (score <= 1)      { bar.className='pw-strength weak';   hint.textContent='Weak — add uppercase, numbers'; hint.style.color='#e53e3e'; }
+    else if (score <= 2) { bar.className='pw-strength fair';   hint.textContent='Fair — add a special character'; hint.style.color='#c8922a'; }
+    else                 { bar.className='pw-strength strong'; hint.textContent='Strong ✅'; hint.style.color='#28a745'; }
+  }
+
+  /* ── TIMERS ─────────────────────────────────────── */
+  function startFpCountdown(secs) {
+    clearInterval(fpCountdown);
+    const el = document.getElementById('fpClock');
+    el.style.color = '#1a5c2a';
+    fpCountdown = setInterval(()=>{
+      const m=Math.floor(secs/60), s=secs%60;
+      el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      if (secs<=0) { clearInterval(fpCountdown); el.textContent='00:00'; el.style.color='#e53e3e'; showFpResetErr('⏰ OTP expired. Click Resend OTP.'); }
+      secs--;
+    }, 1000);
+  }
+  function startFpResendCooldown(secs) {
+    clearInterval(fpResendCool);
+    const btn=document.getElementById('fpResendBtn'), info=document.getElementById('fpResendInfo');
+    btn.disabled=true;
+    fpResendCool=setInterval(()=>{
+      info.textContent=' (wait '+secs+'s)';
+      if (secs<=0) { clearInterval(fpResendCool); btn.disabled=false; info.textContent=''; }
+      secs--;
+    }, 1000);
+  }
+
+  /* ── TOGGLE PASSWORD VISIBILITY ─────────────────── */
+  function fpTogglePw(id, btn) {
+    const inp=document.getElementById(id);
+    inp.type=inp.type==='password'?'text':'password';
+    btn.textContent=inp.type==='password'?'👁':'🙈';
+  }
+
+  /* ── ERROR HELPERS ──────────────────────────────── */
+  function showFpEmailErr(msg) {
+    const el=document.getElementById('fpEmailError'); el.textContent=msg; el.style.display='block';
+  }
+  function showFpResetErr(msg) {
+    const el=document.getElementById('fpResetError'); el.textContent=msg; el.style.display='block';
+    document.getElementById('fpResetSuccess').style.display='none';
+  }
 </script>
+
+<!-- ══ PWA SERVICE WORKER + INSTALL PROMPT ═══════════════════ -->
+  <script src="/js/pwa.js"></script>
+  <!-- ══ END PWA ════════════════════════════════════════════════ -->
 </body>
 </html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Offline – Orivya</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Lato', system-ui, sans-serif;
+      background: #faf7f2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 36px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    h1 {
+      font-size: 24px;
+      color: #1a5c2a;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    p {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #1a5c2a, #2d7a3e);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .logo {
+      font-size: 13px;
+      color: #c8922a;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .tip {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🌾 ORIVYA</div>
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>
+      No internet connection detected.<br/>
+      Please check your Wi-Fi or mobile data and try again.
+    </p>
+    <button class="btn" onclick="retryConnection()">
+      🔄 Try Again
+    </button>
+    <p class="tip">
+      Previously visited pages are still available from cache.
+    </p>
+  </div>
+
+  <script>
+    function retryConnection() {
+      window.location.reload();
+    }
+
+    // Auto-retry when connection is restored
+    window.addEventListener('online', () => {
+      window.location.href = '/index.html';
+    });
+  </script>
+</body>
+</html>

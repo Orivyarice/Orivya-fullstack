@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * OrderController — Order placement and management API.
@@ -24,9 +25,11 @@ import java.util.List;
  *  GET  /api/orders/my/{id}  → View a specific order
  *
  * Admin endpoints:
- *  GET  /api/orders/admin/all        → All orders in the system
- *  PUT  /api/orders/admin/{id}/status → Update order status
- *  GET  /api/orders/admin/status     → Filter orders by status
+ *  GET  /api/orders/admin/all              → All orders in the system
+ *  PUT  /api/orders/admin/{id}/status      → Update order status
+ *  GET  /api/orders/admin/status           → Filter orders by status
+ *  GET  /api/orders/admin/latest-order-id  → NEW: latest order ID for notifications
+ *  GET  /api/orders/admin/latest-order     → NEW: full details of latest order
  */
 @RestController
 @RequestMapping("/api/orders")
@@ -41,13 +44,6 @@ public class OrderController {
     /**
      * POST /api/orders
      * Place a new order from the current cart.
-     *
-     * Request Body:
-     * {
-     *   "deliveryAddress": "4-35, Gorinta, Peddapuram, AP",
-     *   "paymentMethod": "COD",
-     *   "transactionId": ""
-     * }
      */
     @PostMapping
     public ResponseEntity<ApiResponse<OrderResponse>> placeOrder(
@@ -74,7 +70,6 @@ public class OrderController {
 
     /**
      * GET /api/orders/my
-     * Get the logged-in customer's order history.
      */
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getMyOrders(
@@ -90,7 +85,6 @@ public class OrderController {
 
     /**
      * GET /api/orders/my/{id}
-     * Get details of a specific order (customer can only see their own).
      */
     @GetMapping("/my/{orderId}")
     public ResponseEntity<ApiResponse<OrderResponse>> getMyOrder(
@@ -117,7 +111,6 @@ public class OrderController {
 
     /**
      * GET /api/orders/admin/all
-     * Get ALL orders (Admin dashboard).
      */
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
@@ -132,8 +125,6 @@ public class OrderController {
 
     /**
      * PUT /api/orders/admin/{id}/status?status=CONFIRMED
-     * Update order status (Admin only).
-     * Valid values: PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
      */
     @PutMapping("/admin/{orderId}/status")
     @PreAuthorize("hasRole('ADMIN')")
@@ -159,7 +150,6 @@ public class OrderController {
 
     /**
      * GET /api/orders/admin/status?status=PENDING
-     * Get orders filtered by status (Admin only).
      */
     @GetMapping("/admin/status")
     @PreAuthorize("hasRole('ADMIN')")
@@ -171,5 +161,69 @@ public class OrderController {
                 .success(true)
                 .data(orders)
                 .build());
+    }
+
+    // ── NEW: REAL-TIME NOTIFICATION ENDPOINTS ──────────────────────────────
+
+    /**
+     * GET /api/orders/admin/latest-order-id
+     *
+     * Returns ONLY the latest order's ID and total order count.
+     * Called every 8 seconds by admin dashboard notification poller.
+     *
+     * Why this endpoint instead of reusing /admin/all:
+     *   - /admin/all fetches every order with all items — heavy payload
+     *   - This returns { "latestId": 42, "totalCount": 42 } — ~40 bytes
+     *   - Zero impact on database performance
+     *   - Allows frontend to detect new orders without downloading everything
+     */
+    @GetMapping("/admin/latest-order-id")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Map<String, Long>>> getLatestOrderId() {
+        try {
+            long latestId    = orderService.getLatestOrderId();
+            long totalCount  = orderService.getTotalOrderCount();
+            return ResponseEntity.ok(ApiResponse.<Map<String, Long>>builder()
+                    .success(true)
+                    .data(Map.of(
+                        "latestId",   latestId,
+                        "totalCount", totalCount
+                    ))
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.<Map<String, Long>>builder()
+                            .success(false)
+                            .message(e.getMessage())
+                            .build());
+        }
+    }
+
+    /**
+     * GET /api/orders/admin/latest-order
+     *
+     * Returns the full details of the most recent order.
+     * Called ONCE when a new order is detected, to show in the toast popup.
+     */
+    @GetMapping("/admin/latest-order")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<OrderResponse>> getLatestOrder() {
+        try {
+            OrderResponse order = orderService.getLatestOrder();
+            if (order == null) {
+                return ResponseEntity.ok(ApiResponse.<OrderResponse>builder()
+                        .success(false).message("No orders yet.").build());
+            }
+            return ResponseEntity.ok(ApiResponse.<OrderResponse>builder()
+                    .success(true)
+                    .data(order)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.<OrderResponse>builder()
+                            .success(false)
+                            .message(e.getMessage())
+                            .build());
+        }
     }
 }

@@ -16,118 +16,153 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * AuthService — Handles user registration and login.
- *
- * Registration flow:
- *   1. Check email doesn't already exist
- *   2. Hash the password with BCrypt
- *   3. Save user to DB
- *   4. Generate JWT token
- *   5. Return token + user info
- *
- * Login flow:
- *   1. Authenticate email + password via AuthenticationManager
- *   2. If valid → generate JWT token
- *   3. Return token + user info
- */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final UserRepository     userRepository;
+    private final PasswordEncoder    passwordEncoder;
+    private final JwtUtil            jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final OtpService         otpService; // NEW
 
+    // ── REGISTRATION (Step 1 of 2) ────────────────────────────────
     /**
-     * Register a new customer account.
+     * Step 1 — Validate data, save UNVERIFIED user, send OTP.
+     * User is saved with isVerified=false.
+     * They cannot login until email is verified.
      */
     public AuthResponse register(RegisterRequest request) {
-        // 1. Check if email already registered
+        // 1. Check duplicate email
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered: " + request.getEmail());
+            throw new RuntimeException("Email already registered. Please login.");
         }
 
-        // 2. Build user entity — hash password with BCrypt
+        // 2. Build full address string from parts
+        String fullAddress = buildAddress(request);
+
+        // 3. Save user as UNVERIFIED
         User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // HASHED
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .role(User.Role.CUSTOMER) // All registrations are CUSTOMER
-                .build();
-
-        // 3. Save to DB
-        User savedUser = userRepository.save(user);
-
-        // 4. Generate JWT token
-        String token = generateTokenForUser(savedUser);
-
-        // 5. Return response
-        return AuthResponse.builder()
-                .token(token)
-                .tokenType("Bearer")
-                .userId(savedUser.getId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .role(savedUser.getRole().name())
-                .message("Registration successful! Welcome to Orivya Rice.")
-                .build();
-    }
-
-    /**
-     * Register admin account (called only once, or via a protected endpoint).
-     */
-    public AuthResponse registerAdmin(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered.");
-        }
-
-        User admin = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
-                .role(User.Role.ADMIN) // ADMIN role
+                .address(fullAddress)
+                .pincode(request.getPincode())
+                .street(request.getStreet())
+                .village(request.getVillage())
+                .city(request.getCity())
+                .state(request.getState())
+                .role(User.Role.CUSTOMER)
+                .isVerified(false) // NOT verified yet
                 .build();
 
-        User savedAdmin = userRepository.save(admin);
-        String token = generateTokenForUser(savedAdmin);
+        userRepository.save(user);
+
+        // 4. Send OTP to email
+        otpService.sendRegistrationOtp(request.getEmail(), request.getName());
 
         return AuthResponse.builder()
-                .token(token)
-                .tokenType("Bearer")
-                .userId(savedAdmin.getId())
-                .name(savedAdmin.getName())
-                .email(savedAdmin.getEmail())
-                .role(savedAdmin.getRole().name())
-                .message("Admin account created successfully.")
+                .email(request.getEmail())
+                .name(request.getName())
+                .message("OTP_SENT") // Frontend checks this to show OTP screen
                 .build();
     }
 
+    // ── REGISTRATION OTP VERIFY (Step 2 of 2) ────────────────────
     /**
-     * Login with email and password.
+     * Step 2 — User enters OTP. If correct, mark as VERIFIED.
+     * Now they can login.
+     */
+    public AuthResponse verifyRegistrationOtp(String email, String otp) {
+        String result = otpService.verifyRegistrationOtp(email, otp);
+
+        if ("EXPIRED".equals(result)) {
+            throw new RuntimeException("OTP has expired. Please request a new one.");
+        }
+        if ("MAX_ATTEMPTS".equals(result)) {
+            throw new RuntimeException("Too many wrong attempts. Please request a new OTP.");
+        }
+        if ("INVALID".equals(result)) {
+            throw new RuntimeException("Invalid OTP. Please check and try again.");
+        }
+
+        // OTP is VALID — mark user as verified
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        user.setIsVerified(true);
+        userRepository.save(user);
+
+        return AuthResponse.builder()
+                .email(email)
+                .name(user.getName())
+                .role(user.getRole().name())
+                .message("VERIFIED")
+                .build();
+    }
+
+    // ── LOGIN (Step 1 of 2) ───────────────────────────────────────
+    /**
+     * Step 1 — Verify email + password.
+     * If correct, send OTP to email.
+     * Return "OTP_SENT" — frontend shows OTP screen.
      */
     public AuthResponse login(LoginRequest request) {
-        // 1. Authenticate — this checks email + password via Spring Security
-        //    Throws AuthenticationException if credentials are wrong
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-            )
-        );
+        // 1. Authenticate email + password
+        try {
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid email or password.");
+        }
 
-        // 2. If we reach here, credentials are valid — load user
+        // 2. Load user
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found."));
 
-        // 3. Generate JWT token
+        // 3. Check if email is verified
+        if (!Boolean.TRUE.equals(user.getIsVerified())) {
+            // Resend registration OTP so they can verify
+            otpService.sendRegistrationOtp(user.getEmail(), user.getName());
+            throw new RuntimeException("Email not verified. A new OTP has been sent to " + user.getEmail());
+        }
+
+        // 4. Send login OTP
+        otpService.sendLoginOtp(user.getEmail(), user.getName());
+
+        return AuthResponse.builder()
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().name())
+                .message("OTP_SENT")
+                .build();
+    }
+
+    // ── LOGIN OTP VERIFY (Step 2 of 2) ───────────────────────────
+    /**
+     * Step 2 — User enters login OTP.
+     * If correct, generate JWT and return it.
+     */
+    public AuthResponse verifyLoginOtp(String email, String otp) {
+        String result = otpService.verifyLoginOtp(email, otp);
+
+        if ("EXPIRED".equals(result)) {
+            throw new RuntimeException("OTP has expired. Please login again.");
+        }
+        if ("MAX_ATTEMPTS".equals(result)) {
+            throw new RuntimeException("Too many wrong attempts. Please login again.");
+        }
+        if ("INVALID".equals(result)) {
+            throw new RuntimeException("Invalid OTP. Please check and try again.");
+        }
+
+        // OTP valid — generate JWT token
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+
         String token = generateTokenForUser(user);
 
-        // 4. Return response
         return AuthResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
@@ -135,29 +170,70 @@ public class AuthService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
-                .message("Login successful!")
+                .message("LOGIN_SUCCESS")
                 .build();
     }
 
-    /**
-     * Helper: Create a JWT token for a user, including role in claims.
-     */
+    // ── RESEND OTP ────────────────────────────────────────────────
+    public AuthResponse resendOtp(String email, String type) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email not registered."));
+
+        if ("REGISTRATION".equals(type)) {
+            otpService.resendRegistrationOtp(email, user.getName());
+        } else if ("LOGIN".equals(type)) {
+            otpService.resendLoginOtp(email, user.getName());
+        }
+
+        return AuthResponse.builder()
+                .email(email)
+                .message("OTP_RESENT")
+                .build();
+    }
+
+    // ── ADMIN REGISTER (unchanged) ────────────────────────────────
+    public AuthResponse registerAdmin(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already registered.");
+        }
+        User admin = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
+                .role(User.Role.ADMIN)
+                .isVerified(true) // Admin is auto-verified
+                .build();
+        User saved = userRepository.save(admin);
+        String token = generateTokenForUser(saved);
+        return AuthResponse.builder()
+                .token(token).tokenType("Bearer")
+                .userId(saved.getId()).name(saved.getName())
+                .email(saved.getEmail()).role(saved.getRole().name())
+                .message("Admin account created successfully.")
+                .build();
+    }
+
+    // ── HELPERS ───────────────────────────────────────────────────
+    private String buildAddress(RegisterRequest r) {
+        StringBuilder sb = new StringBuilder();
+        if (r.getStreet()  != null && !r.getStreet().isEmpty())  sb.append(r.getStreet()).append(", ");
+        if (r.getVillage() != null && !r.getVillage().isEmpty()) sb.append(r.getVillage()).append(", ");
+        if (r.getCity()    != null && !r.getCity().isEmpty())    sb.append(r.getCity()).append(", ");
+        if (r.getState()   != null && !r.getState().isEmpty())   sb.append(r.getState()).append(" ");
+        if (r.getPincode() != null && !r.getPincode().isEmpty()) sb.append("- ").append(r.getPincode());
+        return sb.toString().trim();
+    }
+
     private String generateTokenForUser(User user) {
-        // Build Spring Security UserDetails object
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-            user.getEmail(),
-            user.getPassword(),
-            Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-            )
+            user.getEmail(), user.getPassword(),
+            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
-
-        // Add extra claims (role, userId) into the token
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", user.getRole().name());
+        extraClaims.put("role",   user.getRole().name());
         extraClaims.put("userId", user.getId());
-        extraClaims.put("name", user.getName());
-
+        extraClaims.put("name",   user.getName());
         return jwtUtil.generateToken(extraClaims, userDetails);
     }
 }

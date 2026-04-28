@@ -45,6 +45,29 @@ public class Order {
     @Column(name = "transaction_id")
     private String transactionId; // Razorpay/UPI transaction ID
 
+    // NEW: delivery charge applied to this order
+    @Column(name = "delivery_charge")
+    @Builder.Default
+    private Double deliveryCharge = 0.0; // 0 if free, 60 if charged
+
+    // ── DELIVERY BOY ASSIGNMENT (new — backward compatible) ───────────
+    // Nullable — null means no delivery boy assigned yet
+    @Column(name = "delivery_boy_id")
+    private Long deliveryBoyId;
+
+    // ASSIGNED → OUT_FOR_DELIVERY → DELIVERED
+    @Column(name = "delivery_status", length = 30)
+    @Builder.Default
+    private String deliveryStatus = "UNASSIGNED";
+
+    // Name stored here so admin dashboard can show it without a JOIN
+    @Column(name = "delivery_boy_name")
+    private String deliveryBoyName;
+
+    // Phone stored for quick display
+    @Column(name = "delivery_boy_phone", length = 15)
+    private String deliveryBoyPhone;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

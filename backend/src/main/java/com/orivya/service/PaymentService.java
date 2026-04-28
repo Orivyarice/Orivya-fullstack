@@ -1,8 +1,6 @@
 package com.orivya.service;
 
-import com.orivya.entity.Order;
 import com.orivya.repository.CartItemRepository;
-import com.orivya.repository.OrderRepository;
 import com.orivya.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,11 +33,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentService {
 
+    // Only cartItemRepository and userRepository are actually used
     private final CartItemRepository cartItemRepository;
-    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final CartService cartService;
-    private final OrderService orderService;
 
     // Add these to application.properties:
     // razorpay.key.id=rzp_test_YourKeyIDHere
@@ -104,7 +99,8 @@ public class PaymentService {
         String paymentId = paymentData.get("razorpay_payment_id");
         String orderId   = paymentData.get("razorpay_order_id");
         String signature = paymentData.get("razorpay_signature");
-        String address   = paymentData.get("deliveryAddress");
+        // address is used by orderService.placeOrder() below (uncomment when ready)
+        String deliveryAddress = paymentData.get("deliveryAddress");
 
         // Verify signature: HMAC-SHA256(orderId + "|" + paymentId, keySecret)
         String payload  = orderId + "|" + paymentId;
@@ -115,7 +111,7 @@ public class PaymentService {
         }
 
         // Signature valid → place the order
-        // orderService.placeOrder(userEmail, address, "RAZORPAY", paymentId);
+        // orderService.placeOrder(userEmail, deliveryAddress, "RAZORPAY", paymentId);
 
         Map<String, Object> result = new HashMap<>();
         result.put("paymentId", paymentId);

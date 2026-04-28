@@ -40,12 +40,14 @@ public class Product {
     private String weight; // e.g. "26 kg", "5 kg"
 
     @Column(name = "stock_quantity")
+    @Builder.Default
     private Integer stockQuantity = 0; // inventory count
 
     @Column(name = "badge")
     private String badge; // e.g. "Best Seller", "Wholesale"
 
     @Column(name = "is_active")
+    @Builder.Default
     private Boolean isActive = true; // soft delete — false = hidden from shop
 
     @Column(name = "category")

@@ -3,7 +3,12 @@
    ══════════════════════════════════════════════════════ */
 
 /* ── CONFIG ─────────────────────────────────────── */
-const API_BASE = 'http://localhost:8080/api';
+// Auto-switch: runs locally → uses localhost, deployed on Netlify → uses Render URL
+const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+    ? 'http://localhost:8080/api'
+    : 'https://YOUR-APP-NAME.onrender.com/api';
+// ↑ IMPORTANT: After deploying to Render, replace YOUR-APP-NAME
+// Example: 'https://orivya-rice-backend.onrender.com/api'
 
 /* ── AUTH HELPERS ────────────────────────────────── */
 function getToken() {
@@ -73,6 +78,28 @@ function getAuthHeader() {
 }
 
 async function handleResponse(res) {
+    // FIX: Spring Security sends HTML (not JSON) for 401 and 403 responses.
+    // If we call res.json() on HTML, it throws → "Server returned invalid response"
+    // Fix: check status code FIRST before attempting JSON parse.
+
+    if (res.status === 401) {
+        // Token expired or not logged in — clear session and redirect to login
+        clearSession();
+        if (!window.location.href.includes('login.html')) {
+            showToast && showToast('Session expired. Please login again.', 'error');
+            setTimeout(() => window.location.href = 'login.html', 1000);
+        }
+        throw new Error('Session expired. Please login again.');
+    }
+
+    if (res.status === 403) {
+        // Logged in but wrong role, OR token has role mismatch.
+        // Tell user to logout and login again so a fresh token is issued.
+        throw new Error(
+            'Access denied (403). If you are admin, please logout and login again to refresh your session.'
+        );
+    }
+
     let data;
     try {
         data = await res.json();
@@ -96,25 +123,173 @@ async function apiLogin(email, password) {
         body:    JSON.stringify({ email, password })
     });
     const data = await handleResponse(res);
+    // NOTE: Do NOT save session here.
+    // Session is saved only after OTP is verified (apiVerifyLoginOtp).
+    // This enforces the 2-step login security.
+    return data;
+}
 
-    if (data.success && data.data) {
+// OLD simple register (kept for backward compatibility)
+async function apiRegister(name, email, password, phone) {
+    return apiRegisterFull({ name, email, password, phone, pincode:'', street:'', village:'', city:'', state:'' });
+}
+
+// NEW: Full registration with address fields + triggers OTP
+async function apiRegisterFull(fields) {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify(fields)
+    });
+    const data = await handleResponse(res);
+    // NOTE: Do NOT save session here.
+    // Session is saved only after email OTP is verified (apiVerifyRegistrationOtp).
+    return data;
+}
+
+// Verify registration OTP — marks user as VERIFIED in DB
+async function apiVerifyRegistrationOtp(email, otp) {
+    const res = await fetch(`${API_BASE}/auth/verify-registration`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify({ email, otp })
+    });
+    return handleResponse(res);
+}
+
+// Verify login OTP — returns JWT token if correct
+async function apiVerifyLoginOtp(email, otp) {
+    const res = await fetch(`${API_BASE}/auth/verify-login`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify({ email, otp })
+    });
+    const data = await handleResponse(res);
+    // Save session ONLY after OTP is verified
+    if (data.success && data.data && data.data.token) {
         saveUserSession(data.data);
     }
     return data;
 }
 
-async function apiRegister(name, email, password, phone) {
-    const res = await fetch(`${API_BASE}/auth/register`, {
+// Resend OTP (type = 'REGISTRATION' or 'LOGIN')
+async function apiResendOtp(email, type) {
+    const res = await fetch(`${API_BASE}/auth/resend-otp`, {
         method:  'POST',
         headers: getHeaders(),
-        body:    JSON.stringify({ name, email, password, phone })
+        body:    JSON.stringify({ email, type })
     });
-    const data = await handleResponse(res);
+    return handleResponse(res);
+}
 
-    if (data.success && data.data) {
-        saveUserSession(data.data);
-    }
-    return data;
+// ── FORGOT PASSWORD — NEW (does not change existing auth functions) ──
+
+// Step 1: Send reset OTP to email
+// POST /api/auth/forgot-password
+async function apiForgotPassword(email) {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify({ email })
+    });
+    return handleResponse(res);
+}
+
+// Step 2: Verify OTP + set new password in one call
+// POST /api/auth/reset-password
+async function apiResetPassword(email, otp, newPassword) {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify({ email, otp, newPassword })
+    });
+    return handleResponse(res);
+}
+
+/* ── SUBSCRIPTION APIs — NEW (do not change existing functions) ── */
+
+// Create a new subscription
+// POST /api/subscription/create
+async function apiCreateSubscription(subData) {
+    const res = await fetch(`${API_BASE}/subscription/create`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify(subData)
+    });
+    return handleResponse(res);
+}
+
+// Get all subscriptions for logged-in user
+// GET /api/subscription/my
+async function apiGetMySubscriptions() {
+    const res = await fetch(`${API_BASE}/subscription/my`, {
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// Update subscription (address, phone, start date)
+// PUT /api/subscription/update/{id}
+async function apiUpdateSubscription(id, updateData) {
+    const res = await fetch(`${API_BASE}/subscription/update/${id}`, {
+        method:  'PUT',
+        headers: getHeaders(),
+        body:    JSON.stringify(updateData)
+    });
+    return handleResponse(res);
+}
+
+// Cancel a subscription
+// DELETE /api/subscription/cancel/{id}
+async function apiCancelSubscription(id) {
+    const res = await fetch(`${API_BASE}/subscription/cancel/${id}`, {
+        method:  'DELETE',
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// Pause or resume a subscription
+// PUT /api/subscription/status/{id}
+async function apiSetSubscriptionStatus(id, status) {
+    const res = await fetch(`${API_BASE}/subscription/status/${id}`, {
+        method:  'PUT',
+        headers: getHeaders(),
+        body:    JSON.stringify({ status })
+    });
+    return handleResponse(res);
+}
+
+/* ── ADMIN SUBSCRIPTION APIs (new — do not change existing functions) ── */
+
+// Admin: get ALL subscriptions (all users)
+// GET /api/subscription/all
+async function apiGetAllSubscriptions() {
+    const res = await fetch(`${API_BASE}/subscription/all`, {
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// Admin: cancel any subscription (no ownership check)
+// PUT /api/subscription/admin/cancel/{id}
+async function apiAdminCancelSubscription(id) {
+    const res = await fetch(`${API_BASE}/subscription/admin/cancel/${id}`, {
+        method:  'PUT',
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// Admin: update any subscription (address, phone, startDate)
+// PUT /api/subscription/admin/update/{id}
+async function apiAdminUpdateSubscription(id, data) {
+    const res = await fetch(`${API_BASE}/subscription/admin/update/${id}`, {
+        method:  'PUT',
+        headers: getHeaders(),
+        body:    JSON.stringify(data)
+    });
+    return handleResponse(res);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -306,11 +481,12 @@ async function apiRemoveCartItem(cartItemId) {
 /* ══════════════════════════════════════════════════════
    ORDERS
    ══════════════════════════════════════════════════════ */
-async function apiPlaceOrder(deliveryAddress, paymentMethod, transactionId = '') {
+async function apiPlaceOrder(deliveryAddress, paymentMethod, transactionId = '', distanceKm = 0) {
     const res = await fetch(`${API_BASE}/orders`, {
         method:  'POST',
         headers: getHeaders(),
-        body:    JSON.stringify({ deliveryAddress, paymentMethod, transactionId })
+        // NEW: distanceKm sent to backend so it can calculate delivery charge
+        body:    JSON.stringify({ deliveryAddress, paymentMethod, transactionId, distanceKm })
     });
     return handleResponse(res);
 }
@@ -330,6 +506,116 @@ async function apiUpdateOrderStatus(orderId, status) {
         `${API_BASE}/orders/admin/${orderId}/status?status=${status}`,
         { method: 'PUT', headers: getHeaders() }
     );
+    return handleResponse(res);
+}
+
+/* ══════════════════════════════════════════════════════
+   ORDER NOTIFICATION APIs — NEW
+   ══════════════════════════════════════════════════════ */
+
+// Lightweight poll — returns only { latestId, totalCount }
+// Called every 8 seconds by notification poller (~40 bytes response)
+// GET /api/orders/admin/latest-order-id
+async function apiGetLatestOrderId() {
+    const res = await fetch(`${API_BASE}/orders/admin/latest-order-id`, {
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// Fetch full details of the most recent order (for toast popup)
+// GET /api/orders/admin/latest-order
+async function apiGetLatestOrder() {
+    const res = await fetch(`${API_BASE}/orders/admin/latest-order`, {
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+/* ══════════════════════════════════════════════════════
+   DELIVERY BOY APIs — NEW (do not change existing functions)
+   ══════════════════════════════════════════════════════ */
+
+// ── ADMIN: DELIVERY BOY MANAGEMENT ───────────────────────
+
+// Add new delivery boy
+// POST /api/delivery/boys
+async function apiAddDeliveryBoy(boyData) {
+    const res = await fetch(`${API_BASE}/delivery/boys`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify(boyData)
+    });
+    return handleResponse(res);
+}
+
+// Get all delivery boys (admin)
+// GET /api/delivery/boys
+async function apiGetAllDeliveryBoys() {
+    const res = await fetch(`${API_BASE}/delivery/boys`, { headers: getHeaders() });
+    return handleResponse(res);
+}
+
+// Get active delivery boys only — for dropdown
+// GET /api/delivery/boys/active
+async function apiGetActiveDeliveryBoys() {
+    const res = await fetch(`${API_BASE}/delivery/boys/active`, { headers: getHeaders() });
+    return handleResponse(res);
+}
+
+// Update delivery boy details
+// PUT /api/delivery/boys/{id}
+async function apiUpdateDeliveryBoy(id, data) {
+    const res = await fetch(`${API_BASE}/delivery/boys/${id}`, {
+        method:  'PUT',
+        headers: getHeaders(),
+        body:    JSON.stringify(data)
+    });
+    return handleResponse(res);
+}
+
+// Delete delivery boy
+// DELETE /api/delivery/boys/{id}
+async function apiDeleteDeliveryBoy(id) {
+    const res = await fetch(`${API_BASE}/delivery/boys/${id}`, {
+        method:  'DELETE',
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// ── ADMIN: ASSIGN DELIVERY BOY TO ORDER ──────────────────
+
+// Assign delivery boy to an order
+// POST /api/delivery/assign
+async function apiAssignDeliveryBoy(orderId, deliveryBoyId) {
+    const res = await fetch(`${API_BASE}/delivery/assign`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify({ orderId, deliveryBoyId })
+    });
+    return handleResponse(res);
+}
+
+// ── DELIVERY BOY: THEIR OWN ORDERS ───────────────────────
+
+// Get orders assigned to a specific delivery boy
+// GET /api/delivery/orders/{deliveryBoyId}
+async function apiGetDeliveryOrders(deliveryBoyId) {
+    const res = await fetch(`${API_BASE}/delivery/orders/${deliveryBoyId}`, {
+        headers: getHeaders()
+    });
+    return handleResponse(res);
+}
+
+// Delivery boy updates delivery status for an order
+// POST /api/delivery/update-status
+async function apiUpdateDeliveryStatus(orderId, deliveryBoyId, status) {
+    const res = await fetch(`${API_BASE}/delivery/update-status`, {
+        method:  'POST',
+        headers: getHeaders(),
+        body:    JSON.stringify({ orderId, deliveryBoyId, status })
+    });
     return handleResponse(res);
 }
 

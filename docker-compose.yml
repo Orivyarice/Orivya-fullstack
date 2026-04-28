@@ -19,17 +19,17 @@ services:
     container_name: orivya-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-OrivyaDB@2024}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-satish2233}
       MYSQL_DATABASE: orivya_db
       MYSQL_USER: orivya_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-OrivyaApp@2024}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-satish2233}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql         # Persist DB data
       - ./database-setup.sql:/docker-entrypoint-initdb.d/init.sql  # Auto-run on first start
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-OrivyaDB@2024}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-satish2233}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -51,7 +51,7 @@ services:
       # Database
       SPRING_DATASOURCE_URL: jdbc:mysql://orivya-db:3306/orivya_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: orivya_user
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-OrivyaApp@2024}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-satish2233}
       # JWT
       JWT_SECRET: ${JWT_SECRET:-OrivyaRiceSecretKey2024VeryLongSecretKeyForJWTToken}
       JWT_EXPIRATION: 86400000

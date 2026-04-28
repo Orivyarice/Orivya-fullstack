@@ -5,6 +5,7 @@
 
 let currentPage      = 0;
 let currentKeyword   = '';
+let currentCategory  = '';   // active category filter
 let searchTimeout    = null;
 let selectedPayMethod = 'cod';
 
@@ -566,6 +567,168 @@ function goToCheckout() {
 /* ════════════════════════════════════════
    CHECKOUT
 ════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   FIRST ORDER DISCOUNT HELPER
+   Calls backend to count user's previous orders.
+   Returns true if this is their first order.
+════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   DELIVERY DISTANCE HELPER
+   Reads the distance value from the hidden input
+   in checkout (customer enters their km distance).
+   Defaults to 0 if not entered = free delivery.
+════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   LIVE DELIVERY CHARGE INFO
+   Called oninput on the distance field.
+   Shows "Free" or "Rs.60" message instantly
+   as customer types their distance.
+════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   renderCheckoutSummary()
+   ────────────────────────────────────────────────────────────
+   NEW shared helper — called by both openCheckout() and
+   updateDeliveryCharge() so both always show the same numbers.
+
+   Uses the stored _checkout* variables + current distance input.
+════════════════════════════════════════════════════════════ */
+function renderCheckoutSummary() {
+    const cartTotal   = _checkoutCartTotal;
+    const isFirstOrder = _checkoutIsFirst;
+    if (!cartTotal) return;   // checkout not open yet
+
+    const DISCOUNT       = 50;
+    const FREE_MIN       = 600;
+    const MAX_FREE_KM    = 15;
+    const DELIVERY_CHARGE = 60;
+
+    const distanceKm   = getDeliveryDistance();
+    const withinRadius = (distanceKm <= MAX_FREE_KM);
+    // Free delivery: cart >= ₹600 AND within 15 km
+    // If distance = 0 (not entered yet) treat as local (free)
+    const freeDelivery = distanceKm === 0
+        ? (cartTotal >= FREE_MIN)
+        : (cartTotal >= FREE_MIN && withinRadius);
+    const deliveryCharge = freeDelivery ? 0 : DELIVERY_CHARGE;
+
+    // ── First-order discount banner ─────────────────────────
+    const discountBanner = (isFirstOrder && cartTotal >= DISCOUNT)
+        ? `<div style="background:#e8f5e9;border:1px solid #c3e6cb;border-radius:6px;padding:10px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="color:#155724;font-weight:700;font-size:13px">🎉 First Order Discount</span>
+              <span style="color:#155724;font-weight:900;font-size:14px">- ₹50</span>
+           </div>`
+        : '';
+
+    // ── Delivery banner — shows ₹0 or + ₹60 ───────────────
+    let deliveryBanner;
+    if (distanceKm === 0) {
+        // Distance not entered yet — show neutral message
+        deliveryBanner = `<div style="background:#f9f9f9;border:1px solid #eee;border-radius:6px;padding:10px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="color:#888;font-size:13px">🚚 Enter distance above to calculate delivery</span>
+              <span style="color:#888;font-size:13px">—</span>
+           </div>`;
+    } else if (freeDelivery) {
+        deliveryBanner = `<div style="background:#e8f5e9;border:1px solid #c3e6cb;border-radius:6px;padding:10px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="color:#155724;font-weight:700;font-size:13px">🚚 Free Delivery (within ${MAX_FREE_KM} km)</span>
+              <span style="color:#155724;font-weight:900;font-size:14px">₹0</span>
+           </div>`;
+    } else {
+        const reason = !withinRadius
+            ? '(beyond 15 km from our mill)'
+            : '(add ₹' + (FREE_MIN - cartTotal).toFixed(0) + ' more for free delivery)';
+        deliveryBanner = `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:10px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="color:#7a4a1e;font-weight:700;font-size:13px">🚚 Delivery Charge ${reason}</span>
+              <span style="color:#7a4a1e;font-weight:900;font-size:14px">+ ₹60</span>
+           </div>`;
+    }
+
+    // ── Final total ─────────────────────────────────────────
+    let finalAmount = cartTotal;
+    if (isFirstOrder && finalAmount >= DISCOUNT) finalAmount -= DISCOUNT;
+    finalAmount += deliveryCharge;
+
+    // ── Write to DOM ────────────────────────────────────────
+    document.getElementById('checkoutSummary').innerHTML =
+        _checkoutSummaryHTML + discountBanner + deliveryBanner;
+    document.getElementById('checkoutTotalLine').innerHTML =
+        `<span>Total</span><span>${formatPrice(finalAmount)}</span>`;
+    document.getElementById('payTotal').textContent  = formatPrice(finalAmount);
+    document.getElementById('upiAmount').textContent = formatPrice(finalAmount);
+}
+
+/* ════════════════════════════════════════════════════════════
+   updateDeliveryCharge()
+   ────────────────────────────────────────────────────────────
+   Called by oninput on #deliveryDistanceKm.
+   FIX: now calls renderCheckoutSummary() so the order summary
+   and Total always stay in sync with the typed distance.
+════════════════════════════════════════════════════════════ */
+function updateDeliveryCharge() {
+    const infoBox = document.getElementById('deliveryChargeInfo');
+    if (!infoBox) return;
+
+    const km          = getDeliveryDistance();
+    const cartTotal   = _checkoutCartTotal || 0;
+    const FREE_MIN    = 600;
+    const MAX_FREE_KM = 15;
+
+    // ── Small info box below distance input ─────────────────
+    if (km === 0) {
+        infoBox.innerHTML         = '🚚 Enter distance to see delivery charge';
+        infoBox.style.background  = '#f9f9f9';
+        infoBox.style.borderColor = '#eee';
+        infoBox.style.color       = '#555';
+    } else if (km <= MAX_FREE_KM && cartTotal >= FREE_MIN) {
+        infoBox.innerHTML         = '✅ <strong style="color:#155724">Free Delivery!</strong> Your order qualifies (above ₹600 &amp; within 15 km)';
+        infoBox.style.background  = '#e8f5e9';
+        infoBox.style.borderColor = '#c3e6cb';
+        infoBox.style.color       = '#155724';
+    } else if (km > MAX_FREE_KM) {
+        infoBox.innerHTML         = '🚚 <strong style="color:#7a4a1e">Delivery Charge: ₹60</strong> — Location is beyond 15 km from our mill';
+        infoBox.style.background  = '#fff8e1';
+        infoBox.style.borderColor = '#ffe082';
+        infoBox.style.color       = '#7a4a1e';
+    } else {
+        const needed = (FREE_MIN - cartTotal).toFixed(0);
+        infoBox.innerHTML         = `🚚 <strong style="color:#7a4a1e">Delivery Charge: ₹60</strong> — Add ₹${needed} more for free delivery`;
+        infoBox.style.background  = '#fff8e1';
+        infoBox.style.borderColor = '#ffe082';
+        infoBox.style.color       = '#7a4a1e';
+    }
+
+    // ── FIX: Re-render order summary + total with new distance ──
+    // This is the line that was MISSING — without this, the summary
+    // never updated when user typed a distance.
+    renderCheckoutSummary();
+}
+
+function getDeliveryDistance() {
+    const input = document.getElementById('deliveryDistanceKm');
+    if (!input) return 0;
+    const val = parseFloat(input.value);
+    return isNaN(val) ? 0 : Math.max(0, val);
+}
+
+/* ── CHECKOUT STATE ─────────────────────────────────────────────────
+   Stored when openCheckout() loads cart so that updateDeliveryCharge()
+   can re-render the order summary whenever the user changes distance.
+   ─────────────────────────────────────────────────────────────────── */
+let _checkoutCartTotal  = 0;       // raw cart total before any discount/charge
+let _checkoutIsFirst    = false;   // true if this is user's first order
+let _checkoutSummaryHTML = '';     // product rows HTML (no banners)
+
+async function checkIsFirstOrder() {
+    try {
+        if (!isLoggedIn()) return false;
+        // Use existing getMyOrders API — if empty array, it's first order
+        const data = await apiGetMyOrders();
+        const orders = data.data || [];
+        return orders.length === 0;
+    } catch (e) {
+        return false; // If any error, don't apply discount — safe default
+    }
+}
+
 async function openCheckout() {
     if (!requireLogin()) return;
     const user = getUser();
@@ -584,10 +747,20 @@ async function openCheckout() {
              </div>`
         ).join('');
 
-        document.getElementById('checkoutSummary').innerHTML   = summaryHTML;
-        document.getElementById('checkoutTotalLine').innerHTML = `<span>Total</span><span>${formatPrice(cart.totalAmount)}</span>`;
-        document.getElementById('payTotal').textContent        = formatPrice(cart.totalAmount);
-        document.getElementById('upiAmount').textContent       = formatPrice(cart.totalAmount);
+        // ── FIRST ORDER DISCOUNT ──────────────────────────────
+        const isFirstOrder = await checkIsFirstOrder();
+
+        // ── STORE CART STATE for updateDeliveryCharge() to reuse ──────
+        // This is the key fix: store these values so whenever the user
+        // changes the distance input, updateDeliveryCharge() can
+        // recalculate AND re-render the full order summary + totals.
+        _checkoutCartTotal   = cart.totalAmount;
+        _checkoutIsFirst     = isFirstOrder;
+        _checkoutSummaryHTML = summaryHTML;   // product rows only, no banners
+
+        // ── Render summary using the shared helper ─────────────────────
+        // renderCheckoutSummary() uses the stored values + current distance
+        renderCheckoutSummary();
     } catch (e) {
         showToast('Error loading cart: ' + e.message, 'error');
         return;
@@ -653,7 +826,8 @@ async function placeOrder() {
     btn.disabled    = true;
 
     try {
-        const data  = await apiPlaceOrder(address, selectedPayMethod.toUpperCase(), transactionId);
+        const distanceKm = getDeliveryDistance();
+        const data  = await apiPlaceOrder(address, selectedPayMethod.toUpperCase(), transactionId, distanceKm);
         const order = data.data;
 
         const waMsg = encodeURIComponent(
@@ -664,10 +838,20 @@ async function placeOrder() {
         );
 
         document.getElementById('whatsappLink').href = `https://wa.me/916304212346?text=${waMsg}`;
+        const discountLine = (order.discountApplied)
+            ? `<br><span style="color:#1a5c2a;font-weight:700">🎉 ₹50 First Order Discount Applied!</span>`
+            : '';
+
+        const deliveryLine = (order.freeDelivery)
+            ? `<br><span style="color:#1a5c2a;font-weight:700">🚚 Free Delivery!</span>`
+            : `<br><span style="color:#856404;font-weight:700">🚚 Delivery Charge: ₹60</span>`;
+
         document.getElementById('successMsg').innerHTML =
             `Thank you, <strong>${name}</strong>!<br>` +
-            `Order <strong>#${order.orderId}</strong> placed.<br>` +
-            `Total: <strong>${formatPrice(order.totalPrice)}</strong>`;
+            `Order <strong>#${order.orderId}</strong> placed.` +
+            discountLine +
+            deliveryLine +
+            `<br>Total Paid: <strong>${formatPrice(order.totalPrice)}</strong>`;
 
         document.getElementById('checkoutBody').style.display = 'none';
         document.getElementById('successState').style.display = 'block';
@@ -710,4 +894,5 @@ function submitBulkOrder() {
     });
     document.getElementById('orderRice').value = '';
     showToast('✅ Opening WhatsApp for bulk order...');
+    
 }

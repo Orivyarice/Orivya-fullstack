@@ -12,6 +12,30 @@
   <link rel="stylesheet" href="css/style.css" />
   <!-- Feature styles — all new, don't change existing code -->
   <link rel="stylesheet" href="css/features.css" />
+  <!-- MAP MODULE: Leaflet.js CSS (new — standalone) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="css/map-module.css" />
+
+  <!-- ══ THEME & MOBILE APP META ════════════════════════════════ -->
+  <meta name="theme-color" content="#1a5c2a"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Orivya"/>
+  <meta name="application-name" content="Orivya"/>
+  <meta name="msapplication-TileColor" content="#1a5c2a"/>
+  <meta name="msapplication-TileImage" content="/icons/icon-144.png"/>
+ 
+  <!-- ══ APPLE TOUCH ICONS ══════════════════════════════════════ -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png"/>
+ 
+  <!-- ══ STANDARD FAVICON ════════════════════════════════════════ -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96.png"/>
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72.png"/>
+  <!-- ══ END PWA META ════════════════════════════════════════════ -->
 </head>
 <body>
 
@@ -19,7 +43,7 @@
 <nav>
   <a href="index.html" class="nav-logo">
     <div class="nav-logo-icon">
-      <img src="Images/Logo.jpeg" alt="Logo" class="logo-img"
+      <img src="images/Logo.jpeg" alt="Logo" class="logo-img"
            onerror="this.style.display='none';this.parentNode.innerHTML='🌾'" />
     </div>
     <div class="nav-logo-text">ORIVYA<span>Premium Rice</span></div>
@@ -30,6 +54,7 @@
     <li><a href="#testimonials">Reviews</a></li>
     <li><a href="#nutrition">Nutrition</a></li>
     <li><a href="#contact">Order Now</a></li>
+    <li><a href="subscription.html" style="color:#c8922a;font-weight:700">🌾 Subscribe</a></li>
   </ul>
   <div class="nav-actions">
     <span id="navUserName" class="nav-username" style="display:none"></span>
@@ -49,7 +74,7 @@
   <div class="hero-text">
     <div class="hero-badge">✦ From the Fields of Andhra Pradesh</div>
     <h1><span class="gold">ORIVYA</span><br />Premium Rice</h1>
-    <p class="hero-sub">Pure • Clean • Naturally Processed<br />Soft &amp; Fluffy after Cooking</p>
+    <p class="hero-sub">Rice • Millets • Ragi • Toor Dal • Jaggery • Turmeric<br />Pure • Natural • Directly from the Farm</p>
     <div class="hero-features">
       <div class="hero-feat"><div class="dot"></div>Sona Masoori</div>
       <div class="hero-feat"><div class="dot"></div>Hygienically Milled</div>
@@ -62,7 +87,7 @@
     </div>
   </div>
   <div class="hero-image">
-    <img class="hero-bag" src="Images/Inrtoduction.jpeg" alt="Orivya Rice Bag"
+    <img class="hero-bag" src="images/Inrtoduction.png" alt="Orivya Rice Bag"
          onerror="this.style.display='none';this.parentNode.innerHTML='<div class=\'hero-bag-fallback\'>🌾</div>'" />
   </div>
 </section>
@@ -72,20 +97,33 @@
 <div class="marquee-strip">
   <div class="marquee-inner">
     <span class="marquee-item">Premium Sona Masoori Rice</span>
-    <span class="marquee-item">Hygienically Milled &amp; Packed</span>
-    <span class="marquee-item">Bulk &amp; Retail Supply</span>
+    <span class="marquee-item">Organic Millets</span>
+    <span class="marquee-item">Fresh Ragi Pindi</span>
+    <span class="marquee-item">Cold Pressed Oils</span>
     <span class="marquee-item">FSSAI Licensed</span>
-    <span class="marquee-item">Made in India</span>
-    <span class="marquee-item">Direct from Mill</span>
-    <span class="marquee-item">500+ Happy Customers</span>
-    <span class="marquee-item">100% Natural Process</span>
+    <span class="marquee-item">Direct from Farm</span>
+    <span class="marquee-item">100% Natural</span>
     <span class="marquee-item">Premium Sona Masoori Rice</span>
-    <span class="marquee-item">Hygienically Milled &amp; Packed</span>
-    <span class="marquee-item">FSSAI Licensed</span>
-    <span class="marquee-item">Direct from Mill</span>
+    <span class="marquee-item">Organic Millets</span>
+    <span class="marquee-item">Fresh Ragi Pindi</span>
+    
   </div>
 </div>
 
+
+<!-- ════════ SUBSCRIPTION BANNER (new — modular) ════════ -->
+<div style="background:linear-gradient(135deg,#1a5c2a,#0f3a1a);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+  <div style="display:flex;align-items:center;gap:14px">
+    <span style="font-size:22px">🌾</span>
+    <div>
+      <div style="color:#e8b44a;font-size:13px;font-weight:700;letter-spacing:0.5px">NEW — Subscription Plans</div>
+      <div style="color:rgba(255,255,255,0.75);font-size:12px">Get rice &amp; milk delivered on your schedule. Save up to 10%.</div>
+    </div>
+  </div>
+  <a href="subscription.html" style="display:inline-block;background:linear-gradient(135deg,#c8922a,#e8b44a);color:#1a0e00;font-size:13px;font-weight:700;padding:9px 22px;border-radius:24px;text-decoration:none;white-space:nowrap;transition:all 0.2s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+    Explore Plans →
+  </a>
+</div>
 
 <!-- ════════ SHOP ════════ -->
 <section id="shop">
@@ -98,18 +136,17 @@
   <!-- FEATURE 4: Search with autocomplete dropdown -->
   <div class="search-bar-wrapper">
     <input type="text" id="searchInput" class="search-input"
-           placeholder="🔍 Search rice products..."
+           placeholder="🔍 Search rice, millets, vegetables..."
            oninput="handleSearchWithSuggestions(this.value)"
            onkeydown="handleSearchKeydown(event)"
            autocomplete="off" />
-    <!-- Autocomplete dropdown — filled by JS -->
     <div class="search-suggestions" id="searchSuggestions"></div>
   </div>
 
-  <!-- Products Grid — filled by JS (shows skeleton cards while loading) -->
-  <div class="products-grid" id="productsGrid">
-    <!-- FEATURE 1: Skeleton cards shown here while loading -->
-  </div>
+  
+
+  <!-- Products Grid -->
+  <div class="products-grid" id="productsGrid"></div>
   <div class="pagination" id="pagination"></div>
 </section>
 
@@ -270,11 +307,11 @@
       <h3>Sri Lakshmi Ganapati Mini Rice Mill</h3>
       <div class="contact-item">
         <div class="contact-icon">📍</div>
-        <div class="contact-item-text"><strong>Address</strong><span>Door No. 4-35, Chinna Ramalayam Veedhi,<br />Mullam Road, Gorinta,<br />Peddapuram Mandal, Kakinada District,<br />Andhra Pradesh – 533433</span></div>
+        <div class="contact-item-text"><strong>Address</strong><span>Door No. 4-35, Chinna Ramalayam Veedhi,<br />Mallam Road, Gorinta,<br />Peddapuram Mandal, Kakinada District,<br />Andhra Pradesh – 533433</span></div>
       </div>
       <div class="contact-item">
         <div class="contact-icon">📞</div>
-        <div class="contact-item-text"><strong>Phone / WhatsApp</strong><span>6304212346</span></div>
+        <div class="contact-item-text"><strong>Phone / WhatsApp</strong><span>6304212346 | 9640525341</span></div>
       </div>
       <div class="wa-direct-box">
         <div class="wa-direct-title">💬 Chat with us on WhatsApp</div>
@@ -284,7 +321,6 @@
           Chat on WhatsApp Now
         </button>
         <div class="wa-numbers">
-          
           <a href="https://wa.me/916304212346" target="_blank" class="wa-num-link">📱 6304212346</a>
         </div>
       </div>
@@ -340,7 +376,7 @@
     </div>
     <div class="footer-col">
       <h4>Contact</h4>
-      <ul><li>📞 9640525341</li><li>📞 6304212346</li><li>📧 orivyaorganicrice@gmail.com</li><li>📍 Gorinta, Peddapuram Mandal</li><li>Kakinada District, Andhra Pradesh</li></ul>
+      <ul><li>📞 9640525341</li><li>📞 6304212346</li><li>📧 orivyaorganicrice@gmail.com</li><li>📍 Gorinta, Peddapuram Mandal</li><li>Kakinada District, AP</li></ul>
     </div>
   </div>
   <div class="footer-bottom">
@@ -388,6 +424,20 @@
         <div class="form-group"><label>Phone / WhatsApp *</label><input type="tel" id="checkPhone" placeholder="10-digit mobile number" /></div>
         <div class="form-group"><label>Email (optional)</label><input type="email" id="checkEmail" placeholder="For order confirmation" /></div>
         <div class="form-group"><label>Delivery Address *</label><textarea id="checkAddress" rows="3" placeholder="House no, Street, Village, District, Pincode"></textarea></div>
+        <!-- NEW: Distance input for delivery charge calculation -->
+        <!-- Free delivery within 15 km for orders above Rs.600 -->
+        <div class="form-group" id="distanceGroup">
+          <label>Distance from Gorinta, Peddapuram (km)
+            <span style="font-weight:400;color:#888;font-size:11px"> — Enter approx. distance</span>
+          </label>
+          <input type="number" id="deliveryDistanceKm" min="0" step="0.5"
+                 placeholder="e.g. 5 for 5 km"
+                 oninput="updateDeliveryCharge()"
+                 style="width:180px" />
+          <div id="deliveryChargeInfo" style="margin-top:8px;font-size:13px;color:#555;padding:8px 12px;background:#f9f9f9;border-radius:6px;border:1px solid #eee">
+            🚚 Enter distance to see delivery charge
+          </div>
+        </div>
         <div class="order-summary-box">
           <strong class="summary-title">ORDER SUMMARY</strong>
           <div id="checkoutSummary"></div>
@@ -487,5 +537,8 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="js/api.js"></script>
 <script src="js/main.js"></script>
+<!-- MAP MODULE: Leaflet JS + map-module.js (new — standalone, loaded after main.js) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WPgU=" crossorigin=""></script>
+<script src="js/map-module.js"></script>
 </body>
 </html>

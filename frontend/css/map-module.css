@@ -1,0 +1,104 @@
+/* ═══════════════════════════════════════════════════════════════
+   map-module.css  —  Delivery Map Feature (NEW — standalone)
+   ───────────────────────────────────────────────────────────────
+   SCOPE: Only styles elements created by map-module.js
+   IMPACT: Zero effect on any existing styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Locate button (appears next to address textarea) ── */
+#mapLocateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 14px;
+  background: #1a5c2a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+#mapLocateBtn:hover  { background: #2d7a3e; transform: translateY(-1px); }
+#mapLocateBtn:active { transform: translateY(0); }
+#mapLocateBtn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Map wrapper section ── */
+#mapSection {
+  margin-top: 12px;
+  border: 1px solid rgba(26,92,42,0.25);
+  border-radius: 8px;
+  overflow: hidden;
+  display: none;            /* hidden until location found */
+}
+
+/* ── Map info bar above the leaflet map ── */
+#mapInfoBar {
+  background: #f0f7f0;
+  border-bottom: 1px solid rgba(26,92,42,0.15);
+  padding: 8px 14px;
+  font-size: 12px;
+  color: #1a5c2a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#mapInfoBar .map-distance-label {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+#mapInfoBar .map-shop-label {
+  color: #888;
+  font-size: 11px;
+}
+
+/* ── The actual Leaflet map container ── */
+#deliveryMap {
+  height: 220px;
+  width: 100%;
+  /* z-index kept at Leaflet default — does NOT conflict with modal z-index */
+  position: relative;
+}
+
+/* ── Geocoding status message ── */
+#mapStatus {
+  font-size: 12px;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: none;
+}
+
+#mapStatus.loading {
+  display: block;
+  background: #e8f5e9;
+  color: #1a5c2a;
+}
+
+#mapStatus.error {
+  display: block;
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* ── Leaflet popup override to match brand ── */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  font-family: 'Lato', sans-serif !important;
+  font-size: 13px !important;
+}
+
+.map-shop-popup  { color: #1a5c2a; font-weight: 700; }
+.map-cust-popup  { color: #c8922a; font-weight: 700; }

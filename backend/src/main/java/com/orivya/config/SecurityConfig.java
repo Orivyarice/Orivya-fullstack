@@ -77,6 +77,22 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT,    "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
 
+                // ── SUBSCRIPTION admin endpoints ──────────────────────────
+                .requestMatchers(HttpMethod.GET,    "/api/subscription/all").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/subscription/admin/**").hasRole("ADMIN")
+
+                // ── DELIVERY BOY admin endpoints ───────────────────────────
+                // Admin-only: manage delivery boys + assign to orders
+                .requestMatchers(HttpMethod.POST,   "/api/delivery/boys").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/delivery/boys").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/delivery/boys/active").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/delivery/boys/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/delivery/boys/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST,   "/api/delivery/assign").hasRole("ADMIN")
+                // Delivery boy endpoints: any authenticated user
+                .requestMatchers("/api/delivery/orders/**").authenticated()
+                .requestMatchers("/api/delivery/update-status").authenticated()
+
                 // ── All other endpoints require login ──
                 .anyRequest().authenticated()
             )

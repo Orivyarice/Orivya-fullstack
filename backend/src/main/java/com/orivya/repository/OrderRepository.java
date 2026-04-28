@@ -19,4 +19,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Sum total revenue of delivered orders
     @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Order o WHERE o.status = 'DELIVERED'")
     Double getTotalRevenue();
+
+    // ← NEW: Count how many orders this user has placed before
+    // Used to check if this is their FIRST order (for ₹50 discount)
+    long countByUser(User user);
+
+    // ← NEW: Get all orders for a specific delivery boy
+    java.util.List<Order> findByDeliveryBoyId(Long deliveryBoyId);
 }

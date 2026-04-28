@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Subscribe – Orivya Rice & Fresh Milk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/subscription.css"/>
+</head>
+<body>
+
+<!-- ── PARTICLE CANVAS (background atmosphere) ── -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- ── NAV ── -->
+<nav class="sub-nav">
+  <a href="index.html" class="sub-nav-logo">🌾 ORIVYA</a>
+  <a href="index.html" class="sub-nav-shop">Continue to Shop →</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="sub-hero">
+  <div class="sub-hero-tag">✦ Farm to Doorstep</div>
+  <h1 class="sub-hero-title">
+    Fresh Subscriptions<br/>
+    <span class="sub-hero-accent">from Farm to Home</span>
+  </h1>
+  <p class="sub-hero-sub">
+    Handpicked rice & farm-fresh milk — delivered on your schedule.<br/>
+    Set it once. Enjoy always.
+  </p>
+  <div class="sub-hero-icons">
+    <div class="float-icon fi-1">🌾</div>
+    <div class="float-icon fi-2">🥛</div>
+    <div class="float-icon fi-3">🚚</div>
+    <div class="float-icon fi-4">✨</div>
+    <div class="float-icon fi-5">🌿</div>
+  </div>
+</section>
+
+<!-- ── CATEGORY TABS ── -->
+<section class="sub-tabs-section">
+  <div class="sub-tabs">
+    <button class="sub-tab active" data-cat="rice" onclick="switchCategory('rice',this)">
+      🌾 Rice Subscription
+    </button>
+    <button class="sub-tab" data-cat="milk" onclick="switchCategory('milk',this)">
+      🥛 Milk Subscription
+    </button>
+  </div>
+</section>
+
+<!-- ── CARDS STAGE ── -->
+<section class="sub-cards-section" id="subCardsSection">
+
+  <!-- ── RICE CARDS ── -->
+  <div class="cards-stage" id="riceCards">
+    <div class="cards-track" id="riceTrack">
+
+      <div class="sub-card" data-type="rice" data-qty="5" data-unit="kg">
+        <div class="card-glow"></div>
+        <div class="card-inner">
+          <div class="card-icon">🌾</div>
+          <div class="card-badge">Starter</div>
+          <h3 class="card-title">Rice Lite</h3>
+          <div class="card-qty">5 <span>kg</span></div>
+          <div class="card-freq-pills">
+            <button class="freq-pill active" data-freq="monthly" onclick="selectFreq(this,'rice-5')">Monthly</button>
+            <button class="freq-pill" data-freq="weekly" onclick="selectFreq(this,'rice-5')">Weekly</button>
+          </div>
+          <div class="card-price" id="price-rice-5">
+            <span class="price-amount">₹299</span>
+            <span class="price-per">/month</span>
+          </div>
+          <ul class="card-perks">
+            <li>✓ Premium Sona Masoori</li>
+            <li>✓ Doorstep delivery</li>
+            <li>✓ Cancel anytime</li>
+          </ul>
+          <button class="card-cta" onclick="openSubModal('rice','5kg','monthly','299')">
+            Subscribe Now
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-card featured" data-type="rice" data-qty="10" data-unit="kg">
+        <div class="card-glow"></div>
+        <div class="card-featured-tag">Most Popular</div>
+        <div class="card-inner">
+          <div class="card-icon">🌾</div>
+          <div class="card-badge">Family</div>
+          <h3 class="card-title">Rice Classic</h3>
+          <div class="card-qty">10 <span>kg</span></div>
+          <div class="card-freq-pills">
+            <button class="freq-pill active" data-freq="monthly" onclick="selectFreq(this,'rice-10')">Monthly</button>
+            <button class="freq-pill" data-freq="weekly" onclick="selectFreq(this,'rice-10')">Weekly</button>
+          </div>
+          <div class="card-price" id="price-rice-10">
+            <span class="price-amount">₹549</span>
+            <span class="price-per">/month</span>
+          </div>
+          <ul class="card-perks">
+            <li>✓ Premium Sona Masoori</li>
+            <li>✓ Priority delivery</li>
+            <li>✓ 5% extra savings</li>
+            <li>✓ Cancel anytime</li>
+          </ul>
+          <button class="card-cta" onclick="openSubModal('rice','10kg','monthly','549')">
+            Subscribe Now
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-card" data-type="rice" data-qty="25" data-unit="kg">
+        <div class="card-glow"></div>
+        <div class="card-inner">
+          <div class="card-icon">🌾</div>
+          <div class="card-badge">Bulk</div>
+          <h3 class="card-title">Rice Pro</h3>
+          <div class="card-qty">25 <span>kg</span></div>
+          <div class="card-freq-pills">
+            <button class="freq-pill active" data-freq="monthly" onclick="selectFreq(this,'rice-25')">Monthly</button>
+            <button class="freq-pill" data-freq="weekly" onclick="selectFreq(this,'rice-25')">Weekly</button>
+          </div>
+          <div class="card-price" id="price-rice-25">
+            <span class="price-amount">₹1,199</span>
+            <span class="price-per">/month</span>
+          </div>
+          <ul class="card-perks">
+            <li>✓ Premium Sona Masoori</li>
+            <li>✓ Free delivery always</li>
+            <li>✓ 10% bulk savings</li>
+            <li>✓ Cancel anytime</li>
+          </ul>
+          <button class="card-cta" onclick="openSubModal('rice','25kg','monthly','1199')">
+            Subscribe Now
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="cards-nav">
+      <button class="cnav-btn" onclick="slideCards('rice',-1)">‹</button>
+      <div class="cards-dots" id="riceDots">
+        <span class="cdot active"></span>
+        <span class="cdot"></span>
+        <span class="cdot"></span>
+      </div>
+      <button class="cnav-btn" onclick="slideCards('rice',1)">›</button>
+    </div>
+  </div>
+
+  <!-- ── MILK CARDS ── -->
+  <div class="cards-stage" id="milkCards" style="display:none">
+    <div class="cards-track" id="milkTrack">
+
+      <div class="sub-card milk-card" data-type="milk" data-qty="500" data-unit="ml">
+        <div class="card-glow"></div>
+        <div class="card-inner">
+          <div class="card-icon">🥛</div>
+          <div class="card-badge">Light</div>
+          <h3 class="card-title">Milk Lite</h3>
+          <div class="card-qty">500 <span>ml</span></div>
+          <div class="card-freq-pills">
+            <button class="freq-pill active" data-freq="daily" onclick="selectFreq(this,'milk-500')">Daily</button>
+            <button class="freq-pill" data-freq="alternate" onclick="selectFreq(this,'milk-500')">Alt Days</button>
+          </div>
+          <div class="card-price" id="price-milk-500">
+            <span class="price-amount">₹39</span>
+            <span class="price-per">/day</span>
+          </div>
+          <ul class="card-perks">
+            <li>✓ Farm-fresh daily</li>
+            <li>✓ Morning delivery</li>
+            <li>✓ Cancel anytime</li>
+          </ul>
+          <button class="card-cta milk-cta" onclick="openSubModal('milk','500ml','daily','39')">
+            Subscribe Now
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-card milk-card featured" data-type="milk" data-qty="1000" data-unit="ml">
+        <div class="card-glow"></div>
+        <div class="card-featured-tag">Best Value</div>
+        <div class="card-inner">
+          <div class="card-icon">🥛</div>
+          <div class="card-badge">Family</div>
+          <h3 class="card-title">Milk Classic</h3>
+          <div class="card-qty">1 <span>litre</span></div>
+          <div class="card-freq-pills">
+            <button class="freq-pill active" data-freq="daily" onclick="selectFreq(this,'milk-1L')">Daily</button>
+            <button class="freq-pill" data-freq="alternate" onclick="selectFreq(this,'milk-1L')">Alt Days</button>
+          </div>
+          <div class="card-price" id="price-milk-1L">
+            <span class="price-amount">₹69</span>
+            <span class="price-per">/day</span>
+          </div>
+          <ul class="card-perks">
+            <li>✓ Farm-fresh daily</li>
+            <li>✓ Morning delivery</li>
+            <li>✓ 5% savings vs retail</li>
+            <li>✓ Cancel anytime</li>
+          </ul>
+          <button class="card-cta milk-cta" onclick="openSubModal('milk','1L','daily','69')">
+            Subscribe Now
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-card milk-card" data-type="milk" data-qty="2000" data-unit="ml">
+        <div class="card-glow"></div>
+        <div class="card-inner">
+          <div class="card-icon">🥛</div>
+          <div class="card-badge">Large</div>
+          <h3 class="card-title">Milk Plus</h3>
+          <div class="card-qty">2 <span>litres</span></div>
+          <div class="card-freq-pills">
+            <button class="freq-pill active" data-freq="daily" onclick="selectFreq(this,'milk-2L')">Daily</button>
+            <button class="freq-pill" data-freq="alternate" onclick="selectFreq(this,'milk-2L')">Alt Days</button>
+          </div>
+          <div class="card-price" id="price-milk-2L">
+            <span class="price-amount">₹129</span>
+            <span class="price-per">/day</span>
+          </div>
+          <ul class="card-perks">
+            <li>✓ Farm-fresh daily</li>
+            <li>✓ Priority morning delivery</li>
+            <li>✓ 8% savings vs retail</li>
+            <li>✓ Cancel anytime</li>
+          </ul>
+          <button class="card-cta milk-cta" onclick="openSubModal('milk','2L','daily','129')">
+            Subscribe Now
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="cards-nav">
+      <button class="cnav-btn" onclick="slideCards('milk',-1)">‹</button>
+      <div class="cards-dots" id="milkDots">
+        <span class="cdot active"></span>
+        <span class="cdot"></span>
+        <span class="cdot"></span>
+      </div>
+      <button class="cnav-btn" onclick="slideCards('milk',1)">›</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── BENEFITS STRIP ── -->
+<section class="sub-benefits">
+  <div class="benefit-item">
+    <div class="benefit-icon">🚪</div>
+    <div class="benefit-text"><strong>Doorstep Delivery</strong><span>Fresh every time</span></div>
+  </div>
+  <div class="benefit-sep">|</div>
+  <div class="benefit-item">
+    <div class="benefit-icon">🔄</div>
+    <div class="benefit-text"><strong>Cancel Anytime</strong><span>No lock-in</span></div>
+  </div>
+  <div class="benefit-sep">|</div>
+  <div class="benefit-item">
+    <div class="benefit-icon">💰</div>
+    <div class="benefit-text"><strong>Save 10%</strong><span>vs one-time orders</span></div>
+  </div>
+  <div class="benefit-sep">|</div>
+  <div class="benefit-item">
+    <div class="benefit-icon">✅</div>
+    <div class="benefit-text"><strong>FSSAI Certified</strong><span>Quality guaranteed</span></div>
+  </div>
+</section>
+
+<!-- ── CTA FOOTER ── -->
+<div class="sub-footer-cta">
+  <p>Just want to browse products?</p>
+  <a href="index.html" class="sub-skip-btn">Continue to Shop →</a>
+</div>
+
+<!-- ══════════════════════════════════════
+     SUBSCRIPTION MODAL
+══════════════════════════════════════ -->
+<div class="sub-modal-overlay" id="subModalOverlay" onclick="closeSubModal()"></div>
+<div class="sub-modal" id="subModal">
+  <button class="sub-modal-close" onclick="closeSubModal()">✕</button>
+
+  <div class="sub-modal-header">
+    <div class="sub-modal-icon" id="modalIcon">🌾</div>
+    <div>
+      <h2 id="modalTitle">Rice Subscription</h2>
+      <p id="modalSubtitle">Configure your plan</p>
+    </div>
+  </div>
+
+  <div id="subModalBody">
+
+    <!-- Step 1: Plan details -->
+    <div id="modalStep1">
+      <div class="modal-row">
+        <div class="modal-field">
+          <label>Quantity</label>
+          <div id="modalQty" class="modal-value-badge">10 kg</div>
+        </div>
+        <div class="modal-field">
+          <label>Frequency</label>
+          <div id="modalFreq" class="modal-value-badge">Monthly</div>
+        </div>
+        <div class="modal-field">
+          <label>Price</label>
+          <div class="modal-value-badge price-badge" id="modalPrice">₹549</div>
+        </div>
+      </div>
+
+      <div class="modal-form-group">
+        <label>Delivery Address *</label>
+        <textarea id="subAddress" rows="2"
+                  placeholder="House no, Street, Village, District, Pincode"></textarea>
+      </div>
+
+      <div class="modal-row">
+        <div class="modal-form-group" style="flex:1">
+          <label>Start Date *</label>
+          <input type="date" id="subStartDate" min=""/>
+        </div>
+        <div class="modal-form-group" style="flex:1">
+          <label>Phone *</label>
+          <input type="tel" id="subPhone" placeholder="WhatsApp number"
+                 maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"/>
+        </div>
+      </div>
+
+      <div id="modalError" class="modal-error" style="display:none"></div>
+      <div id="modalSuccess" class="modal-success" style="display:none"></div>
+
+      <button class="modal-submit-btn" id="subSubmitBtn" onclick="submitSubscription()">
+        🔒 Confirm Subscription
+      </button>
+
+      <p class="modal-fine-print">
+        By subscribing you agree to our delivery terms. Cancel anytime from your account.
+      </p>
+    </div>
+
+    <!-- Success state -->
+    <div id="modalStepSuccess" style="display:none;text-align:center;padding:24px 0">
+      <div style="font-size:60px;margin-bottom:16px">🎉</div>
+      <h3 style="color:#1a5c2a;font-size:22px;margin-bottom:8px">Subscribed!</h3>
+      <p style="color:#555;font-size:14px;margin-bottom:20px" id="modalSuccessMsg">
+        Your subscription is confirmed.
+      </p>
+      <button class="modal-submit-btn" onclick="closeSubModal();window.location.href='index.html'">
+        Continue to Shop →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/subscription.js"></script>
+</body>
+</html>

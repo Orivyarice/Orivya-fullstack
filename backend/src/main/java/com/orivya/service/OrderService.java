@@ -52,6 +52,41 @@ public class OrderService {
                 .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
                 .sum();
 
+        // NEW: FIRST ORDER DISCOUNT
+        // If user has 0 previous orders AND cart >= Rs.50, deduct Rs.50
+        final double FIRST_ORDER_DISCOUNT = 50.0;
+        long previousOrderCount = orderRepository.countByUser(user);
+        boolean isFirstOrder    = (previousOrderCount == 0);
+        double discountAmount   = 0.0;
+        if (isFirstOrder && totalPrice >= FIRST_ORDER_DISCOUNT) {
+            discountAmount = FIRST_ORDER_DISCOUNT;
+            totalPrice     = totalPrice - discountAmount;
+        }
+
+        // ── DELIVERY CHARGE LOGIC ────────────────────────────────
+        // Rules:
+        //   Cart total >= Rs.600 AND within 15 km  → FREE delivery
+        //   Cart total <  Rs.600 OR  beyond 15 km  → Rs.60 delivery charge
+        //
+        // distanceKm comes from frontend (user inputs or map picks location).
+        // If frontend sends null, we default to 0 km (treat as local = free).
+        final double FREE_DELIVERY_MIN_AMOUNT = 600.0;
+        final double MAX_FREE_DELIVERY_KM     = 15.0;
+        final double DELIVERY_CHARGE          = 60.0;
+
+        double distanceKm     = (request.getDistanceKm() != null) ? request.getDistanceKm() : 0.0;
+        double cartTotal      = cartItems.stream()
+                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
+                .sum(); // original cart total before any discount
+
+        boolean withinRadius  = (distanceKm <= MAX_FREE_DELIVERY_KM);
+        boolean qualifiesFree = (cartTotal >= FREE_DELIVERY_MIN_AMOUNT) && withinRadius;
+        double deliveryCharge = qualifiesFree ? 0.0 : DELIVERY_CHARGE;
+
+        // Add delivery charge to the final total (after discount already applied)
+        totalPrice = totalPrice + deliveryCharge;
+        // ─────────────────────────────────────────────────────────
+
         // 3. Create the Order record
         Order order = Order.builder()
                 .user(user)
@@ -63,6 +98,7 @@ public class OrderService {
                     request.getPaymentMethod().equals("COD") ? "PENDING" : "PAID"
                 )
                 .transactionId(request.getTransactionId())
+                .deliveryCharge(deliveryCharge)
                 .build();
 
         Order savedOrder = orderRepository.save(order);
@@ -93,8 +129,13 @@ public class OrderService {
         // 5. Clear the cart after successful order
         cartItemRepository.deleteByUser(user);
 
-        // 6. Return order response
-        return mapToOrderResponse(savedOrder);
+        // 6. Return order response with discount + delivery charge info
+        OrderResponse response = mapToOrderResponse(savedOrder);
+        response.setDiscountApplied(isFirstOrder && discountAmount > 0);
+        response.setDiscountAmount(discountAmount);
+        response.setDeliveryCharge(deliveryCharge);
+        response.setFreeDelivery(qualifiesFree);
+        return response;
     }
 
     // ── CUSTOMER: VIEW ORDER HISTORY ──────────────────────────────────────
@@ -173,6 +214,52 @@ public class OrderService {
         }
     }
 
+    // ── PUBLIC HELPER: get single order as OrderResponse ────────────
+    /** Used by DeliveryBoyController to return full response after assign/update */
+    public OrderResponse getOrderResponseById(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+        return mapToOrderResponse(order);
+    }
+
+    // ── NEW: NOTIFICATION ENDPOINTS ───────────────────────────────
+
+    /**
+     * Returns the highest order ID in the database.
+     * Called by GET /api/orders/admin/latest-order-id every 8 seconds.
+     * Returns 0 if no orders exist yet.
+     */
+    public long getLatestOrderId() {
+        return orderRepository.findAll(
+            org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "id"))
+            .stream()
+            .findFirst()
+            .map(Order::getId)
+            .orElse(0L);
+    }
+
+    /**
+     * Returns total number of orders in DB.
+     */
+    public long getTotalOrderCount() {
+        return orderRepository.count();
+    }
+
+    /**
+     * Returns the full OrderResponse of the most recently placed order.
+     * Called once when new order is detected — populates the toast popup.
+     */
+    public OrderResponse getLatestOrder() {
+        return orderRepository.findAll(
+            org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "id"))
+            .stream()
+            .findFirst()
+            .map(this::mapToOrderResponse)
+            .orElse(null);
+    }
+
     // ── HELPERS ──────────────────────────────────────
 
     private User getUserByEmail(String email) {
@@ -210,6 +297,14 @@ public class OrderService {
                 .createdAt(order.getCreatedAt() != null
                         ? order.getCreatedAt().toString() : "")
                 .items(itemResponses)
+                .deliveryCharge(order.getDeliveryCharge() != null ? order.getDeliveryCharge() : 0.0)
+                .freeDelivery(order.getDeliveryCharge() == null || order.getDeliveryCharge() == 0.0)
+                // ── DELIVERY BOY fields (new — null-safe) ──
+                .deliveryBoyId(order.getDeliveryBoyId())
+                .deliveryBoyName(order.getDeliveryBoyName())
+                .deliveryBoyPhone(order.getDeliveryBoyPhone())
+                .deliveryStatus(order.getDeliveryStatus() != null
+                        ? order.getDeliveryStatus() : "UNASSIGNED")
                 .build();
     }
 }

@@ -7,6 +7,156 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/admin.css"/>
+
+  <!-- ══ PWA MANIFEST ══════════════════════════════════════════ -->
+  <link rel="manifest" href="/manifest.json"/>
+ 
+  <!-- ══ THEME & MOBILE APP META ════════════════════════════════ -->
+  <meta name="theme-color" content="#1a5c2a"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Orivya"/>
+  <meta name="application-name" content="Orivya"/>
+  <meta name="msapplication-TileColor" content="#1a5c2a"/>
+  <meta name="msapplication-TileImage" content="/icons/icon-144.png"/>
+ 
+  <!-- ══ APPLE TOUCH ICONS ══════════════════════════════════════ -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png"/>
+ 
+  <!-- ══ STANDARD FAVICON ════════════════════════════════════════ -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96.png"/>
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72.png"/>
+  <!-- ══ END PWA META ════════════════════════════════════════════ -->
+  <style>
+    /* ── ORDER NOTIFICATION STYLES ──────────────────────────── */
+    #orderNotifBell {
+      position: relative;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 22px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    #orderNotifBell:hover { background: rgba(26,92,42,0.1); }
+
+    #notifBadge {
+      position: absolute;
+      top: -2px; right: -2px;
+      background: #e53e3e;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    #notifBadge.show { display: flex; }
+
+    /* ── NOTIFICATION TOAST POPUP ─────────────────────────── */
+    #orderNotifToast {
+      position: fixed;
+      top: 24px; right: 24px;
+      z-index: 99999;
+      width: 340px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      border-left: 5px solid #1a5c2a;
+      padding: 0;
+      overflow: hidden;
+      transform: translateX(400px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: none;
+    }
+    #orderNotifToast.show {
+      transform: translateX(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    #orderNotifToast .notif-header {
+      background: linear-gradient(135deg,#1a5c2a,#2d7a3e);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #orderNotifToast .notif-title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #orderNotifToast .notif-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.8);
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    #orderNotifToast .notif-body {
+      padding: 14px 16px;
+      font-size: 13px;
+    }
+    #orderNotifToast .notif-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      color: #555;
+    }
+    #orderNotifToast .notif-row strong {
+      color: #1a5c2a;
+    }
+    #orderNotifToast .notif-actions {
+      padding: 10px 16px 14px;
+      display: flex;
+      gap: 8px;
+    }
+    #orderNotifToast .notif-btn-view {
+      flex: 1;
+      padding: 9px;
+      background: linear-gradient(135deg,#1a5c2a,#2d7a3e);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #orderNotifToast .notif-btn-dismiss {
+      padding: 9px 14px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* ── PULSE animation on bell when new order ─────────── */
+    @keyframes bellShake {
+      0%,100% { transform: rotate(0); }
+      15%      { transform: rotate(15deg); }
+      30%      { transform: rotate(-12deg); }
+      45%      { transform: rotate(10deg); }
+      60%      { transform: rotate(-8deg); }
+      75%      { transform: rotate(5deg); }
+    }
+    .bell-ring { animation: bellShake 0.7s ease; }
+  </style>
 </head>
 <body>
 
@@ -20,6 +170,8 @@
       <button class="admin-nav-btn"        onclick="switchTab('products',  event)">📦 Products</button>
       <button class="admin-nav-btn"        onclick="switchTab('orders',    event)">📋 Orders</button>
       <button class="admin-nav-btn"        onclick="switchTab('addProduct',event)">➕ Add Product</button>
+      <button class="admin-nav-btn"        onclick="switchTab('subscriptions',event)">🔄 Subscriptions</button>
+      <button class="admin-nav-btn"        onclick="switchTab('deliveryBoys',event)">🚴 Delivery Boys</button>
     </nav>
     <div style="padding:0 16px 16px">
       <div id="adminUserLabel" style="color:rgba(255,255,255,0.6);font-size:12px;padding:12px 8px;border-top:1px solid rgba(255,255,255,0.1)"></div>
@@ -32,7 +184,33 @@
   <main class="admin-main">
     <div class="admin-topbar">
       <h1 class="admin-page-title" id="adminPageTitle">Dashboard</h1>
-      <span style="color:#888;font-size:13px" id="adminEmail"></span>
+      <div style="display:flex;align-items:center;gap:16px">
+        <!-- Notification Bell -->
+        <button id="orderNotifBell" onclick="viewNewOrders()"
+                title="New order notifications">
+          🔔
+          <span id="notifBadge"></span>
+        </button>
+        <span style="color:#888;font-size:13px" id="adminEmail"></span>
+      </div>
+    </div>
+
+    <!-- Order Notification Toast Popup -->
+    <div id="orderNotifToast">
+      <div class="notif-header">
+        <div class="notif-title">🛒 New Order Received!</div>
+        <button class="notif-close" onclick="dismissNotif()">✕</button>
+      </div>
+      <div class="notif-body" id="notifBody">
+        <div class="notif-row"><span>Order ID</span>   <strong id="notifOrderId">—</strong></div>
+        <div class="notif-row"><span>Customer</span>   <strong id="notifCustomer">—</strong></div>
+        <div class="notif-row"><span>Amount</span>     <strong id="notifAmount">—</strong></div>
+        <div class="notif-row"><span>Payment</span>    <strong id="notifPayment">—</strong></div>
+      </div>
+      <div class="notif-actions">
+        <button class="notif-btn-view" onclick="viewNewOrders()">📋 View Orders</button>
+        <button class="notif-btn-dismiss" onclick="dismissNotif()">Dismiss</button>
+      </div>
     </div>
 
 
@@ -163,11 +341,53 @@
     </div>
 
 
+    <!-- ══════════════ SUBSCRIPTIONS TAB (NEW) ══════════════ -->
+    <div id="tab-subscriptions" class="admin-tab-content">
+      <div class="admin-table-header">
+        <h3>All Subscriptions</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select id="subStatusFilter" onchange="filterSubscriptions(this.value)"
+                  style="padding:8px 14px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="PAUSED">Paused</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+          <select id="subTypeFilter" onchange="filterSubscriptions()"
+                  style="padding:8px 14px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+            <option value="">All Types</option>
+            <option value="rice">🌾 Rice</option>
+            <option value="milk">🥛 Milk</option>
+          </select>
+          <button class="btn-primary btn-sm" onclick="loadAllSubscriptions()">🔄 Refresh</button>
+        </div>
+      </div>
+      <!-- Subscription stats strip -->
+      <div style="display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap">
+        <div style="background:#d4edda;border-radius:8px;padding:10px 18px;font-size:13px;color:#155724;font-weight:700">
+          ✅ Active: <span id="subStatActive">—</span>
+        </div>
+        <div style="background:#fff3cd;border-radius:8px;padding:10px 18px;font-size:13px;color:#856404;font-weight:700">
+          ⏸ Paused: <span id="subStatPaused">—</span>
+        </div>
+        <div style="background:#f8d7da;border-radius:8px;padding:10px 18px;font-size:13px;color:#721c24;font-weight:700">
+          ❌ Cancelled: <span id="subStatCancelled">—</span>
+        </div>
+        <div style="background:#d1ecf1;border-radius:8px;padding:10px 18px;font-size:13px;color:#0c5460;font-weight:700">
+          📦 Total: <span id="subStatTotal">—</span>
+        </div>
+      </div>
+      <!-- Table -->
+      <div id="subscriptionsTableWrap">
+        <div style="text-align:center;padding:40px"><div class="spinner"></div></div>
+      </div>
+    </div>
+
     <!-- ══════════════ ORDERS TAB ══════════════ -->
     <div id="tab-orders" class="admin-tab-content">
       <div class="admin-table-header">
         <h3>All Orders</h3>
-        <div style="display:flex;gap:10px;align-items:center">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <select id="orderStatusFilter" onchange="filterOrders(this.value)"
                   style="padding:8px 14px;border:1px solid #ddd;border-radius:4px;font-size:13px">
             <option value="">All Statuses</option>
@@ -180,7 +400,37 @@
           <button class="btn-primary btn-sm" onclick="loadAdminOrders('')">🔄 Refresh</button>
         </div>
       </div>
+      <!-- Delivery detail side panel — shown when admin clicks an order row -->
+      <div id="deliveryPanel" style="display:none;background:#f0f7f0;border:1px solid #c3e6cb;
+           border-radius:10px;padding:18px 20px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <strong style="color:#1a5c2a;font-size:15px">🚴 Delivery Details — Order <span id="dpOrderId"></span></strong>
+          <button onclick="document.getElementById('deliveryPanel').style.display='none'"
+                  style="background:none;border:none;font-size:18px;cursor:pointer;color:#888">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:13px">
+          <div><span style="color:#888;display:block;font-size:11px;font-weight:700;text-transform:uppercase">Delivery Boy</span>
+               <strong id="dpName">—</strong></div>
+          <div><span style="color:#888;display:block;font-size:11px;font-weight:700;text-transform:uppercase">Phone</span>
+               <strong id="dpPhone">—</strong></div>
+          <div><span style="color:#888;display:block;font-size:11px;font-weight:700;text-transform:uppercase">Delivery Status</span>
+               <strong id="dpStatus">—</strong></div>
+        </div>
+      </div>
       <div id="ordersTableWrap">
+        <div style="text-align:center;padding:40px"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ DELIVERY BOYS TAB (NEW) ══════════════ -->
+    <div id="tab-deliveryBoys" class="admin-tab-content">
+      <div class="admin-table-header">
+        <h3>Delivery Boys</h3>
+        <button class="btn-primary btn-sm" onclick="openAddDeliveryBoyModal()">
+          ➕ Add Delivery Boy
+        </button>
+      </div>
+      <div id="deliveryBoysTableWrap">
         <div style="text-align:center;padding:40px"><div class="spinner"></div></div>
       </div>
     </div>
@@ -214,6 +464,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Load dashboard stats
   loadDashboard();
+
+  // Start real-time order notification poller (runs 24/7, every 8 seconds)
+  startOrderNotificationPoller();
 });
 
 
@@ -221,13 +474,18 @@ document.addEventListener('DOMContentLoaded', function () {
    TAB SWITCHING
 ══════════════════════════════════════════ */
 const tabTitles = {
-  dashboard:  'Dashboard',
-  products:   'Products',
-  addProduct: 'Add Product',
-  orders:     'Orders'
+  dashboard:     'Dashboard',
+  products:      'Products',
+  addProduct:    'Add Product',
+  orders:        'Orders',
+  subscriptions: 'Subscriptions',
+  deliveryBoys:  'Delivery Boys'
 };
 
 function switchTab(tab, event) {
+  // Stop order polling if leaving orders tab
+  if (tab !== 'orders' && typeof stopOrderPolling === 'function') stopOrderPolling();
+
   // Hide all tabs
   document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
   // Deactivate all nav buttons
@@ -243,14 +501,18 @@ function switchTab(tab, event) {
   // Update page title
   document.getElementById('adminPageTitle').textContent = tabTitles[tab] || tab;
 
-  // Load data
-  if (tab === 'dashboard')  loadDashboard();
-  if (tab === 'products')   loadAdminProducts();
-  if (tab === 'orders')     loadAdminOrders('');
+  // Load data for selected tab
+  if (tab === 'dashboard')     loadDashboard();
+  if (tab === 'products')      loadAdminProducts();
+  if (tab === 'orders')        loadAdminOrders('');
+  if (tab === 'subscriptions') loadAllSubscriptions();
+  if (tab === 'deliveryBoys')  loadDeliveryBoysTab();
 }
 
 // Switch tab programmatically (without a click event)
 function switchTabByName(tab) {
+  if (tab !== 'orders' && typeof stopOrderPolling === 'function') stopOrderPolling();
+
   document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.admin-nav-btn').forEach(el => el.classList.remove('active'));
 
@@ -259,9 +521,11 @@ function switchTabByName(tab) {
 
   document.getElementById('adminPageTitle').textContent = tabTitles[tab] || tab;
 
-  if (tab === 'dashboard')  loadDashboard();
-  if (tab === 'products')   loadAdminProducts();
-  if (tab === 'orders')     loadAdminOrders('');
+  if (tab === 'dashboard')     loadDashboard();
+  if (tab === 'products')      loadAdminProducts();
+  if (tab === 'orders')        loadAdminOrders('');
+  if (tab === 'subscriptions') loadAllSubscriptions();
+  if (tab === 'deliveryBoys')  loadDeliveryBoysTab();
 }
 
 
@@ -503,18 +767,24 @@ function previewImage(input) {
 /* ══════════════════════════════════════════
    ORDERS — Load and display all orders
 ══════════════════════════════════════════ */
+// Cache for delivery boys — loaded once and reused for dropdowns
+let _deliveryBoys = [];
+
+// Auto-poll interval handle (5-second polling while Orders tab is open)
+let _orderPollInterval = null;
+
 async function loadAdminOrders(status) {
   const wrap = document.getElementById('ordersTableWrap');
   wrap.innerHTML = '<div class="spinner" style="margin:40px auto"></div>';
+
+  // Pre-load delivery boys for dropdown (runs in parallel)
+  try { _deliveryBoys = (await apiGetActiveDeliveryBoys()).data || []; } catch(_) {}
 
   try {
     const data   = await apiGetAllOrders();
     let orders   = data.data || [];
 
-    // Filter client-side if status selected
-    if (status) {
-      orders = orders.filter(o => o.status === status);
-    }
+    if (status) orders = orders.filter(o => o.status === status);
 
     if (orders.length === 0) {
       wrap.innerHTML = `<p style="text-align:center;padding:40px;color:#999">No orders found.</p>`;
@@ -530,6 +800,20 @@ async function loadAdminOrders(status) {
       CANCELLED:  { bg:'#f8d7da', color:'#721c24' }
     };
 
+    const deliveryStatusBadge = {
+      UNASSIGNED:       { bg:'#f5f5f5', color:'#777',    label:'⬜ Unassigned'       },
+      ASSIGNED:         { bg:'#d1ecf1', color:'#0c5460', label:'📋 Assigned'          },
+      OUT_FOR_DELIVERY: { bg:'#cce5ff', color:'#004085', label:'🚴 Out for Delivery'  },
+      DELIVERED:        { bg:'#d4edda', color:'#155724', label:'✅ Delivered'          }
+    };
+
+    // Build delivery boy dropdown options once
+    const dbOptions = _deliveryBoys.length
+      ? _deliveryBoys.map(b =>
+          `<option value="${b.id}">${b.name} (${b.phone})</option>`
+        ).join('')
+      : '<option disabled>No active delivery boys</option>';
+
     wrap.innerHTML = `
       <div style="overflow-x:auto">
         <table class="admin-table">
@@ -541,23 +825,31 @@ async function loadAdminOrders(status) {
               <th>Total</th>
               <th>Payment</th>
               <th>Date</th>
-              <th>Status</th>
+              <th>Order Status</th>
+              <th>Delivery Status</th>
+              <th>Assign Delivery Boy</th>
               <th>Update Status</th>
             </tr>
           </thead>
           <tbody>
             ${orders.map(o => {
               const sc   = statusColors[o.status] || { bg:'#eee', color:'#333' };
+              const ds   = deliveryStatusBadge[o.deliveryStatus || 'UNASSIGNED'] || deliveryStatusBadge.UNASSIGNED;
               const date = o.createdAt ? o.createdAt.split('T')[0] : '—';
               const items= (o.items||[]).map(i => i.productName).join(', ') || '—';
+              const oid  = o.orderId || o.id;
+              const assigned = o.deliveryBoyId
+                ? `<div style="font-size:12px;font-weight:700;color:#1a5c2a">🚴 ${o.deliveryBoyName || 'Boy #'+o.deliveryBoyId}</div>
+                   <div style="font-size:11px;color:#888">${o.deliveryBoyPhone || ''}</div>`
+                : '';
               return `
-                <tr>
-                  <td><strong style="color:#1a5c2a">${o.orderId || '#' + o.id}</strong></td>
+                <tr id="orow-${oid}" style="cursor:pointer" onclick="showDeliveryPanel(${oid})">
+                  <td><strong style="color:#1a5c2a">#${oid}</strong></td>
                   <td>
                     <strong>${o.customerName || '—'}</strong>
                     ${o.deliveryAddress ? `<br><small style="color:#888">${o.deliveryAddress.substring(0,35)}...</small>` : ''}
                   </td>
-                  <td style="font-size:12px;max-width:150px;word-wrap:break-word">${items}</td>
+                  <td style="font-size:12px;max-width:140px;word-wrap:break-word">${items}</td>
                   <td><strong style="font-size:15px;color:#1a5c2a">${formatPrice(o.totalPrice)}</strong></td>
                   <td>
                     <span style="font-size:12px;font-weight:700">${o.paymentMethod || '—'}</span><br>
@@ -566,12 +858,31 @@ async function loadAdminOrders(status) {
                   <td style="font-size:12px">${date}</td>
                   <td>
                     <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
-                                 background:${sc.bg};color:${sc.color}">
-                      ${o.status}
-                    </span>
+                                 background:${sc.bg};color:${sc.color}">${o.status}</span>
                   </td>
                   <td>
-                    <select onchange="updateOrderStatus(${o.orderId || o.id}, this)"
+                    <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
+                                 white-space:nowrap;background:${ds.bg};color:${ds.color}">${ds.label}</span>
+                    ${assigned}
+                  </td>
+                  <td onclick="event.stopPropagation()" style="min-width:200px">
+                    ${o.deliveryBoyId
+                      ? `<small style="color:#888;font-size:11px">Already assigned.<br>Change below:</small><br>`
+                      : ''}
+                    <select id="db-select-${oid}" onclick="event.stopPropagation()"
+                            style="font-size:12px;padding:5px 6px;border:1px solid #ddd;
+                                   border-radius:4px;width:100%;margin-bottom:4px">
+                      <option value="">— Select boy —</option>
+                      ${dbOptions}
+                    </select>
+                    <button onclick="event.stopPropagation();adminAssignDelivery(${oid})"
+                            style="width:100%;padding:6px;background:#1a5c2a;color:white;
+                                   border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer">
+                      🚴 Assign
+                    </button>
+                  </td>
+                  <td onclick="event.stopPropagation()">
+                    <select onchange="updateOrderStatus(${oid}, this)"
                             style="font-size:12px;padding:6px 8px;border:1px solid #ddd;
                                    border-radius:4px;cursor:pointer;min-width:130px">
                       <option value="">— Change —</option>
@@ -587,6 +898,9 @@ async function loadAdminOrders(status) {
           </tbody>
         </table>
       </div>`;
+
+    // Start 5-second auto-poll to pick up delivery boy status updates
+    startOrderPolling();
 
   } catch (e) {
     wrap.innerHTML = `<div style="background:#fff5f5;color:red;padding:20px;border-radius:6px">
@@ -612,6 +926,893 @@ function filterOrders(status) {
   loadAdminOrders(status);
 }
 
+
+/* ══════════════════════════════════════════
+   SUBSCRIPTIONS — all admin logic (NEW)
+   Does not modify any existing function.
+══════════════════════════════════════════ */
+
+// Raw subscriptions cache for client-side filter
+let _allSubscriptions = [];
+
+async function loadAllSubscriptions() {
+  const wrap = document.getElementById('subscriptionsTableWrap');
+  wrap.innerHTML = '<div class="spinner" style="margin:40px auto"></div>';
+
+  try {
+    console.log('[Admin] Fetching /api/subscription/all ...');
+    const data = await apiGetAllSubscriptions();
+    console.log('[Admin] Subscription API response:', data);
+
+    const subs = data.data || [];
+    _allSubscriptions = subs;
+
+    updateSubStats(subs);
+    renderSubscriptionTable(subs);
+
+  } catch (e) {
+    console.error('[Admin] Subscription load error:', e);
+    wrap.innerHTML = `
+      <div style="background:#fff5f5;color:#c0392b;padding:20px;border-radius:8px;border:1px solid #fcc">
+        <strong>❌ Error loading subscriptions:</strong> ${e.message}<br/>
+        <small style="color:#888;margin-top:8px;display:block">
+          Check: 1) Spring Boot is running &nbsp; 2) You are logged in as ADMIN &nbsp;
+          3) GET /api/subscription/all endpoint exists
+        </small>
+      </div>`;
+  }
+}
+
+function updateSubStats(subs) {
+  const active    = subs.filter(s => s.status === 'ACTIVE').length;
+  const paused    = subs.filter(s => s.status === 'PAUSED').length;
+  const cancelled = subs.filter(s => s.status === 'CANCELLED').length;
+  document.getElementById('subStatActive').textContent    = active;
+  document.getElementById('subStatPaused').textContent    = paused;
+  document.getElementById('subStatCancelled').textContent = cancelled;
+  document.getElementById('subStatTotal').textContent     = subs.length;
+}
+
+function filterSubscriptions(statusOverride) {
+  const status = statusOverride !== undefined
+    ? statusOverride
+    : document.getElementById('subStatusFilter').value;
+  const type   = document.getElementById('subTypeFilter').value;
+
+  let filtered = _allSubscriptions;
+  if (status) filtered = filtered.filter(s => s.status === status);
+  if (type)   filtered = filtered.filter(s => s.productType === type);
+  renderSubscriptionTable(filtered);
+}
+
+function renderSubscriptionTable(subs) {
+  const wrap = document.getElementById('subscriptionsTableWrap');
+
+  if (!subs || subs.length === 0) {
+    wrap.innerHTML = `
+      <div style="text-align:center;padding:60px;color:#999">
+        <div style="font-size:40px;margin-bottom:12px">📭</div>
+        <p style="font-size:16px">No subscriptions found.</p>
+      </div>`;
+    return;
+  }
+
+  const statusStyle = {
+    ACTIVE:    { bg:'#d4edda', color:'#155724', label:'✅ ACTIVE'    },
+    PAUSED:    { bg:'#fff3cd', color:'#856404', label:'⏸ PAUSED'    },
+    CANCELLED: { bg:'#f8d7da', color:'#721c24', label:'❌ CANCELLED' }
+  };
+
+  const rows = subs.map(s => {
+    const ss        = statusStyle[s.status] || { bg:'#eee', color:'#333', label: s.status };
+    const typeIcon  = s.productType === 'rice' ? '🌾' : '🥛';
+    const typeLabel = (s.productType || '—').toUpperCase();
+    const userName  = s.user ? (s.user.name || s.user.email || '—') : '—';
+    const userEmail = s.user ? (s.user.email || '') : '';
+    const startDate = s.startDate || '—';
+    const createdAt = s.createdAt ? s.createdAt.split('T')[0] : '—';
+    const addr      = (s.deliveryAddress || '—').substring(0, 40) + ((s.deliveryAddress||'').length > 40 ? '…' : '');
+    const isCancelled = s.status === 'CANCELLED';
+
+    return `
+      <tr id="subrow-${s.id}">
+        <td><strong style="color:#1a5c2a">#${s.id}</strong></td>
+        <td>
+          <div style="font-size:20px;line-height:1">${typeIcon}</div>
+          <strong style="font-size:12px">${typeLabel}</strong>
+        </td>
+        <td>${s.quantity || '—'}</td>
+        <td style="text-transform:capitalize">${s.frequency || '—'}</td>
+        <td><strong style="color:#1a5c2a">${formatPrice(s.price || 0)}</strong></td>
+        <td>
+          <strong style="font-size:12px">${userName}</strong>
+          ${userEmail ? `<br><small style="color:#888">${userEmail}</small>` : ''}
+        </td>
+        <td style="font-size:12px;max-width:140px;word-break:break-word">${addr}</td>
+        <td style="font-size:12px">${s.phone || '—'}</td>
+        <td style="font-size:12px">${startDate}</td>
+        <td style="font-size:12px">${createdAt}</td>
+        <td>
+          <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
+                       white-space:nowrap;background:${ss.bg};color:${ss.color}">
+            ${ss.label}
+          </span>
+        </td>
+        <td style="white-space:nowrap">
+          <button class="edit-btn" onclick="openSubEditModal(${s.id})"
+                  title="Edit subscription">✏ Edit</button>
+          ${!isCancelled
+            ? `<button class="del-btn" onclick="adminCancelSub(${s.id})"
+                       title="Cancel subscription"
+                       style="background:#c0392b;color:white">❌ Cancel</button>`
+            : `<span style="font-size:11px;color:#999">Cancelled</span>`
+          }
+        </td>
+      </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Qty</th>
+            <th>Freq</th>
+            <th>Price</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Start Date</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="subscriptionTableBody">
+          ${rows}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+/* ── ADMIN CANCEL SUBSCRIPTION ───────────────────────────── */
+async function adminCancelSub(id) {
+  if (!confirm(`Cancel subscription #${id}?\nThis cannot be undone.`)) return;
+  try {
+    const data = await apiAdminCancelSubscription(id);
+    if (data.success) {
+      showToast(`✅ Subscription #${id} cancelled.`);
+      // Update in-place without full reload
+      _allSubscriptions = _allSubscriptions.map(s =>
+        s.id === id ? { ...s, status: 'CANCELLED' } : s
+      );
+      filterSubscriptions();
+      updateSubStats(_allSubscriptions);
+    } else {
+      showToast('❌ ' + (data.message || 'Cancel failed.'), 'error');
+    }
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+  }
+}
+
+/* ── EDIT MODAL ──────────────────────────────────────────── */
+let _editSubId = null;
+
+function openSubEditModal(id) {
+  const sub = _allSubscriptions.find(s => s.id === id);
+  if (!sub) { showToast('Subscription not found.', 'error'); return; }
+
+  _editSubId = id;
+
+  // Build modal
+  const existing = document.getElementById('subEditModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'subEditModal';
+  modal.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.55);display:flex;
+    align-items:center;justify-content:center;padding:20px`;
+
+  modal.innerHTML = `
+    <div style="background:white;border-radius:12px;padding:28px;
+                width:min(480px,96vw);max-height:90vh;overflow-y:auto;
+                box-shadow:0 24px 64px rgba(0,0,0,0.3)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 style="color:#1a5c2a;font-size:18px;margin:0">
+          ✏ Edit Subscription #${id}
+        </h3>
+        <button onclick="closeSubEditModal()"
+                style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">✕</button>
+      </div>
+
+      <!-- Read-only info -->
+      <div style="background:#f0f7f0;border-radius:8px;padding:12px;margin-bottom:18px;
+                  display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><span style="color:#888">Type:</span> <strong>${sub.productType || '—'}</strong></div>
+        <div><span style="color:#888">Qty:</span> <strong>${sub.quantity || '—'}</strong></div>
+        <div><span style="color:#888">Freq:</span> <strong>${sub.frequency || '—'}</strong></div>
+        <div><span style="color:#888">Price:</span> <strong style="color:#1a5c2a">${formatPrice(sub.price||0)}</strong></div>
+      </div>
+
+      <!-- Editable fields -->
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px">
+          DELIVERY ADDRESS
+        </label>
+        <textarea id="editSubAddress" rows="2"
+          style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;
+                 font-family:inherit;font-size:14px;resize:vertical"
+          placeholder="Delivery address">${sub.deliveryAddress || ''}</textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px">
+            PHONE
+          </label>
+          <input type="tel" id="editSubPhone"
+            style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px"
+            value="${sub.phone || ''}" maxlength="10"
+            oninput="this.value=this.value.replace(/\D/g,'')"/>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px">
+            START DATE
+          </label>
+          <input type="date" id="editSubDate"
+            style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px"
+            value="${sub.startDate || ''}"/>
+        </div>
+      </div>
+
+      <div id="editSubMsg" style="display:none;padding:10px 14px;border-radius:6px;
+                                   font-size:13px;font-weight:700;margin-bottom:12px"></div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="saveSubEdit()"
+          style="flex:1;padding:12px;background:linear-gradient(135deg,#1a5c2a,#2d7a3e);
+                 color:white;border:none;border-radius:8px;font-size:14px;
+                 font-weight:700;cursor:pointer">
+          💾 Save Changes
+        </button>
+        <button onclick="closeSubEditModal()"
+          style="padding:12px 20px;background:#f5f5f5;border:1px solid #ddd;
+                 border-radius:8px;font-size:14px;cursor:pointer">
+          Cancel
+        </button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeSubEditModal(); });
+}
+
+function closeSubEditModal() {
+  const modal = document.getElementById('subEditModal');
+  if (modal) modal.remove();
+  _editSubId = null;
+}
+
+async function saveSubEdit() {
+  if (!_editSubId) return;
+
+  const address   = document.getElementById('editSubAddress').value.trim();
+  const phone     = document.getElementById('editSubPhone').value.trim();
+  const startDate = document.getElementById('editSubDate').value;
+  const msgEl     = document.getElementById('editSubMsg');
+
+  if (!address) {
+    msgEl.textContent = '⚠ Delivery address cannot be empty.';
+    msgEl.style.cssText = 'display:block;background:#f8d7da;color:#721c24;padding:10px;border-radius:6px;margin-bottom:12px';
+    return;
+  }
+
+  try {
+    const data = await apiAdminUpdateSubscription(_editSubId, {
+      deliveryAddress: address || null,
+      phone:           phone   || null,
+      startDate:       startDate || null
+    });
+
+    if (data.success) {
+      msgEl.textContent = '✅ Saved!';
+      msgEl.style.cssText = 'display:block;background:#d4edda;color:#155724;padding:10px;border-radius:6px;margin-bottom:12px';
+
+      // Update local cache
+      _allSubscriptions = _allSubscriptions.map(s =>
+        s.id === _editSubId
+          ? { ...s, deliveryAddress: address, phone, startDate: startDate || s.startDate }
+          : s
+      );
+
+      showToast('✅ Subscription #' + _editSubId + ' updated.');
+      setTimeout(closeSubEditModal, 900);
+      filterSubscriptions();
+    } else {
+      msgEl.textContent = '❌ ' + (data.message || 'Update failed.');
+      msgEl.style.cssText = 'display:block;background:#f8d7da;color:#721c24;padding:10px;border-radius:6px;margin-bottom:12px';
+    }
+  } catch (e) {
+    msgEl.textContent = '❌ ' + e.message;
+    msgEl.style.cssText = 'display:block;background:#f8d7da;color:#721c24;padding:10px;border-radius:6px;margin-bottom:12px';
+  }
+}
+
+
+
+/* ══════════════════════════════════════════════════════════
+   DELIVERY PANEL — right-side detail when row is clicked
+══════════════════════════════════════════════════════════ */
+// Cache of current orders for panel
+let _ordersCache = [];
+
+function showDeliveryPanel(orderId) {
+  // Find order from DOM data — re-fetch orders if needed
+  apiGetAllOrders().then(data => {
+    const orders = data.data || [];
+    const o = orders.find(x => (x.orderId || x.id) === orderId || (x.orderId || x.id) == orderId);
+    if (!o) return;
+
+    document.getElementById('dpOrderId').textContent = '#' + orderId;
+    document.getElementById('dpName').textContent    = o.deliveryBoyName  || 'Not assigned';
+    document.getElementById('dpPhone').textContent   = o.deliveryBoyPhone || '—';
+    document.getElementById('dpStatus').textContent  = (o.deliveryStatus  || 'UNASSIGNED').replace(/_/g,' ');
+    document.getElementById('deliveryPanel').style.display = 'block';
+
+    // Highlight selected row
+    document.querySelectorAll('#ordersTableWrap tr').forEach(r => r.style.background = '');
+    const row = document.getElementById('orow-' + orderId);
+    if (row) row.style.background = '#f0f7f0';
+  }).catch(() => {});
+}
+
+/* ══════════════════════════════════════════════════════════
+   ASSIGN DELIVERY BOY
+══════════════════════════════════════════════════════════ */
+async function adminAssignDelivery(orderId) {
+  const sel = document.getElementById('db-select-' + orderId);
+  if (!sel || !sel.value) {
+    showToast('⚠ Please select a delivery boy first.', 'error');
+    return;
+  }
+  const deliveryBoyId = parseInt(sel.value);
+  try {
+    const data = await apiAssignDeliveryBoy(orderId, deliveryBoyId);
+    if (data.success) {
+      showToast(`✅ Delivery boy assigned to Order #${orderId}`);
+      await loadAdminOrders(document.getElementById('orderStatusFilter').value);
+    } else {
+      showToast('❌ ' + (data.message || 'Assignment failed.'), 'error');
+    }
+  } catch(e) {
+    showToast('❌ ' + e.message, 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   AUTO-POLLING — refresh orders every 5 seconds
+   Picks up status changes made by delivery boys
+══════════════════════════════════════════════════════════ */
+function startOrderPolling() {
+  stopOrderPolling(); // clear any existing interval
+  _orderPollInterval = setInterval(async () => {
+    // Only poll if Orders tab is currently visible
+    const ordersTab = document.getElementById('tab-orders');
+    if (!ordersTab || !ordersTab.classList.contains('active')) {
+      stopOrderPolling();
+      return;
+    }
+    try {
+      const data   = await apiGetAllOrders();
+      const orders = data.data || [];
+      const currentFilter = document.getElementById('orderStatusFilter')?.value || '';
+      const filtered = currentFilter ? orders.filter(o => o.status === currentFilter) : orders;
+
+      // Update only the delivery status badges — do not re-render whole table
+      const dsMap = {
+        UNASSIGNED:       { bg:'#f5f5f5', color:'#777',    label:'⬜ Unassigned'      },
+        ASSIGNED:         { bg:'#d1ecf1', color:'#0c5460', label:'📋 Assigned'         },
+        OUT_FOR_DELIVERY: { bg:'#cce5ff', color:'#004085', label:'🚴 Out for Delivery' },
+        DELIVERED:        { bg:'#d4edda', color:'#155724', label:'✅ Delivered'         }
+      };
+      const scMap = {
+        PENDING:'#856404', CONFIRMED:'#0c5460', PROCESSING:'#4a235a',
+        SHIPPED:'#004085', DELIVERED:'#155724', CANCELLED:'#721c24'
+      };
+      filtered.forEach(o => {
+        const oid = o.orderId || o.id;
+        const row = document.getElementById('orow-' + oid);
+        if (!row) return;
+        // Update delivery status cell (8th td, index 7)
+        const cells = row.querySelectorAll('td');
+        if (cells[7]) {
+          const ds = dsMap[o.deliveryStatus || 'UNASSIGNED'] || dsMap.UNASSIGNED;
+          const assigned = o.deliveryBoyId
+            ? `<div style="font-size:12px;font-weight:700;color:#1a5c2a">🚴 ${o.deliveryBoyName || ''}</div>
+               <div style="font-size:11px;color:#888">${o.deliveryBoyPhone || ''}</div>`
+            : '';
+          cells[7].innerHTML = `<span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
+              white-space:nowrap;background:${ds.bg};color:${ds.color}">${ds.label}</span>${assigned}`;
+        }
+        // Update order status cell (6th td, index 6)
+        if (cells[6]) {
+          const bgMap = { PENDING:'#fff3cd',CONFIRMED:'#d1ecf1',PROCESSING:'#e2d9f3',
+                          SHIPPED:'#cce5ff',DELIVERED:'#d4edda',CANCELLED:'#f8d7da' };
+          cells[6].innerHTML = `<span style="padding:4px 10px;border-radius:12px;font-size:11px;
+              font-weight:700;background:${bgMap[o.status]||'#eee'};color:${scMap[o.status]||'#333'}">${o.status}</span>`;
+        }
+      });
+    } catch(_) { /* silent — don't disturb admin on poll error */ }
+  }, 5000); // every 5 seconds
+}
+
+function stopOrderPolling() {
+  if (_orderPollInterval) {
+    clearInterval(_orderPollInterval);
+    _orderPollInterval = null;
+  }
+}
+
+// Stop polling when switching away from orders tab
+// (handled inside the main switchTab function above)
+
+/* ══════════════════════════════════════════════════════════
+   DELIVERY BOYS TAB — CRUD table
+══════════════════════════════════════════════════════════ */
+async function loadDeliveryBoysTab() {
+  const wrap = document.getElementById('deliveryBoysTableWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="spinner" style="margin:40px auto"></div>';
+
+  try {
+    const data = await apiGetAllDeliveryBoys();
+    const boys = data.data || [];
+
+    if (boys.length === 0) {
+      wrap.innerHTML = `
+        <div style="text-align:center;padding:60px;color:#999">
+          <div style="font-size:40px;margin-bottom:12px">🚴</div>
+          <p>No delivery boys added yet.</p>
+          <button class="btn-primary btn-sm" style="margin-top:12px"
+                  onclick="openAddDeliveryBoyModal()">➕ Add First Delivery Boy</button>
+        </div>`;
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Name</th><th>Phone</th><th>Email</th>
+              <th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${boys.map(b => `
+              <tr>
+                <td><strong style="color:#1a5c2a">#${b.id}</strong></td>
+                <td><strong>${b.name}</strong></td>
+                <td>${b.phone}</td>
+                <td>${b.email || '—'}</td>
+                <td>
+                  <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
+                       background:${b.status==='ACTIVE'?'#d4edda':'#f8d7da'};
+                       color:${b.status==='ACTIVE'?'#155724':'#721c24'}">
+                    ${b.status==='ACTIVE'?'✅ ACTIVE':'❌ INACTIVE'}
+                  </span>
+                </td>
+                <td style="white-space:nowrap">
+                  <button class="edit-btn" onclick="openEditDeliveryBoyModal(${b.id},'${b.name}','${b.phone}','${b.email||''}','${b.status}')">
+                    ✏ Edit
+                  </button>
+                  <button class="del-btn" onclick="toggleDeliveryBoyStatus(${b.id},'${b.status}')">
+                    ${b.status==='ACTIVE'?'⏸ Deactivate':'▶ Activate'}
+                  </button>
+                  <button class="del-btn" style="background:#c0392b;color:white"
+                          onclick="confirmDeleteDeliveryBoy(${b.id},'${b.name}')">
+                    🗑 Delete
+                  </button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+  } catch(e) {
+    wrap.innerHTML = `<div style="background:#fff5f5;color:red;padding:20px;border-radius:6px">
+      ❌ Error: ${e.message}</div>`;
+  }
+}
+
+/* ── ADD / EDIT DELIVERY BOY MODAL ──────────────────────── */
+function openAddDeliveryBoyModal() { _openDeliveryBoyModal(null, '', '', '', 'ACTIVE'); }
+
+function openEditDeliveryBoyModal(id, name, phone, email, status) {
+  _openDeliveryBoyModal(id, name, phone, email, status);
+}
+
+function _openDeliveryBoyModal(id, name, phone, email, status) {
+  const existing = document.getElementById('dbModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'dbModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);' +
+                        'display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:12px;padding:28px;width:min(420px,96vw);
+                box-shadow:0 24px 64px rgba(0,0,0,0.3)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 style="color:#1a5c2a;margin:0;font-size:18px">
+          ${id ? '✏ Edit Delivery Boy #'+id : '➕ Add Delivery Boy'}
+        </h3>
+        <button onclick="document.getElementById('dbModal').remove()"
+                style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">✕</button>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:4px">NAME *</label>
+        <input id="dbName" type="text" value="${name}"
+               style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px"
+               placeholder="Full name"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:4px">PHONE *</label>
+        <input id="dbPhone" type="tel" value="${phone}" maxlength="10"
+               oninput="this.value=this.value.replace(/\D/g,'')"
+               style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px"
+               placeholder="10-digit mobile"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:4px">EMAIL</label>
+        <input id="dbEmail" type="email" value="${email}"
+               style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px"
+               placeholder="email@example.com (optional)"/>
+      </div>
+      ${id ? `
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:4px">STATUS</label>
+        <select id="dbStatus" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+          <option value="ACTIVE"   ${status==='ACTIVE'  ?'selected':''}>✅ ACTIVE</option>
+          <option value="INACTIVE" ${status==='INACTIVE'?'selected':''}>❌ INACTIVE</option>
+        </select>
+      </div>` : ''}
+
+      <div id="dbModalErr" style="display:none;background:#f8d7da;color:#721c24;
+           padding:10px;border-radius:6px;font-size:13px;margin-bottom:12px"></div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="${id ? 'saveEditDeliveryBoy('+id+')' : 'saveNewDeliveryBoy()'}"
+                style="flex:1;padding:12px;background:linear-gradient(135deg,#1a5c2a,#2d7a3e);
+                       color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">
+          💾 ${id ? 'Save Changes' : 'Add Delivery Boy'}
+        </button>
+        <button onclick="document.getElementById('dbModal').remove()"
+                style="padding:12px 20px;background:#f5f5f5;border:1px solid #ddd;
+                       border-radius:8px;font-size:14px;cursor:pointer">Cancel</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.getElementById('dbName').focus();
+}
+
+async function saveNewDeliveryBoy() {
+  const name  = document.getElementById('dbName').value.trim();
+  const phone = document.getElementById('dbPhone').value.trim();
+  const email = document.getElementById('dbEmail').value.trim();
+  const errEl = document.getElementById('dbModalErr');
+
+  if (!name)  { errEl.textContent='⚠ Name is required.';   errEl.style.display='block'; return; }
+  if (!phone || phone.length !== 10) {
+    errEl.textContent='⚠ Valid 10-digit phone required.'; errEl.style.display='block'; return;
+  }
+  errEl.style.display = 'none';
+  try {
+    const data = await apiAddDeliveryBoy({ name, phone, email: email || null });
+    if (data.success) {
+      document.getElementById('dbModal').remove();
+      showToast(`✅ ${name} added as delivery boy!`);
+      loadDeliveryBoysTab();
+    } else {
+      errEl.textContent = '❌ ' + data.message; errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = '❌ ' + e.message; errEl.style.display = 'block';
+  }
+}
+
+async function saveEditDeliveryBoy(id) {
+  const name   = document.getElementById('dbName').value.trim();
+  const phone  = document.getElementById('dbPhone').value.trim();
+  const email  = document.getElementById('dbEmail').value.trim();
+  const status = document.getElementById('dbStatus').value;
+  const errEl  = document.getElementById('dbModalErr');
+
+  if (!name)  { errEl.textContent='⚠ Name is required.';   errEl.style.display='block'; return; }
+  if (!phone || phone.length !== 10) {
+    errEl.textContent='⚠ Valid 10-digit phone required.'; errEl.style.display='block'; return;
+  }
+  errEl.style.display = 'none';
+  try {
+    const data = await apiUpdateDeliveryBoy(id, { name, phone, email: email||null, status });
+    if (data.success) {
+      document.getElementById('dbModal').remove();
+      showToast(`✅ ${name} updated.`);
+      loadDeliveryBoysTab();
+    } else {
+      errEl.textContent = '❌ ' + data.message; errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = '❌ ' + e.message; errEl.style.display = 'block';
+  }
+}
+
+async function toggleDeliveryBoyStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+  try {
+    const data = await apiUpdateDeliveryBoy(id, { status: newStatus });
+    if (data.success) {
+      showToast(`✅ Status changed to ${newStatus}`);
+      loadDeliveryBoysTab();
+    }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function confirmDeleteDeliveryBoy(id, name) {
+  if (!confirm(`Delete delivery boy "${name}"?
+This cannot be undone.`)) return;
+  try {
+    const data = await apiDeleteDeliveryBoy(id);
+    if (data.success) { showToast(`🗑 ${name} removed.`); loadDeliveryBoysTab(); }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+
+
+/* ════════════════════════════════════════════════════════════
+   REAL-TIME ORDER NOTIFICATION SYSTEM
+   ════════════════════════════════════════════════════════════
+
+   HOW IT WORKS:
+   ─────────────────────────────────────────────────────────────
+   1. On page load, startOrderNotificationPoller() begins
+   2. Every 8 seconds: calls GET /api/orders/admin/latest-order-id
+      → returns { latestId: 42, totalCount: 42 } (~40 bytes only)
+   3. Compares returned latestId with _lastKnownOrderId (stored in memory)
+   4. If latestId > _lastKnownOrderId → NEW ORDER DETECTED
+   5. Fetches full order details (once, for the popup)
+   6. Plays notification sound
+   7. Shakes the bell icon + shows red badge
+   8. Shows animated toast popup with order details
+   9. Auto-dismisses after 8 seconds
+
+   WHY POLLING NOT WEBSOCKET:
+   ─────────────────────────────────────────────────────────────
+   - No new dependencies required
+   - Works behind any proxy/firewall
+   - This endpoint returns ~40 bytes — near-zero bandwidth
+   - 8-second interval means admin sees new order within 8 seconds
+   - WebSocket would need: new pom dep + config class + STOMP setup
+   ════════════════════════════════════════════════════════════ */
+
+// ── STATE ─────────────────────────────────────────────────────
+let _lastKnownOrderId    = 0;    // highest order ID seen so far
+let _notifPollerInterval = null; // setInterval handle
+let _notifDismissTimer   = null; // auto-dismiss timeout
+let _notifAudio          = null; // cached Audio object
+let _notifInitialized    = false;// has first poll run yet?
+let _unreadCount         = 0;    // badge counter
+
+// ── NOTIFICATION SOUND ─────────────────────────────────────────
+// We generate a soft chime using Web Audio API — no external file needed.
+// This works even without a notification.mp3 file.
+// If you have notification.mp3 in /sounds/, it uses that instead.
+function playNotificationSound() {
+    try {
+        // Try loading a sound file first (if you have one)
+        if (!_notifAudio) {
+            _notifAudio = new Audio('sounds/notification.mp3');
+            _notifAudio.volume = 0.6;
+        }
+        // Clone so rapid plays don't interfere
+        const clone = _notifAudio.cloneNode();
+        clone.volume = 0.6;
+        const playPromise = clone.play();
+        if (playPromise) {
+            playPromise.catch(() => {
+                // File not found or autoplay blocked — fallback to Web Audio API
+                playChimeSound();
+            });
+        }
+    } catch(e) {
+        playChimeSound();
+    }
+}
+
+// Web Audio API fallback — generates a soft two-tone chime
+function playChimeSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // First tone
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.connect(gain1); gain1.connect(ctx.destination);
+        osc1.frequency.setValueAtTime(880, ctx.currentTime);
+        osc1.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+        gain1.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc1.type = 'sine';
+        osc1.start(ctx.currentTime);
+        osc1.stop(ctx.currentTime + 0.5);
+
+        // Second tone (slightly later)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2); gain2.connect(ctx.destination);
+        osc2.frequency.setValueAtTime(1100, ctx.currentTime + 0.18);
+        osc2.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.35);
+        gain2.gain.setValueAtTime(0.25, ctx.currentTime + 0.18);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+        osc2.type = 'sine';
+        osc2.start(ctx.currentTime + 0.18);
+        osc2.stop(ctx.currentTime + 0.7);
+    } catch(e) {
+        console.warn('[Notif] Could not play sound:', e.message);
+    }
+}
+
+// ── POLLER ─────────────────────────────────────────────────────
+function startOrderNotificationPoller() {
+    if (_notifPollerInterval) return; // already running
+
+    const POLL_INTERVAL_MS = 8000; // 8 seconds
+
+    async function poll() {
+        try {
+            if (!isLoggedIn() || !isAdmin()) return; // not admin, skip
+
+            const data = await apiGetLatestOrderId();
+            if (!data.success) return;
+
+            const latestId   = data.data.latestId   || 0;
+            const totalCount = data.data.totalCount  || 0;
+
+            if (!_notifInitialized) {
+                // First poll — just store baseline, don't fire notification
+                _lastKnownOrderId = latestId;
+                _notifInitialized = true;
+                console.log('[OrderNotif] Baseline set — latest order ID:', latestId);
+                return;
+            }
+
+            // NEW ORDER DETECTED
+            if (latestId > _lastKnownOrderId) {
+                const newOrdersCount = latestId - _lastKnownOrderId;
+                console.log(`[OrderNotif] 🛒 ${newOrdersCount} new order(s) detected! Latest ID: ${latestId}`);
+
+                // Fetch full details of the latest order
+                let orderDetails = null;
+                try {
+                    const detailData = await apiGetLatestOrder();
+                    if (detailData.success) orderDetails = detailData.data;
+                } catch(e) { /* silently ignore — still show bell */ }
+
+                // Update state
+                _lastKnownOrderId = latestId;
+                _unreadCount += newOrdersCount;
+
+                // Trigger all notification effects
+                triggerNewOrderNotification(orderDetails, newOrdersCount);
+            }
+        } catch(e) {
+            // Silent fail — don't spam console on every poll error
+            if (e.message && !e.message.includes('403') && !e.message.includes('401')) {
+                console.warn('[OrderNotif] Poll error:', e.message);
+            }
+        }
+    }
+
+    // Run immediately, then every 8 seconds
+    poll();
+    _notifPollerInterval = setInterval(poll, POLL_INTERVAL_MS);
+    console.log('[OrderNotif] Notification poller started (every ' + (POLL_INTERVAL_MS/1000) + 's)');
+}
+
+function stopOrderNotificationPoller() {
+    if (_notifPollerInterval) {
+        clearInterval(_notifPollerInterval);
+        _notifPollerInterval = null;
+        console.log('[OrderNotif] Poller stopped.');
+    }
+}
+
+// ── TRIGGER NOTIFICATION ───────────────────────────────────────
+function triggerNewOrderNotification(order, count) {
+    // 1. Play sound
+    playNotificationSound();
+
+    // 2. Shake bell + show badge
+    const bell = document.getElementById('orderNotifBell');
+    const badge = document.getElementById('notifBadge');
+    if (bell) {
+        bell.classList.remove('bell-ring');
+        void bell.offsetWidth; // force reflow to restart animation
+        bell.classList.add('bell-ring');
+    }
+    if (badge) {
+        badge.textContent = _unreadCount > 9 ? '9+' : String(_unreadCount);
+        badge.classList.add('show');
+    }
+
+    // 3. Populate toast with order details
+    if (order) {
+        document.getElementById('notifOrderId').textContent  = '#' + (order.orderId || order.id || '—');
+        document.getElementById('notifCustomer').textContent = order.customerName || '—';
+        document.getElementById('notifAmount').textContent   = formatPrice(order.totalPrice || 0);
+        document.getElementById('notifPayment').textContent  =
+            (order.paymentMethod || '—') + ' — ' + (order.paymentStatus || '—');
+    } else {
+        document.getElementById('notifOrderId').textContent  = count + ' new order(s)';
+        document.getElementById('notifCustomer').textContent = '—';
+        document.getElementById('notifAmount').textContent   = '—';
+        document.getElementById('notifPayment').textContent  = '—';
+    }
+
+    // 4. Show animated toast
+    const toast = document.getElementById('orderNotifToast');
+    if (toast) {
+        toast.classList.add('show');
+        // Auto-dismiss after 8 seconds
+        if (_notifDismissTimer) clearTimeout(_notifDismissTimer);
+        _notifDismissTimer = setTimeout(dismissNotif, 8000);
+    }
+
+    // 5. Show browser notification if tab is not focused
+    if (document.hidden && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+            new Notification('🛒 New Order — Orivya Rice', {
+                body: order
+                    ? `Order #${order.orderId} from ${order.customerName} — ${formatPrice(order.totalPrice)}`
+                    : `${count} new order(s) received!`,
+                icon: 'images/favicon.png'
+            });
+        } else if (Notification.permission === 'default') {
+            Notification.requestPermission(); // ask once
+        }
+    }
+}
+
+// ── DISMISS TOAST ──────────────────────────────────────────────
+function dismissNotif() {
+    const toast = document.getElementById('orderNotifToast');
+    if (toast) toast.classList.remove('show');
+    if (_notifDismissTimer) { clearTimeout(_notifDismissTimer); _notifDismissTimer = null; }
+}
+
+// ── VIEW ORDERS (from bell click or toast button) ───────────────
+function viewNewOrders() {
+    dismissNotif();
+    // Clear badge
+    _unreadCount = 0;
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.classList.remove('show');
+    // Navigate to Orders tab
+    switchTabByName('orders');
+}
+
 </script>
+
+<!-- ══ PWA SERVICE WORKER + INSTALL PROMPT ═══════════════════ -->
+  <script src="/js/pwa.js"></script>
+  <!-- ══ END PWA ════════════════════════════════════════════════ -->
 </body>
 </html>

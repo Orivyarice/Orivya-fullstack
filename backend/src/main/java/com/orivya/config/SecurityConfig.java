@@ -93,6 +93,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/delivery/orders/**").authenticated()
                 .requestMatchers("/api/delivery/update-status").authenticated()
 
+                // ── WEBHOOK: public — Twilio calls this without JWT ──
+                .requestMatchers("/webhook/**").permitAll()
+
                 // ── All other endpoints require login ──
                 .anyRequest().authenticated()
             )
@@ -119,11 +122,19 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(Arrays.asList(
+            // ── LOCAL DEVELOPMENT ──
+            "http://localhost:3000",
             "http://localhost:5500",
             "http://127.0.0.1:5500",
-            "http://localhost:3000",
-            "http://localhost:8080",
-            "*"
+            "http://127.0.0.1:3000",
+            "http://10.*",       // LAN IP access
+            "http://192.168.*",  // LAN IP access
+            // ── PRODUCTION ────────────────────────────────────────────
+            // UPDATE THIS: replace with your actual Netlify/Vercel URL
+            "https://*.netlify.app",
+            "https://*.vercel.app",
+            "https://orivya-rice.netlify.app",  // replace with your URL
+            "https://orivya-rice.pages.dev"      // Cloudflare Pages fallback
         ));
 
         config.setAllowedMethods(Arrays.asList(

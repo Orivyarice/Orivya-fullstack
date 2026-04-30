@@ -4,11 +4,8 @@
 
 /* ── CONFIG ─────────────────────────────────────── */
 // Auto-switch: runs locally → uses localhost, deployed on Netlify → uses Render URL
-const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
-    ? 'http://localhost:8080/api'
-    : 'https://YOUR-APP-NAME.onrender.com/api';
+const PRODUCTION_URL = 'https://orivya-backend.onrender.com/api';
 // ↑ IMPORTANT: After deploying to Render, replace YOUR-APP-NAME
-// Example: 'https://orivya-rice-backend.onrender.com/api'
 
 /* ── AUTH HELPERS ────────────────────────────────── */
 function getToken() {

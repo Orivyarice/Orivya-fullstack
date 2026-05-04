@@ -132,7 +132,6 @@ public class SecurityConfig {
             // ── PRODUCTION ────────────────────────────────────────────
             // UPDATE THIS: replace with your actual Netlify/Vercel URL
             "https://*.netlify.app",
-            "https://*.vercel.app",
             "https://orivya.netlify.app",  // replace with your URL
             "https://orivya.pages.dev"      // Cloudflare Pages fallback
         ));

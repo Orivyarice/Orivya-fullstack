@@ -4,7 +4,7 @@
 
 /* ── CONFIG ─────────────────────────────────────── */
 // Auto-switch: runs locally → uses localhost, deployed on Netlify → uses Render URL
-const PRODUCTION_URL = 'https://orivya-backend.onrender.com/api';
+const PRODUCTION_URL = 'https://orivya-fullstack-4.onrender.com/api';
 // ↑ IMPORTANT: After deploying to Render, replace YOUR-APP-NAME
 
 /* ── AUTH HELPERS ────────────────────────────────── */

@@ -3,9 +3,31 @@
    ══════════════════════════════════════════════════════ */
 
 /* ── CONFIG ─────────────────────────────────────── */
-// Auto-switch: runs locally → uses localhost, deployed on Netlify → uses Render URL
+// ── API BASE URL CONFIGURATION ──────────────────────────────────────────────
+// Automatically picks the right backend URL based on where the frontend is running.
+//
+//  localhost / 127.0.0.1     → local development (mvn spring-boot:run)
+//  LAN IP (e.g. 10.x.x.x)   → same machine, different port → still localhost:8080
+//  Production (Render, etc.) → update PRODUCTION_URL below
+//
 const PRODUCTION_URL = 'https://orivya-fullstack-4.onrender.com/api';
-// ↑ IMPORTANT: After deploying to Render, replace YOUR-APP-NAME
+// ↑ Replace with your actual Render URL when deploying, e.g.:
+// const PRODUCTION_URL = 'https://orivya-rice-backend.onrender.com/api';
+
+const _host = window.location.hostname;
+const _isLocal = (
+    _host === 'localhost' ||
+    _host === '127.0.0.1' ||
+    _host.startsWith('192.168.') ||   // LAN (router IP)
+    _host.startsWith('10.')  ||        // LAN (e.g. 10.146.106.78)
+    _host.startsWith('172.')           // LAN (Docker / VPN ranges)
+);
+
+const API_BASE = _isLocal
+    ? `http://${_host.startsWith('10.') || _host.startsWith('192.168.') || _host.startsWith('172.') ? _host : 'localhost'}:8080/api`
+    : PRODUCTION_URL;
+
+console.log('[API] Backend URL:', API_BASE);
 
 /* ── AUTH HELPERS ────────────────────────────────── */
 function getToken() {

@@ -31,6 +31,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
+
     // ── PLACE ORDER ──────────────────────────────────────
 
     /**
@@ -135,6 +136,7 @@ public class OrderService {
         response.setDiscountAmount(discountAmount);
         response.setDeliveryCharge(deliveryCharge);
         response.setFreeDelivery(qualifiesFree);
+
         return response;
     }
 

@@ -133,8 +133,8 @@ public class SecurityConfig {
             // UPDATE THIS: replace with your actual Netlify/Vercel URL
             "https://*.netlify.app",
             "https://*.vercel.app",
-            "https://orivya-rice.netlify.app",  // replace with your URL
-            "https://orivya-rice.pages.dev"      // Cloudflare Pages fallback
+            "https://orivya.netlify.app",  // replace with your URL
+            "https://orivya.pages.dev"      // Cloudflare Pages fallback
         ));
 
         config.setAllowedMethods(Arrays.asList(

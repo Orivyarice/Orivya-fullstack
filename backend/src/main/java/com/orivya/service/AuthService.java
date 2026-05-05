@@ -33,9 +33,23 @@ public class AuthService {
      * They cannot login until email is verified.
      */
     public AuthResponse register(RegisterRequest request) {
-        // 1. Check duplicate email
+        // 1. Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered. Please login.");
+            // Check if user is verified or not
+            User existingUser = userRepository.findByEmail(request.getEmail()).orElseThrow();
+
+            if (Boolean.TRUE.equals(existingUser.getIsVerified())) {
+                // Fully registered — tell them to login
+                throw new RuntimeException("Email already registered. Please login instead.");
+            } else {
+                // Registered but NOT verified — resend OTP so they can complete registration
+                otpService.sendRegistrationOtp(request.getEmail(), existingUser.getName());
+                return AuthResponse.builder()
+                        .email(request.getEmail())
+                        .name(existingUser.getName())
+                        .message("OTP_SENT")
+                        .build();
+            }
         }
 
         // 2. Build full address string from parts

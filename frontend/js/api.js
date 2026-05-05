@@ -102,7 +102,23 @@ async function handleResponse(res) {
     // Fix: check status code FIRST before attempting JSON parse.
 
     if (res.status === 401) {
-        // Token expired or not logged in — clear session and redirect to login
+        // Check if this is an auth API call (login/register) or a protected resource
+        const isAuthEndpoint = res.url && (
+            res.url.includes('/auth/login') ||
+            res.url.includes('/auth/register') ||
+            res.url.includes('/auth/verify') ||
+            res.url.includes('/auth/resend')
+        );
+
+        if (isAuthEndpoint) {
+            // Auth endpoint returning 401 = wrong password or invalid credentials
+            // Do NOT redirect — let the error message show to the user
+            let data;
+            try { data = await res.clone().json(); } catch(e) { data = {}; }
+            throw new Error(data.message || 'Invalid email or password.');
+        }
+
+        // Protected endpoint returning 401 = session expired
         clearSession();
         if (!window.location.href.includes('login.html')) {
             showToast && showToast('Session expired. Please login again.', 'error');

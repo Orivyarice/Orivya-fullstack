@@ -75,7 +75,7 @@ public class Order {
     private LocalDateTime updatedAt;
 
     // One order has many items
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems;
 
     // Auto-set timestamps before saving

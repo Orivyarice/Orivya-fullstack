@@ -695,9 +695,18 @@ function formatPrice(amount) {
 }
 
 function getImageUrl(imageUrl) {
-    if (!imageUrl) return '';
-    if (imageUrl.startsWith('/uploads/')) return 'http://localhost:8080' + imageUrl;
-    return imageUrl;
+
+    if (!imageUrl) {
+        return '';
+    }
+
+    // If already full URL
+    if (imageUrl.startsWith('http')) {
+        return imageUrl;
+    }
+
+    // Production backend
+    return 'https://orivya-fullstack-4.onrender.com' + imageUrl;
 }
 
 function escapeStr(str) {

@@ -26,7 +26,7 @@ public class OrderItem {
     private Order order;
 
     // Many items can reference one product
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 

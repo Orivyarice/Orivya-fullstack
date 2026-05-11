@@ -1,6 +1,6 @@
 package com.orivya.dto;
 import lombok.*;
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class OrderItemResponse {
     public Long productId;
     public String productName;

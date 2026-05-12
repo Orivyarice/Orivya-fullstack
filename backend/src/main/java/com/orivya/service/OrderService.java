@@ -273,40 +273,67 @@ public class OrderService {
      * Convert Order entity → OrderResponse DTO.
      */
     private OrderResponse mapToOrderResponse(Order order) {
-        List<OrderItemResponse> itemResponses = null;
 
-        if (order.getOrderItems() != null) {
-            itemResponses = order.getOrderItems().stream()
-                    .map(item -> OrderItemResponse.builder()
-                            .productId(item.getProduct().getId())
-                            .productName(item.getProduct().getName())
-                            .productImage(item.getProduct().getImageUrl())
+    // Force initialize user before session closes
+    User user = order.getUser();
+
+    String customerName = "Unknown";
+
+    if (user != null) {
+        customerName = user.getName();
+    }
+
+    List<OrderItemResponse> itemResponses = null;
+
+    if (order.getOrderItems() != null) {
+
+        itemResponses = order.getOrderItems()
+                .stream()
+                .map(item -> {
+
+                    Product product = item.getProduct();
+
+                    return OrderItemResponse.builder()
+                            .productId(product != null ? product.getId() : null)
+                            .productName(product != null ? product.getName() : "Unknown Product")
+                            .productImage(product != null ? product.getImageUrl() : null)
                             .quantity(item.getQuantity())
                             .unitPrice(item.getUnitPrice())
                             .subtotal(item.getSubtotal())
-                            .build())
-                    .collect(Collectors.toList());
-        }
-
-        return OrderResponse.builder()
-                .orderId(order.getId())
-                .customerName(order.getUser().getName())
-                .totalPrice(order.getTotalPrice())
-                .status(order.getStatus().name())
-                .deliveryAddress(order.getDeliveryAddress())
-                .paymentMethod(order.getPaymentMethod())
-                .paymentStatus(order.getPaymentStatus())
-                .createdAt(order.getCreatedAt() != null
-                        ? order.getCreatedAt().toString() : "")
-                .items(itemResponses)
-                .deliveryCharge(order.getDeliveryCharge() != null ? order.getDeliveryCharge() : 0.0)
-                .freeDelivery(order.getDeliveryCharge() == null || order.getDeliveryCharge() == 0.0)
-                // ── DELIVERY BOY fields (new — null-safe) ──
-                .deliveryBoyId(order.getDeliveryBoyId())
-                .deliveryBoyName(order.getDeliveryBoyName())
-                .deliveryBoyPhone(order.getDeliveryBoyPhone())
-                .deliveryStatus(order.getDeliveryStatus() != null
-                        ? order.getDeliveryStatus() : "UNASSIGNED")
-                .build();
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
+
+    return OrderResponse.builder()
+            .orderId(order.getId())
+            .customerName(customerName)
+            .totalPrice(order.getTotalPrice())
+            .status(order.getStatus().name())
+            .deliveryAddress(order.getDeliveryAddress())
+            .paymentMethod(order.getPaymentMethod())
+            .paymentStatus(order.getPaymentStatus())
+            .createdAt(order.getCreatedAt() != null
+                    ? order.getCreatedAt().toString()
+                    : "")
+            .items(itemResponses)
+            .deliveryCharge(
+                    order.getDeliveryCharge() != null
+                            ? order.getDeliveryCharge()
+                            : 0.0
+            )
+            .freeDelivery(
+                    order.getDeliveryCharge() == null
+                            || order.getDeliveryCharge() == 0.0
+            )
+            .deliveryBoyId(order.getDeliveryBoyId())
+            .deliveryBoyName(order.getDeliveryBoyName())
+            .deliveryBoyPhone(order.getDeliveryBoyPhone())
+            .deliveryStatus(
+                    order.getDeliveryStatus() != null
+                            ? order.getDeliveryStatus()
+                            : "UNASSIGNED"
+            )
+            .build();
 }
+    }

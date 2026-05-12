@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 /**
  * Order Entity — Maps to the 'orders' table in MySQL.
  * Represents a customer's placed order.
@@ -23,9 +23,16 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonIgnore
-@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
 @JoinColumn(name = "user_id", nullable = false)
+@JsonIgnoreProperties({
+        "hibernateLazyInitializer",
+        "handler",
+        "orders",
+        "cartItems",
+        "subscriptions",
+        "password"
+})
 private User user;
 
     @Column(name = "total_price", nullable = false)
@@ -78,7 +85,8 @@ private User user;
 
     // One order has many items
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<OrderItem> orderItems;
+@JsonIgnoreProperties({"order"})
+private List<OrderItem> orderItems;
 
     // Auto-set timestamps before saving
     @PrePersist

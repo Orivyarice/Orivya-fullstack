@@ -2,7 +2,7 @@ package com.orivya.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * OrderItem Entity — Maps to the 'order_items' table.
  * Represents a single product line inside an order.
@@ -24,6 +24,7 @@ public class OrderItem {
     // Many items belong to one order
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnore
     private Order order;
 
     // Many items can reference one product

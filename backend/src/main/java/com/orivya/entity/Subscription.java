@@ -19,7 +19,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Subscription — stores user rice/milk subscription plans.
@@ -28,7 +30,7 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "subscriptions")
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Subscription {
 
     @Id

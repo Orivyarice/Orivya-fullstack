@@ -2,7 +2,7 @@ package com.orivya.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class RegisterRequest {
 
     @NotBlank(message = "Name is required")

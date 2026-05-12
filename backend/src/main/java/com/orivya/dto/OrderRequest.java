@@ -1,7 +1,7 @@
 package com.orivya.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class OrderRequest {
     @NotBlank(message = "Delivery address is required")
     public String deliveryAddress;

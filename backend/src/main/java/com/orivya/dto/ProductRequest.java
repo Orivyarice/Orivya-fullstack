@@ -1,7 +1,7 @@
 package com.orivya.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class ProductRequest {
     @NotBlank(message = "Product name is required") public String name;
     public String description;

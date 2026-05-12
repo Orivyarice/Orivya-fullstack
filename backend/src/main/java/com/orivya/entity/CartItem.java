@@ -3,6 +3,7 @@ package com.orivya.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * CartItem Entity — Maps to the 'cart_items' table.
@@ -22,9 +23,10 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JsonIgnore
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "user_id", nullable = false)
+private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)

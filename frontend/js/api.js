@@ -85,8 +85,11 @@ function handleLogout() {
 function apiLogout() { handleLogout(); }
 
 /* ── REQUEST HELPERS ─────────────────────────────── */
-function getHeaders() {
-    const headers = { 'Content-Type': 'application/json' };
+function getHeaders(includeJson = true) {
+    const headers = {};
+    if (includeJson) {
+        headers['Content-Type'] = 'application/json';
+    }
     const token = getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     return headers;
@@ -258,7 +261,7 @@ async function apiCreateSubscription(subData) {
 // GET /api/subscription/my
 async function apiGetMySubscriptions() {
     const res = await fetch(`${API_BASE}/subscription/my`, {
-        headers: getHeaders()
+        headers: getHeaders(false)
     });
     return handleResponse(res);
 }
@@ -301,7 +304,7 @@ async function apiSetSubscriptionStatus(id, status) {
 // GET /api/subscription/all
 async function apiGetAllSubscriptions() {
     const res = await fetch(`${API_BASE}/subscription/all`, {
-        headers: getHeaders()
+        headers: getHeaders(false)
     });
     return handleResponse(res);
 }
@@ -532,7 +535,7 @@ async function apiGetMyOrders() {
 }
 
 async function apiGetAllOrders() {
-    const res = await fetch(`${API_BASE}/orders/admin/all`, { headers: getHeaders() });
+    const res = await fetch(`${API_BASE}/orders/admin/all`, { headers: getHeaders(false) });
     return handleResponse(res);
 }
 
@@ -553,7 +556,7 @@ async function apiUpdateOrderStatus(orderId, status) {
 // GET /api/orders/admin/latest-order-id
 async function apiGetLatestOrderId() {
     const res = await fetch(`${API_BASE}/orders/admin/latest-order-id`, {
-        headers: getHeaders()
+        headers: getHeaders(false)
     });
     return handleResponse(res);
 }
@@ -562,7 +565,7 @@ async function apiGetLatestOrderId() {
 // GET /api/orders/admin/latest-order
 async function apiGetLatestOrder() {
     const res = await fetch(`${API_BASE}/orders/admin/latest-order`, {
-        headers: getHeaders()
+        headers: getHeaders(false)
     });
     return handleResponse(res);
 }
@@ -658,7 +661,7 @@ async function apiUpdateDeliveryStatus(orderId, deliveryBoyId, status) {
    ADMIN
    ══════════════════════════════════════════════════════ */
 async function apiGetDashboardStats() {
-    const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: getHeaders() });
+    const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: getHeaders(false) });
     return handleResponse(res);
 }
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +24,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @NotBlank(message = "Password is required")
     @Column(nullable = false)
     private String password;
@@ -60,6 +62,18 @@ public class User {
     @Column(name = "is_verified", nullable = false)
     @Builder.Default
     private Boolean isVerified = false;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private java.util.List<Order> orders;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private java.util.List<CartItem> cartItems;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private java.util.List<Subscription> subscriptions;
 
     public enum Role {
         ADMIN,

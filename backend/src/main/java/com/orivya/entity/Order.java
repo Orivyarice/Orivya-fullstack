@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Order Entity — Maps to the 'orders' table in MySQL.
@@ -22,10 +23,10 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Many orders can belong to one user
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JsonIgnore
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "user_id", nullable = false)
+private User user;
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;

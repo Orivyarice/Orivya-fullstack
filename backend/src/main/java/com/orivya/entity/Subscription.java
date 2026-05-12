@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,11 +42,10 @@ public class Subscription {
     // @JsonIgnoreProperties prevents Jackson from trying to serialize the LAZY
     // proxy object, which would cause "No serializer found" or stack overflow.
     // Admin API only needs userId and userName — not the full User graph.
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler",
-                           "password", "otpVerifications", "cartItems", "orders"})
-    private User user;
+    @JsonIgnore
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "user_id", nullable = false)
+private User user;
 
     /* "rice" or "milk" */
     // DB column name = "product_type"  →  Java field = productType

@@ -81,6 +81,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,    "/api/subscription/all").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,    "/api/subscription/admin/**").hasRole("ADMIN")
 
+                // ── ORDER admin endpoints ───────────────────────────────────
+                .requestMatchers(HttpMethod.GET,    "/api/orders/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/orders/admin/**").hasRole("ADMIN")
+
                 // ── DELIVERY BOY admin endpoints ───────────────────────────
                 // Admin-only: manage delivery boys + assign to orders
                 .requestMatchers(HttpMethod.POST,   "/api/delivery/boys").hasRole("ADMIN")
@@ -124,7 +128,9 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(Arrays.asList(
             // ── LOCAL DEVELOPMENT ──
             "http://localhost:3000",
+            "http://localhost:8080",
             "http://localhost:5500",
+            "http://127.0.0.1:8080",
             "http://127.0.0.1:5500",
             "http://127.0.0.1:3000",
             "http://10.*",       // LAN IP access

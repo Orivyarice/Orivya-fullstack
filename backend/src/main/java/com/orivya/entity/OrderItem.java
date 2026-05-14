@@ -3,6 +3,7 @@ package com.orivya.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 /**
  * OrderItem Entity — Maps to the 'order_items' table.
  * Represents a single product line inside an order.
@@ -29,8 +30,12 @@ public class OrderItem {
 
     // Many items can reference one product
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+@JoinColumn(name = "product_id", nullable = false)
+@JsonIgnoreProperties({
+        "hibernateLazyInitializer",
+        "handler"
+})
+private Product product;
 
     @Column(nullable = false)
     private Integer quantity;

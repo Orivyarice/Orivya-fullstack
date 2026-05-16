@@ -4,7 +4,6 @@ com\orivya\service\CartService.class
 com\orivya\dto\ApiResponse.class
 com\orivya\dto\RegisterRequest.class
 com\orivya\security\CustomUserDetailsService.class
-application.properties
 com\orivya\repository\CartItemRepository.class
 com\orivya\config\SecurityConfig.class
 com\orivya\dto\DashboardStats$DashboardStatsBuilder.class

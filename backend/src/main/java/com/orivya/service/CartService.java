@@ -80,6 +80,7 @@ public class CartService {
      * Get all cart items for the logged-in user.
      * Calculates subtotals and grand total.
      */
+    @Transactional(readOnly = true)
     public CartResponse getCart(String userEmail) {
         User user = getUserByEmail(userEmail);
         List<CartItem> cartItems = cartItemRepository.findByUser(user);

@@ -144,7 +144,11 @@ public class OrderService {
 
     /**
      * Get all orders for the logged-in customer (newest first).
+     * FIX: @Transactional(readOnly=true) keeps Hibernate session open so
+     * order.getUser().getName(), order.getOrderItems(), item.getProduct()
+     * can be accessed without LazyInitializationException.
      */
+    @Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders(String userEmail) {
         User user = getUserByEmail(userEmail);
         return orderRepository.findByUserOrderByCreatedAtDesc(user)
@@ -156,6 +160,7 @@ public class OrderService {
     /**
      * Get a single order by ID (customer can only see their own).
      */
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(String userEmail, Long orderId) {
         User user = getUserByEmail(userEmail);
         Order order = orderRepository.findById(orderId)
@@ -174,6 +179,7 @@ public class OrderService {
     /**
      * Get all orders in the system (Admin only).
      */
+    @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll()
                 .stream()
@@ -204,6 +210,7 @@ public class OrderService {
     /**
      * Get orders filtered by status (Admin only).
      */
+    @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByStatus(String status) {
         try {
             Order.OrderStatus orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
@@ -218,6 +225,7 @@ public class OrderService {
 
     // ── PUBLIC HELPER: get single order as OrderResponse ────────────
     /** Used by DeliveryBoyController to return full response after assign/update */
+    @Transactional(readOnly = true)
     public OrderResponse getOrderResponseById(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
@@ -231,6 +239,7 @@ public class OrderService {
      * Called by GET /api/orders/admin/latest-order-id every 8 seconds.
      * Returns 0 if no orders exist yet.
      */
+    @Transactional(readOnly = true)
     public long getLatestOrderId() {
         return orderRepository.findAll(
             org.springframework.data.domain.Sort.by(
@@ -252,6 +261,7 @@ public class OrderService {
      * Returns the full OrderResponse of the most recently placed order.
      * Called once when new order is detected — populates the toast popup.
      */
+    @Transactional(readOnly = true)
     public OrderResponse getLatestOrder() {
         return orderRepository.findAll(
             org.springframework.data.domain.Sort.by(
@@ -273,67 +283,40 @@ public class OrderService {
      * Convert Order entity → OrderResponse DTO.
      */
     private OrderResponse mapToOrderResponse(Order order) {
+        List<OrderItemResponse> itemResponses = null;
 
-    // Force initialize user before session closes
-    User user = order.getUser();
-
-    String customerName = "Unknown";
-
-    if (user != null) {
-        customerName = user.getName();
-    }
-
-    List<OrderItemResponse> itemResponses = null;
-
-    if (order.getOrderItems() != null) {
-
-        itemResponses = order.getOrderItems()
-                .stream()
-                .map(item -> {
-
-                    Product product = item.getProduct();
-
-                    return OrderItemResponse.builder()
-                            .productId(product != null ? product.getId() : null)
-                            .productName(product != null ? product.getName() : "Unknown Product")
-                            .productImage(product != null ? product.getImageUrl() : null)
+        if (order.getOrderItems() != null) {
+            itemResponses = order.getOrderItems().stream()
+                    .map(item -> OrderItemResponse.builder()
+                            .productId(item.getProduct().getId())
+                            .productName(item.getProduct().getName())
+                            .productImage(item.getProduct().getImageUrl())
                             .quantity(item.getQuantity())
                             .unitPrice(item.getUnitPrice())
                             .subtotal(item.getSubtotal())
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
+                            .build())
+                    .collect(Collectors.toList());
+        }
 
-    return OrderResponse.builder()
-            .orderId(order.getId())
-            .customerName(customerName)
-            .totalPrice(order.getTotalPrice())
-            .status(order.getStatus().name())
-            .deliveryAddress(order.getDeliveryAddress())
-            .paymentMethod(order.getPaymentMethod())
-            .paymentStatus(order.getPaymentStatus())
-            .createdAt(order.getCreatedAt() != null
-                    ? order.getCreatedAt().toString()
-                    : "")
-            .items(itemResponses)
-            .deliveryCharge(
-                    order.getDeliveryCharge() != null
-                            ? order.getDeliveryCharge()
-                            : 0.0
-            )
-            .freeDelivery(
-                    order.getDeliveryCharge() == null
-                            || order.getDeliveryCharge() == 0.0
-            )
-            .deliveryBoyId(order.getDeliveryBoyId())
-            .deliveryBoyName(order.getDeliveryBoyName())
-            .deliveryBoyPhone(order.getDeliveryBoyPhone())
-            .deliveryStatus(
-                    order.getDeliveryStatus() != null
-                            ? order.getDeliveryStatus()
-                            : "UNASSIGNED"
-            )
-            .build();
-}
+        return OrderResponse.builder()
+                .orderId(order.getId())
+                .customerName(order.getUser().getName())
+                .totalPrice(order.getTotalPrice())
+                .status(order.getStatus().name())
+                .deliveryAddress(order.getDeliveryAddress())
+                .paymentMethod(order.getPaymentMethod())
+                .paymentStatus(order.getPaymentStatus())
+                .createdAt(order.getCreatedAt() != null
+                        ? order.getCreatedAt().toString() : "")
+                .items(itemResponses)
+                .deliveryCharge(order.getDeliveryCharge() != null ? order.getDeliveryCharge() : 0.0)
+                .freeDelivery(order.getDeliveryCharge() == null || order.getDeliveryCharge() == 0.0)
+                // ── DELIVERY BOY fields (new — null-safe) ──
+                .deliveryBoyId(order.getDeliveryBoyId())
+                .deliveryBoyName(order.getDeliveryBoyName())
+                .deliveryBoyPhone(order.getDeliveryBoyPhone())
+                .deliveryStatus(order.getDeliveryStatus() != null
+                        ? order.getDeliveryStatus() : "UNASSIGNED")
+                .build();
     }
+}

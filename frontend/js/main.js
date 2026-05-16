@@ -106,7 +106,7 @@ function renderProducts(products) {
     const grid = document.getElementById('productsGrid');
 
     grid.innerHTML = products.map(p => `
-        <div class="product-card">
+        <div class="product-card" data-product-id="${p.id}">
 
             ${/* FEATURE 2 LEFT: badge (Best Seller etc.) */ ''}
             ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}
@@ -229,7 +229,7 @@ function showSuggestions(keyword) {
         <div class="suggestion-header">Suggestions</div>
         ${matches.map((p, i) => `
             <div class="suggestion-item" id="suggestion-${i}"
-                 onclick="selectSuggestion('${escapeStr(p.name)}')"
+                 onclick="selectSuggestion('${escapeStr(p.name)}', ${p.id})"
                  onmouseenter="highlightSuggestion(${i})">
                 <div class="suggestion-icon">
                     ${p.imageUrl
@@ -247,11 +247,24 @@ function showSuggestions(keyword) {
     box.classList.add('open');
 }
 
-function selectSuggestion(productName) {
+function selectSuggestion(productName, productId) {
     const input = document.getElementById('searchInput');
     if (input) input.value = productName;
     closeSuggestions();
-    loadProducts(0, productName);
+
+    // Load filtered results then scroll to specific product
+    loadProducts(0, productName).then(() => {
+        if (productId) {
+            setTimeout(() => {
+                const card = document.querySelector(`[data-product-id="${productId}"]`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.style.boxShadow = '0 0 0 3px #c8922a';
+                    setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+                }
+            }, 400);
+        }
+    });
 }
 
 function handleSearchKeydown(e) {
@@ -317,7 +330,7 @@ function renderRecentlyViewed() {
         if (rv.length === 0) { section.style.display = 'none'; return; }
         section.style.display = 'block';
         row.innerHTML = rv.map(p => `
-            <div class="rv-card" onclick="scrollToShop()">
+            <div class="rv-card" onclick="openRecentlyViewedProduct(${p.id})" style="cursor:pointer">
                 <div class="rv-card-image">
                     ${p.imageUrl
                         ? `<img src="${getImageUrl(p.imageUrl)}" alt="${escapeStr(p.name)}"
@@ -331,6 +344,43 @@ function renderRecentlyViewed() {
             </div>`
         ).join('');
     } catch (e) { section.style.display = 'none'; }
+}
+
+/**
+ * openRecentlyViewedProduct — scrolls to shop and highlights specific product.
+ * ROOT CAUSE FIX: onclick used scrollToShop() which ignored the product ID,
+ * so clicking any recently viewed product always opened the first product shown.
+ */
+function openRecentlyViewedProduct(productId) {
+    // Scroll to shop section
+    const shopSection = document.getElementById('shop');
+    if (shopSection) {
+        shopSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // After scroll, find and highlight/click the specific product card
+    setTimeout(() => {
+        // Look for product card with matching data-id
+        const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+        if (productCard) {
+            productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Flash highlight to show which product
+            productCard.style.boxShadow = '0 0 0 3px #c8922a';
+            setTimeout(() => { productCard.style.boxShadow = ''; }, 2000);
+        } else {
+            // Product card not visible — load it then open buy modal
+            loadProducts(0, '').then(() => {
+                setTimeout(() => {
+                    const card = document.querySelector(`[data-product-id="${productId}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.boxShadow = '0 0 0 3px #c8922a';
+                        setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+                    }
+                }, 500);
+            });
+        }
+    }, 600);
 }
 
 function clearRecentlyViewed() {
@@ -443,6 +493,27 @@ document.addEventListener('keydown', function(e) {
 /* ════════════════════════════════════════
    CART
 ════════════════════════════════════════ */
+
+/**
+ * loadCartCount — fetches cart and updates the badge number on nav.
+ * ROOT CAUSE FIX: This function was called but never defined — cart
+ * count always stayed at 0 because nothing was updating the badge.
+ */
+async function loadCartCount() {
+    try {
+        if (!isLoggedIn()) {
+            document.getElementById('cartCount').textContent = '0';
+            return;
+        }
+        const data = await apiGetCart();
+        const count = data?.data?.totalItems ?? 0;
+        document.getElementById('cartCount').textContent = count;
+    } catch (e) {
+        // Silent fail — don't disrupt page on cart count error
+        document.getElementById('cartCount').textContent = '0';
+    }
+}
+
 async function handleAddToCart(productId, productName) {
     if (!requireLogin()) return;
     showLoading(true);
@@ -894,5 +965,4 @@ function submitBulkOrder() {
     });
     document.getElementById('orderRice').value = '';
     showToast('✅ Opening WhatsApp for bulk order...');
-    
 }

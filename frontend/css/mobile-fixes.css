@@ -1,0 +1,22 @@
+/* ══ MOBILE NAVBAR FIX ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  nav { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+  .nav-links { display: none; }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .nav-username { font-size: 12px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn-nav { font-size: 11px; padding: 5px 8px; white-space: nowrap; }
+  .cart-btn { font-size: 12px; padding: 6px 10px; }
+  .admin-nav-btn { font-size: 11px; }
+  .nav-logo img, .nav-logo span { max-height: 36px; font-size: 18px; }
+}
+@media (max-width: 380px) {
+  .btn-nav { font-size: 10px; padding: 4px 6px; }
+  .nav-username { display: none; }
+}

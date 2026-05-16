@@ -12,6 +12,25 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserOrderByCreatedAtDesc(User user);
 
+    /**
+     * JOIN FETCH: loads User + OrderItems + Product in ONE SQL.
+     * Best fix for LazyInitializationException — no N+1 queries.
+     */
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "JOIN FETCH o.user " +
+           "LEFT JOIN FETCH o.orderItems oi " +
+           "LEFT JOIN FETCH oi.product " +
+           "WHERE o.user = :user ORDER BY o.createdAt DESC")
+    List<Order> findByUserWithItems(
+        @org.springframework.data.repository.query.Param("user") User user);
+
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "JOIN FETCH o.user " +
+           "LEFT JOIN FETCH o.orderItems oi " +
+           "LEFT JOIN FETCH oi.product " +
+           "ORDER BY o.createdAt DESC")
+    List<Order> findAllWithItems();
+
     List<Order> findByStatus(Order.OrderStatus status);
 
     long countByStatus(Order.OrderStatus status);

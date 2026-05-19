@@ -102,7 +102,6 @@
         <dependency>
             <groupId>com.sendgrid</groupId>
             <artifactId>sendgrid-java</artifactId>
-            
         </dependency>
 
         <!-- Spring Boot Test -->
@@ -117,6 +116,13 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Cloudinary — permanent cloud image storage (replaces Render ephemeral disk) -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http45</artifactId>
+            <version>1.37.0</version>
         </dependency>
 
     </dependencies>

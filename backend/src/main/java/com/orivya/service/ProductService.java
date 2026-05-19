@@ -1,19 +1,20 @@
 package com.orivya.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.orivya.dto.ProductRequest;
 import com.orivya.dto.ProductResponse;
 import com.orivya.entity.Product;
 import com.orivya.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -27,12 +28,11 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final Cloudinary cloudinary; // injected from CloudinaryConfig
 
     // ── CREATE ──────────────────────────────────────────
 
@@ -149,33 +149,41 @@ public class ProductService {
     // ── IMAGE UPLOAD ──────────────────────────────────────────
 
     /**
-     * Save an uploaded image file to the uploads directory.
-     * Returns the relative URL path to the saved file.
+     * Upload image to Cloudinary — permanent cloud storage.
+     *
+     * WHY CLOUDINARY:
+     *   Render free tier has ephemeral filesystem. Any file saved to
+     *   disk is deleted on every restart/redeploy. This caused images
+     *   to disappear after logout/login.
+     *   Cloudinary stores permanently in cloud — survives restarts.
+     *
+     * RETURNS: Full Cloudinary HTTPS URL like:
+     *   https://res.cloudinary.com/your-cloud/image/upload/v123/abc.jpg
+     *   This URL is stored in DB and works forever.
      */
     private String saveImage(MultipartFile file) {
         try {
-            // Create uploads directory if it doesn't exist
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            log.info("[ProductService] Uploading image to Cloudinary: {}", file.getOriginalFilename());
 
-            // Generate unique filename to avoid overwrites
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null && originalFilename.contains(".")
-                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                    : ".jpg";
-            String uniqueFilename = UUID.randomUUID().toString() + extension;
+            // Upload to Cloudinary with auto-format and quality optimization
+            Map uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                    "folder",         "orivya-products",  // organized in folder
+                    "resource_type",  "image",
+                    "quality",        "auto",             // auto compression
+                    "fetch_format",   "auto"              // serve WebP to browsers
+                )
+            );
 
-            // Save the file
-            Path filePath = uploadPath.resolve(uniqueFilename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Return the URL path (frontend will use this to display image)
-            return "/uploads/" + uniqueFilename;
+            // Cloudinary returns permanent HTTPS URL
+            String imageUrl = (String) uploadResult.get("secure_url");
+            log.info("[ProductService] Image uploaded successfully: {}", imageUrl);
+            return imageUrl;
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store image: " + e.getMessage());
+            log.error("[ProductService] Cloudinary upload failed: {}", e.getMessage());
+            throw new RuntimeException("Failed to upload image: " + e.getMessage());
         }
     }
 

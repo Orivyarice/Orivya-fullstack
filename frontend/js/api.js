@@ -22,18 +22,18 @@ const _isLocal = (
     _host.startsWith('10.')  ||        // LAN (e.g. 10.146.106.78)
     _host.startsWith('172.')           // LAN (Docker / VPN ranges)
 );
-
+ 
 const API_BASE = _isLocal
     ? `http://${_host.startsWith('10.') || _host.startsWith('192.168.') || _host.startsWith('172.') ? _host : 'localhost'}:8080/api`
     : PRODUCTION_URL;
-
+ 
 console.log('[API] Backend URL:', API_BASE);
-
+ 
 /* ── AUTH HELPERS ────────────────────────────────── */
 function getToken() {
     return localStorage.getItem('orivya_token');
 }
-
+ 
 function getUser() {
     try {
         const raw = localStorage.getItem('orivya_user');
@@ -43,21 +43,21 @@ function getUser() {
         return {};
     }
 }
-
+ 
 function isLoggedIn() {
     const token = getToken();
     return !!(token && token.length > 10);
 }
-
+ 
 function isAdmin() {
     const user = getUser();
     return user && user.role === 'ADMIN';
 }
-
+ 
 function saveUserSession(authData) {
     // Save token
     localStorage.setItem('orivya_token', authData.token);
-
+ 
     // Save user info — make sure role is saved exactly as returned
     const userInfo = {
         id:    authData.userId   || authData.id,
@@ -66,44 +66,41 @@ function saveUserSession(authData) {
         role:  authData.role     // "ADMIN" or "CUSTOMER"
     };
     localStorage.setItem('orivya_user', JSON.stringify(userInfo));
-
+ 
     console.log('✅ Session saved:', userInfo); // debug
 }
-
+ 
 function clearSession() {
     localStorage.removeItem('orivya_token');
     localStorage.removeItem('orivya_user');
 }
-
+ 
 function handleLogout() {
     clearSession();
     showToast('Logged out successfully.');
     setTimeout(() => { window.location.href = 'index.html'; }, 500);
 }
-
+ 
 // Legacy alias
 function apiLogout() { handleLogout(); }
-
+ 
 /* ── REQUEST HELPERS ─────────────────────────────── */
-function getHeaders(includeJson = true) {
-    const headers = {};
-    if (includeJson) {
-        headers['Content-Type'] = 'application/json';
-    }
+function getHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
     const token = getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     return headers;
 }
-
+ 
 function getAuthHeader() {
     return { 'Authorization': 'Bearer ' + getToken() };
 }
-
+ 
 async function handleResponse(res) {
     // FIX: Spring Security sends HTML (not JSON) for 401 and 403 responses.
     // If we call res.json() on HTML, it throws → "Server returned invalid response"
     // Fix: check status code FIRST before attempting JSON parse.
-
+ 
     if (res.status === 401) {
         // Check if this is an auth API call (login/register) or a protected resource
         const isAuthEndpoint = res.url && (
@@ -112,7 +109,7 @@ async function handleResponse(res) {
             res.url.includes('/auth/verify') ||
             res.url.includes('/auth/resend')
         );
-
+ 
         if (isAuthEndpoint) {
             // Auth endpoint returning 401 = wrong password or invalid credentials
             // Do NOT redirect — let the error message show to the user
@@ -120,7 +117,7 @@ async function handleResponse(res) {
             try { data = await res.clone().json(); } catch(e) { data = {}; }
             throw new Error(data.message || 'Invalid email or password.');
         }
-
+ 
         // Protected endpoint returning 401 = session expired
         clearSession();
         if (!window.location.href.includes('login.html')) {
@@ -129,7 +126,7 @@ async function handleResponse(res) {
         }
         throw new Error('Session expired. Please login again.');
     }
-
+ 
     if (res.status === 403) {
         // Logged in but wrong role, OR token has role mismatch.
         // Tell user to logout and login again so a fresh token is issued.
@@ -137,7 +134,7 @@ async function handleResponse(res) {
             'Access denied (403). If you are admin, please logout and login again to refresh your session.'
         );
     }
-
+ 
     let data;
     try {
         data = await res.json();
@@ -149,11 +146,11 @@ async function handleResponse(res) {
     }
     return data;
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    AUTH APIs
    ══════════════════════════════════════════════════════ */
-
+ 
 async function apiLogin(email, password) {
     const res = await fetch(`${API_BASE}/auth/login`, {
         method:  'POST',
@@ -166,12 +163,12 @@ async function apiLogin(email, password) {
     // This enforces the 2-step login security.
     return data;
 }
-
+ 
 // OLD simple register (kept for backward compatibility)
 async function apiRegister(name, email, password, phone) {
     return apiRegisterFull({ name, email, password, phone, pincode:'', street:'', village:'', city:'', state:'' });
 }
-
+ 
 // NEW: Full registration with address fields + triggers OTP
 async function apiRegisterFull(fields) {
     const res = await fetch(`${API_BASE}/auth/register`, {
@@ -184,7 +181,7 @@ async function apiRegisterFull(fields) {
     // Session is saved only after email OTP is verified (apiVerifyRegistrationOtp).
     return data;
 }
-
+ 
 // Verify registration OTP — marks user as VERIFIED in DB
 async function apiVerifyRegistrationOtp(email, otp) {
     const res = await fetch(`${API_BASE}/auth/verify-registration`, {
@@ -194,7 +191,7 @@ async function apiVerifyRegistrationOtp(email, otp) {
     });
     return handleResponse(res);
 }
-
+ 
 // Verify login OTP — returns JWT token if correct
 async function apiVerifyLoginOtp(email, otp) {
     const res = await fetch(`${API_BASE}/auth/verify-login`, {
@@ -209,7 +206,7 @@ async function apiVerifyLoginOtp(email, otp) {
     }
     return data;
 }
-
+ 
 // Resend OTP (type = 'REGISTRATION' or 'LOGIN')
 async function apiResendOtp(email, type) {
     const res = await fetch(`${API_BASE}/auth/resend-otp`, {
@@ -219,9 +216,9 @@ async function apiResendOtp(email, type) {
     });
     return handleResponse(res);
 }
-
+ 
 // ── FORGOT PASSWORD — NEW (does not change existing auth functions) ──
-
+ 
 // Step 1: Send reset OTP to email
 // POST /api/auth/forgot-password
 async function apiForgotPassword(email) {
@@ -232,7 +229,7 @@ async function apiForgotPassword(email) {
     });
     return handleResponse(res);
 }
-
+ 
 // Step 2: Verify OTP + set new password in one call
 // POST /api/auth/reset-password
 async function apiResetPassword(email, otp, newPassword) {
@@ -243,9 +240,9 @@ async function apiResetPassword(email, otp, newPassword) {
     });
     return handleResponse(res);
 }
-
+ 
 /* ── SUBSCRIPTION APIs — NEW (do not change existing functions) ── */
-
+ 
 // Create a new subscription
 // POST /api/subscription/create
 async function apiCreateSubscription(subData) {
@@ -256,16 +253,16 @@ async function apiCreateSubscription(subData) {
     });
     return handleResponse(res);
 }
-
+ 
 // Get all subscriptions for logged-in user
 // GET /api/subscription/my
 async function apiGetMySubscriptions() {
     const res = await fetch(`${API_BASE}/subscription/my`, {
-        headers: getHeaders(false)
+        headers: getHeaders()
     });
     return handleResponse(res);
 }
-
+ 
 // Update subscription (address, phone, start date)
 // PUT /api/subscription/update/{id}
 async function apiUpdateSubscription(id, updateData) {
@@ -276,7 +273,7 @@ async function apiUpdateSubscription(id, updateData) {
     });
     return handleResponse(res);
 }
-
+ 
 // Cancel a subscription
 // DELETE /api/subscription/cancel/{id}
 async function apiCancelSubscription(id) {
@@ -286,7 +283,7 @@ async function apiCancelSubscription(id) {
     });
     return handleResponse(res);
 }
-
+ 
 // Pause or resume a subscription
 // PUT /api/subscription/status/{id}
 async function apiSetSubscriptionStatus(id, status) {
@@ -297,18 +294,18 @@ async function apiSetSubscriptionStatus(id, status) {
     });
     return handleResponse(res);
 }
-
+ 
 /* ── ADMIN SUBSCRIPTION APIs (new — do not change existing functions) ── */
-
+ 
 // Admin: get ALL subscriptions (all users)
 // GET /api/subscription/all
 async function apiGetAllSubscriptions() {
     const res = await fetch(`${API_BASE}/subscription/all`, {
-        headers: getHeaders(false)
+        headers: getHeaders()
     });
     return handleResponse(res);
 }
-
+ 
 // Admin: cancel any subscription (no ownership check)
 // PUT /api/subscription/admin/cancel/{id}
 async function apiAdminCancelSubscription(id) {
@@ -318,7 +315,7 @@ async function apiAdminCancelSubscription(id) {
     });
     return handleResponse(res);
 }
-
+ 
 // Admin: update any subscription (address, phone, startDate)
 // PUT /api/subscription/admin/update/{id}
 async function apiAdminUpdateSubscription(id, data) {
@@ -329,7 +326,7 @@ async function apiAdminUpdateSubscription(id, data) {
     });
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    NAVBAR — update every page after login/logout
    ══════════════════════════════════════════════════════ */
@@ -340,24 +337,24 @@ function updateNavbar() {
     const adminNavBtn = document.getElementById('adminNavBtn');
     const myOrdersBtn = document.getElementById('myOrdersBtn');
     const navUserName = document.getElementById('navUserName');
-
+ 
     if (isLoggedIn()) {
         const user = getUser();
         const name = user.name || 'User';
         const role = user.role || '';
-
+ 
         // Show username greeting
         if (navUserName) navUserName.textContent = 'Hi, ' + name;
-
+ 
         // Hide login button
         if (loginBtn)  loginBtn.style.display  = 'none';
-
+ 
         // Show logout button
         if (logoutBtn) logoutBtn.style.display = 'inline-block';
-
+ 
         // Show My Orders for customers
         if (myOrdersBtn) myOrdersBtn.style.display = 'inline-block';
-
+ 
         // Show Admin button ONLY for ADMIN role
         if (adminNavBtn) {
             if (role === 'ADMIN') {
@@ -367,7 +364,7 @@ function updateNavbar() {
                 adminNavBtn.style.display = 'none';
             }
         }
-
+ 
     } else {
         // Not logged in
         if (navUserName) navUserName.textContent = '';
@@ -377,7 +374,7 @@ function updateNavbar() {
         if (myOrdersBtn) myOrdersBtn.style.display = 'none';
     }
 }
-
+ 
 async function loadCartCount() {
     const badge = document.getElementById('cartCount');
     if (!badge) return;
@@ -391,7 +388,7 @@ async function loadCartCount() {
         badge.textContent = '0';
     }
 }
-
+ 
 function requireLogin() {
     if (!isLoggedIn()) {
         showToast('Please login to continue.', 'error');
@@ -400,7 +397,7 @@ function requireLogin() {
     }
     return true;
 }
-
+ 
 function requireAdmin() {
     if (!isLoggedIn()) {
         showToast('Please login as admin.', 'error');
@@ -413,7 +410,7 @@ function requireAdmin() {
     }
     return true;
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    PRODUCTS
    ══════════════════════════════════════════════════════ */
@@ -424,7 +421,7 @@ async function apiGetProducts(page = 0, size = 8, sortBy = 'id') {
     );
     return handleResponse(res);
 }
-
+ 
 async function apiSearchProducts(keyword, page = 0) {
     const res = await fetch(
         `${API_BASE}/products/search?keyword=${encodeURIComponent(keyword)}&page=${page}`,
@@ -432,17 +429,17 @@ async function apiSearchProducts(keyword, page = 0) {
     );
     return handleResponse(res);
 }
-
+ 
 async function apiGetProduct(id) {
     const res = await fetch(`${API_BASE}/products/${id}`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 async function apiGetAllProductsAdmin() {
     const res = await fetch(`${API_BASE}/products/admin/all`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 async function apiCreateProduct(productData, imageFile) {
     const formData = new FormData();
     formData.append('product', new Blob(
@@ -450,7 +447,7 @@ async function apiCreateProduct(productData, imageFile) {
         { type: 'application/json' }
     ));
     if (imageFile) formData.append('image', imageFile);
-
+ 
     const res = await fetch(`${API_BASE}/products`, {
         method:  'POST',
         headers: getAuthHeader(),
@@ -458,7 +455,7 @@ async function apiCreateProduct(productData, imageFile) {
     });
     return handleResponse(res);
 }
-
+ 
 async function apiUpdateProduct(id, productData, imageFile) {
     const formData = new FormData();
     formData.append('product', new Blob(
@@ -466,7 +463,7 @@ async function apiUpdateProduct(id, productData, imageFile) {
         { type: 'application/json' }
     ));
     if (imageFile) formData.append('image', imageFile);
-
+ 
     const res = await fetch(`${API_BASE}/products/${id}`, {
         method:  'PUT',
         headers: getAuthHeader(),
@@ -474,7 +471,7 @@ async function apiUpdateProduct(id, productData, imageFile) {
     });
     return handleResponse(res);
 }
-
+ 
 async function apiDeleteProduct(id) {
     const res = await fetch(`${API_BASE}/products/${id}`, {
         method:  'DELETE',
@@ -482,7 +479,7 @@ async function apiDeleteProduct(id) {
     });
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    CART
    ══════════════════════════════════════════════════════ */
@@ -490,7 +487,7 @@ async function apiGetCart() {
     const res = await fetch(`${API_BASE}/cart`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 async function apiAddToCart(productId, quantity = 1) {
     const res = await fetch(`${API_BASE}/cart`, {
         method:  'POST',
@@ -499,7 +496,7 @@ async function apiAddToCart(productId, quantity = 1) {
     });
     return handleResponse(res);
 }
-
+ 
 async function apiUpdateCartItem(cartItemId, quantity) {
     const res = await fetch(`${API_BASE}/cart/${cartItemId}?quantity=${quantity}`, {
         method:  'PUT',
@@ -507,7 +504,7 @@ async function apiUpdateCartItem(cartItemId, quantity) {
     });
     return handleResponse(res);
 }
-
+ 
 async function apiRemoveCartItem(cartItemId) {
     const res = await fetch(`${API_BASE}/cart/${cartItemId}`, {
         method:  'DELETE',
@@ -515,7 +512,7 @@ async function apiRemoveCartItem(cartItemId) {
     });
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    ORDERS
    ══════════════════════════════════════════════════════ */
@@ -528,17 +525,17 @@ async function apiPlaceOrder(deliveryAddress, paymentMethod, transactionId = '',
     });
     return handleResponse(res);
 }
-
+ 
 async function apiGetMyOrders() {
     const res = await fetch(`${API_BASE}/orders/my`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 async function apiGetAllOrders() {
-    const res = await fetch(`${API_BASE}/orders/admin/all`, { headers: getHeaders(false) });
+    const res = await fetch(`${API_BASE}/orders/admin/all`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 async function apiUpdateOrderStatus(orderId, status) {
     const res = await fetch(
         `${API_BASE}/orders/admin/${orderId}/status?status=${status}`,
@@ -546,36 +543,36 @@ async function apiUpdateOrderStatus(orderId, status) {
     );
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    ORDER NOTIFICATION APIs — NEW
    ══════════════════════════════════════════════════════ */
-
+ 
 // Lightweight poll — returns only { latestId, totalCount }
 // Called every 8 seconds by notification poller (~40 bytes response)
 // GET /api/orders/admin/latest-order-id
 async function apiGetLatestOrderId() {
     const res = await fetch(`${API_BASE}/orders/admin/latest-order-id`, {
-        headers: getHeaders(false)
+        headers: getHeaders()
     });
     return handleResponse(res);
 }
-
+ 
 // Fetch full details of the most recent order (for toast popup)
 // GET /api/orders/admin/latest-order
 async function apiGetLatestOrder() {
     const res = await fetch(`${API_BASE}/orders/admin/latest-order`, {
-        headers: getHeaders(false)
+        headers: getHeaders()
     });
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    DELIVERY BOY APIs — NEW (do not change existing functions)
    ══════════════════════════════════════════════════════ */
-
+ 
 // ── ADMIN: DELIVERY BOY MANAGEMENT ───────────────────────
-
+ 
 // Add new delivery boy
 // POST /api/delivery/boys
 async function apiAddDeliveryBoy(boyData) {
@@ -586,21 +583,21 @@ async function apiAddDeliveryBoy(boyData) {
     });
     return handleResponse(res);
 }
-
+ 
 // Get all delivery boys (admin)
 // GET /api/delivery/boys
 async function apiGetAllDeliveryBoys() {
     const res = await fetch(`${API_BASE}/delivery/boys`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 // Get active delivery boys only — for dropdown
 // GET /api/delivery/boys/active
 async function apiGetActiveDeliveryBoys() {
     const res = await fetch(`${API_BASE}/delivery/boys/active`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 // Update delivery boy details
 // PUT /api/delivery/boys/{id}
 async function apiUpdateDeliveryBoy(id, data) {
@@ -611,7 +608,7 @@ async function apiUpdateDeliveryBoy(id, data) {
     });
     return handleResponse(res);
 }
-
+ 
 // Delete delivery boy
 // DELETE /api/delivery/boys/{id}
 async function apiDeleteDeliveryBoy(id) {
@@ -621,9 +618,9 @@ async function apiDeleteDeliveryBoy(id) {
     });
     return handleResponse(res);
 }
-
+ 
 // ── ADMIN: ASSIGN DELIVERY BOY TO ORDER ──────────────────
-
+ 
 // Assign delivery boy to an order
 // POST /api/delivery/assign
 async function apiAssignDeliveryBoy(orderId, deliveryBoyId) {
@@ -634,9 +631,9 @@ async function apiAssignDeliveryBoy(orderId, deliveryBoyId) {
     });
     return handleResponse(res);
 }
-
+ 
 // ── DELIVERY BOY: THEIR OWN ORDERS ───────────────────────
-
+ 
 // Get orders assigned to a specific delivery boy
 // GET /api/delivery/orders/{deliveryBoyId}
 async function apiGetDeliveryOrders(deliveryBoyId) {
@@ -645,7 +642,7 @@ async function apiGetDeliveryOrders(deliveryBoyId) {
     });
     return handleResponse(res);
 }
-
+ 
 // Delivery boy updates delivery status for an order
 // POST /api/delivery/update-status
 async function apiUpdateDeliveryStatus(orderId, deliveryBoyId, status) {
@@ -656,15 +653,15 @@ async function apiUpdateDeliveryStatus(orderId, deliveryBoyId, status) {
     });
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    ADMIN
    ══════════════════════════════════════════════════════ */
 async function apiGetDashboardStats() {
-    const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: getHeaders(false) });
+    const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: getHeaders() });
     return handleResponse(res);
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    WHATSAPP
    ══════════════════════════════════════════════════════ */
@@ -676,7 +673,7 @@ function openWhatsAppGreeting() {
     );
     window.open(`https://wa.me/916304212346?text=${msg}`, '_blank');
 }
-
+ 
 /* ══════════════════════════════════════════════════════
    UI HELPERS
    ══════════════════════════════════════════════════════ */
@@ -687,31 +684,38 @@ function showToast(message, type = 'success') {
     toast.className   = 'toast show ' + type;
     setTimeout(() => toast.classList.remove('show'), 3500);
 }
-
+ 
 function showLoading(show) {
     const el = document.getElementById('loadingSpinner');
     if (el) el.style.display = show ? 'flex' : 'none';
 }
-
+ 
 function formatPrice(amount) {
     return '₹' + Number(amount).toLocaleString('en-IN');
 }
-
+ 
 function getImageUrl(imageUrl) {
-
-    if (!imageUrl) {
-        return '';
+    if (!imageUrl) return '';
+ 
+    // Cloudinary URL — already absolute HTTPS, return directly
+    // e.g. https://res.cloudinary.com/your-cloud/image/upload/v123/orivya-products/abc.jpg
+    if (imageUrl.startsWith('https://res.cloudinary.com')) return imageUrl;
+ 
+    // Legacy local path from before Cloudinary migration (uploads/xxx.jpg)
+    // These no longer work on Render (ephemeral storage) but handle gracefully
+    if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
+        const base = typeof API_BASE !== 'undefined'
+            ? API_BASE.replace('/api', '')
+            : 'https://orivya-fullstack-4.onrender.com';
+        return base + '/' + imageUrl.replace(/^\//, '');
     }
-
-    // If already full URL
-    if (imageUrl.startsWith('http')) {
-        return imageUrl;
-    }
-
-    // Production backend
-    return 'https://orivya-fullstack-4.onrender.com' + imageUrl;
+ 
+    // Any other absolute URL — return as-is
+    if (imageUrl.startsWith('http')) return imageUrl;
+ 
+    return imageUrl;
 }
-
+ 
 function escapeStr(str) {
     return (str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }

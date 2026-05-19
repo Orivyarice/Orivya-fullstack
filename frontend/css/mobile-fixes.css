@@ -20,3 +20,38 @@
   .btn-nav { font-size: 10px; padding: 4px 6px; }
   .nav-username { display: none; }
 }
+
+/* ══ LOADING SKELETON (fixes slow cold start UX) ══════════════ */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-card {
+  height: 280px; border-radius: 12px; margin-bottom: 16px;
+}
+.skeleton-text {
+  height: 16px; width: 70%; margin: 8px 0;
+}
+.skeleton-price {
+  height: 20px; width: 40%; margin: 8px 0;
+}
+
+/* ══ BACKEND WAKING UP BANNER ══════════════════════════════════ */
+#backend-waking-banner {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+  background: #1a5c2a; color: white;
+  padding: 10px 20px; text-align: center;
+  font-size: 14px; font-weight: 600;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}

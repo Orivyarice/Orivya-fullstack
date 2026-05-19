@@ -17,6 +17,11 @@ let highlightedIndex = -1;
 document.addEventListener('DOMContentLoaded', function () {
     updateNavbar();
     loadCartCount();
+
+    // ── COLD START DETECTION ─────────────────────────────────────
+    // Render free tier sleeps after 15 min. First request takes 30-60s.
+    // Show a banner so user knows what's happening instead of blank page.
+    detectBackendColdStart();
     loadProducts();
     selectPayment('cod');
 
@@ -489,6 +494,48 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeImageZoom();
 });
 
+
+/* ════════════════════════════════════════
+   COLD START DETECTION
+════════════════════════════════════════ */
+
+/**
+ * detectBackendColdStart — pings /actuator/health.
+ * If response takes > 3s, shows "backend waking up" banner.
+ * Hides banner once backend responds.
+ * Fixes: Render free tier 30-60s cold start confusion for users.
+ */
+async function detectBackendColdStart() {
+    const banner = document.getElementById('backend-waking-banner');
+    if (!banner) return;
+
+    const start = Date.now();
+    const healthUrl = (typeof API_BASE !== 'undefined'
+        ? API_BASE.replace('/api', '')
+        : '') + '/actuator/health';
+
+    // Show banner after 3 seconds if backend hasn't responded
+    const bannerTimer = setTimeout(() => {
+        banner.style.display = 'block';
+        banner.textContent = '⏳ Server is waking up... Please wait a moment (up to 30 seconds)';
+    }, 3000);
+
+    try {
+        await fetch(healthUrl, { signal: AbortSignal.timeout(60000) });
+        clearTimeout(bannerTimer);
+        banner.style.display = 'none';
+        const elapsed = Date.now() - start;
+        if (elapsed > 3000) {
+            banner.textContent = '✅ Server is ready!';
+            banner.style.background = '#2d7a3e';
+            banner.style.display = 'block';
+            setTimeout(() => { banner.style.display = 'none'; }, 2000);
+        }
+    } catch (e) {
+        clearTimeout(bannerTimer);
+        banner.style.display = 'none';
+    }
+}
 
 /* ════════════════════════════════════════
    CART

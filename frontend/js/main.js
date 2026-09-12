@@ -826,6 +826,103 @@ function getDeliveryDistance() {
     const val = parseFloat(input.value);
     return isNaN(val) ? 0 : Math.max(0, val);
 }
+/**
+ * Auto detect customer location and calculate distance
+ * from Orivya mill.
+ */
+function autoDetectDistance() {
+    const statusEl = document.getElementById('locationDetectStatus');
+    const input = document.getElementById('deliveryDistanceKm');
+
+    if (!navigator.geolocation) {
+        if (statusEl) {
+            statusEl.textContent =
+                '❌ Geolocation not supported. Please enter distance manually.';
+        }
+        return;
+    }
+
+    if (statusEl) {
+        statusEl.textContent = '📡 Detecting your location...';
+    }
+
+    // Orivya mill location — Gorinta, Peddapuram
+    const SHOP_LAT = 17.0756;
+    const SHOP_LNG = 82.1348;
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            // Haversine formula
+            const R = 6371;
+
+            const dLat =
+                (userLat - SHOP_LAT) * Math.PI / 180;
+
+            const dLng =
+                (userLng - SHOP_LNG) * Math.PI / 180;
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(SHOP_LAT * Math.PI / 180) *
+                Math.cos(userLat * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+            const c =
+                2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            const straightLine = R * c;
+
+            // Approximate road distance
+            const roadEstimate =
+                (straightLine * 1.2).toFixed(1);
+
+            // Put distance into input
+            if (input) {
+                input.value = roadEstimate;
+
+                // Recalculate delivery charge
+                updateDeliveryCharge();
+            }
+
+            if (statusEl) {
+                statusEl.innerHTML =
+                    `✅ Location detected! Estimated road distance: <strong>${roadEstimate} km</strong> from our mill`;
+
+                statusEl.style.color = '#1a5c2a';
+            }
+        },
+
+        (error) => {
+
+            let msg = '❌ Could not detect location. ';
+
+            if (error.code === 1) {
+                msg +=
+                    'Permission denied — please allow location access.';
+            } else if (error.code === 2) {
+                msg +=
+                    'Location unavailable. Enter distance manually.';
+            } else {
+                msg +=
+                    'Timeout. Enter distance manually.';
+            }
+
+            if (statusEl) {
+                statusEl.textContent = msg;
+                statusEl.style.color = '#c0392b';
+            }
+        },
+
+        {
+            timeout: 10000,
+            maximumAge: 300000
+        }
+    );
+}
 
 /* ── CHECKOUT STATE ─────────────────────────────────────────────────
    Stored when openCheckout() loads cart so that updateDeliveryCharge()
